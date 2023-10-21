@@ -1,0 +1,5 @@
+fastapi
+bson
+python-dotenv
+segment-geospatial
+uvicorn[standard]
