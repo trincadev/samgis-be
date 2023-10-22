@@ -4,7 +4,7 @@ WORKDIR /code
 
 RUN which python
 RUN python --version
-RUN python -m pip install --no-cache-dir fastapi uvicorn
+RUN python -m pip install --no-cache-dir fastapi uvicorn loguru
 
 RUN useradd -m -u 1000 user
 

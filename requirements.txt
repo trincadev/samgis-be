@@ -1,5 +1,6 @@
 fastapi
 bson
+loguru
 python-dotenv
 segment-geospatial
 uvicorn[standard]

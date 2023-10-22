@@ -1,10 +1,10 @@
 """Various utilities (logger, time benchmark, args dump, numerical and stats info)"""
-import logging
+import loguru
 
 from src.utilities.constants import ROOT
 
 
-def setup_logging(debug: bool = False, formatter: str = '%(asctime)s - %(name)s - %(funcName)s(): line %(lineno)d - %(levelname)s - %(message)s') -> logging.Logger:
+def setup_logging(debug: bool = False, formatter: str = "{time} - {level} - ({extra[request_id]}) {message} ") -> loguru.logger:
     """
     Create a logging instance with log string formatter.
 
@@ -16,21 +16,12 @@ def setup_logging(debug: bool = False, formatter: str = '%(asctime)s - %(name)s 
         Logger
 
     """
-    import logging
     import sys
 
-    logger = logging.getLogger()
-    for h in logger.handlers:
-        logger.removeHandler(h)
-
-    h = logging.StreamHandler(sys.stdout)
-
-    h.setFormatter(logging.Formatter(formatter))
-    logger.addHandler(h)
-    logger.setLevel(logging.INFO)
-
-    if debug:
-        logger.setLevel(logging.DEBUG)
+    logger = loguru.logger
+    logger.remove()
+    level_logger = "DEBUG" if debug else "INFO"
+    logger.add(sys.stdout, format=formatter, level=level_logger)
     logger.debug(f"type_logger:{type(logger)}.")
     return logger
 
