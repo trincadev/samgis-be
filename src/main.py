@@ -6,29 +6,42 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from src.utilities.type_hints import input_floatlist, input_floatlist2
 from src.utilities.utilities import setup_logging
 
 
 app = FastAPI()
-local_logger = setup_logging()
 
 
 class Input(BaseModel):
-    name: str
-    bbox: List[float]
-    points_coords: List[List[float]]
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+    x: float
+    y: float
+
+
+class BBoxWithPoint(BaseModel):
+    bbox: input_floatlist
+    point: input_floatlist2
+
+
+def get_parsed_bbox_points(request_input: Input) -> BBoxWithPoint:
+    return {
+        "bbox": [
+            request_input.x1, request_input.x2,
+            request_input.y1, request_input.y2
+        ],
+        "point": [[request_input.x, request_input.y]]
+    }
 
 
 @app.post("/post_test")
-async def post_test(input: Input) -> JSONResponse:
-    bbox = input.bbox
-    name = input.name
-    points_coords = input.points_coords
+async def post_test(request_input: Input) -> JSONResponse:
     return JSONResponse(
         status_code=200,
-        content={
-            "msg": name, "bbox": bbox, "points_coords": points_coords
-        }
+        content=get_parsed_bbox_points(request_input)
     )
 
 
@@ -38,7 +51,7 @@ async def hello() -> JSONResponse:
 
 
 @app.post("/infer_samgeo")
-def samgeo():
+def samgeo(request_input: Input):
     import subprocess
 
     from src.prediction_api.predictor import base_predict
@@ -52,15 +65,16 @@ def samgeo():
         time_start_run = time.time()
         # debug = True
         # local_logger = setup_logging(debug)
-        message = "point_coords_segmentation"
-        bbox = [-122.1497, 37.6311, -122.1203, 37.6458]
-        point_coords = [[-122.1419, 37.6383]]
+        request_body = get_parsed_bbox_points(request_input)
+        local_logger.info(f"request_body:{request_body}.")
         try:
-            output = base_predict(bbox=bbox, point_coords=point_coords)
+            output = base_predict(
+                bbox=request_body["bbox"],
+                point_coords=request_body["point"]
+            )
 
             duration_run = time.time() - time_start_run
             body = {
-                "message": message,
                 "duration_run": duration_run,
                 # "request_id": request_id
             }
@@ -80,6 +94,7 @@ def samgeo():
 
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    local_logger = setup_logging()
     local_logger.error(f"exception errors: {exc.errors()}.")
     local_logger.error(f"exception body: {exc.body}.")
     headers = request.headers.items()
@@ -94,6 +109,7 @@ async def request_validation_exception_handler(request: Request, exc: RequestVal
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    local_logger = setup_logging()
     local_logger.error(f"exception: {str(exc)}.")
     headers = request.headers.items()
     local_logger.error(f'request header: {dict(headers)}.' )
