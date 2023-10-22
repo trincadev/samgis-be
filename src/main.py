@@ -92,9 +92,12 @@ def samgeo(request_input: Input):
                 bbox=request_body["bbox"],
                 point_coords=request_body["point"]
             )
-            body = {"duration_run": time.time() - time_start_run}
-            app_logger.info(f"body:{body}.")
-            body["output"] = output
+            duration_run = time.time() - time_start_run
+            app_logger.info(f"duration_run:{duration_run}.")
+            body = {
+                "duration_run": duration_run,
+                "output": output
+            }
             return JSONResponse(status_code=200, content={"body": json.dumps(body)})
         except Exception as inference_exception:
             home_content = subprocess.run("ls -l /home/user", shell=True, universal_newlines=True, stdout=subprocess.PIPE)
