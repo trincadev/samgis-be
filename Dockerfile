@@ -29,4 +29,10 @@ RUN curl -o ${HOME}/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_
 RUN ls -l ${HOME}/
 COPY --chown=user . $HOME/app
 
+RUN echo $HOME/app
+RUN echo $HOME/
+
+RUN ls -l $HOME/app
+RUN ls -l $HOME/
+
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7860"]
