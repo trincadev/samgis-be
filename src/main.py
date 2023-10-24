@@ -59,11 +59,12 @@ def get_parsed_bbox_points(request_input: Input) -> BBoxWithPoint:
 
 @app.post("/post_test")
 async def post_test(request_input: Input) -> JSONResponse:
+    app_logger.info(f"start:{request_input}.")
     request_body = get_parsed_bbox_points(request_input)
     app_logger.info(f"request_body:{request_body}.")
     return JSONResponse(
         status_code=200,
-        content=get_parsed_bbox_points(request_input)
+        content=request_body
     )
 
 
@@ -112,9 +113,9 @@ def samgeo(request_input: Input):
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     app_logger.error(f"exception errors: {exc.errors()}.")
-    app_logger.error(f"exception body: {exc.body}.")
+    app_logger.error(f"exception body: {exc}.")
     headers = request.headers.items()
-    app_logger.error(f'request header: {dict(headers)}.' )
+    app_logger.error(f"request header: {dict(headers)}.")
     params = request.query_params.items()
     app_logger.error(f'request query params: {dict(params)}.')
     return JSONResponse(
