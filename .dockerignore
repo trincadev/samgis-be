@@ -4,3 +4,4 @@ __cache__
 .idea
 tmp/
 .env*
+__pycache__
