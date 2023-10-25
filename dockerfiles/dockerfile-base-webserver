@@ -1,22 +1,24 @@
-FROM python:3.11
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2
 
-WORKDIR /code
+# Include global arg in this stage of the build
+ARG LAMBDA_TASK_ROOT="/var/task"
+ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
+ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"
 
-RUN which python
-RUN python --version
-RUN python -m pip install --no-cache-dir fastapi uvicorn loguru
+# Set working directory to function root directory
+WORKDIR ${LAMBDA_TASK_ROOT}
 
-RUN useradd -m -u 1000 user
+RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
+RUN chmod +x /usr/local/bin/aws-lambda-rie
 
-USER user
+COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
+RUN chmod +x /lambda-entrypoint.sh
+RUN ls -l /lambda-entrypoint.sh
 
-ENV HOME=/home/user \
-	PATH=/home/user/.local/bin:$PATH
+COPY ./src ${LAMBDA_TASK_ROOT}/src
 
-WORKDIR $HOME/app
+RUN apt update && apt install -y python3-pip
+RUN python -m pip install awslambdaric
 
-RUN ls -l ${HOME}/
-COPY --chown=user src $HOME/app/src
-COPY --chown=user static $HOME/app/static
-
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7860"]
+ENTRYPOINT  ["/lambda-entrypoint.sh"]
+CMD [ "src.app.lambda_handler" ]

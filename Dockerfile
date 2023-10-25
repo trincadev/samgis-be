@@ -1,38 +1,46 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2
+# inspired by https://dev.to/gaborschulz/running-python-311-on-aws-lambda-1i7p
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2 as build-image
 
-WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
-COPY ./requirements_pip.txt /code/requirements_pip.txt
+LABEL maintainer="alessandro trinca <alessandro@trinca.tornidor.com>"
 
-RUN apt update && apt install -y g++ make cmake unzip libcurl4-openssl-dev python3-pip
+# Include global arg in this stage of the build
+ARG LAMBDA_TASK_ROOT="/var/task"
+ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 
-# avoid segment-geospatial exception caused by missing libGL.so.1 library
-RUN apt install -y libgl1 curl
+RUN mkdir -p ${LAMBDA_TASK_ROOT}
+
+# Install aws-lambda-cpp build dependencies
+RUN apt update && \
+  apt install -y g++ make cmake unzip libcurl4-openssl-dev python3-pip
+
+# install required packages
+COPY requirements_pip.txt ${LAMBDA_TASK_ROOT}/
+RUN python -m pip install --target ${LAMBDA_TASK_ROOT} --upgrade -r ${LAMBDA_TASK_ROOT}/requirements_pip.txt
+RUN python -m pip install torch torchvision --target ${LAMBDA_TASK_ROOT} --index-url https://download.pytorch.org/whl/cpu
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/
+RUN python -m pip install --target ${LAMBDA_TASK_ROOT} -r ${LAMBDA_TASK_ROOT}/requirements.txt
+
+FROM osgeo/gdal:ubuntu-small-3.7.2
+
+# Include global arg in this stage of the build
+ARG LAMBDA_TASK_ROOT="/var/task"
+ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
+ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"
+
+# Set working directory to function root directory
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+RUN apt update && apt install -y libgl1 curl
 RUN ls -ld /usr/lib/x86_64-linux-gnu/libGL.so* || echo "libGL.so* not found..."
 
-RUN which python
-RUN python --version
-RUN python -m pip install --no-cache-dir --upgrade -r /code/requirements_pip.txt
-RUN python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-RUN python -m pip install --no-cache-dir -r /code/requirements.txt
+# Copy in the built dependencies
+COPY --from=build-image ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 
-RUN useradd -m -u 1000 user
+RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
+RUN chmod +x /usr/local/bin/aws-lambda-rie
 
-USER user
+COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
+RUN chmod +x /lambda-entrypoint.sh
+RUN ls -l /lambda-entrypoint.sh
 
-ENV HOME=/home/user \
-	PATH=/home/user/.local/bin:$PATH
-
-WORKDIR $HOME/app
-
-RUN curl -o ${HOME}/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-RUN ls -l ${HOME}/
-COPY --chown=user . $HOME/app
-
-RUN echo $HOME/app
-RUN echo $HOME/
-
-RUN ls -l $HOME/app
-RUN ls -l $HOME/
-
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7860"]
+ENTRYPOINT  ["/lambda-entrypoint.sh"]
