@@ -1,4 +1,6 @@
 awslambdaric
 aws_lambda_powertools
+fastjsonschema
+pydantic
 jmespath
 
