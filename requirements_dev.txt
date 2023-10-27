@@ -1,0 +1,4 @@
+awslambdaric
+aws_lambda_powertools
+jmespath
+

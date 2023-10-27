@@ -15,10 +15,11 @@ COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
 RUN chmod +x /lambda-entrypoint.sh
 RUN ls -l /lambda-entrypoint.sh
 
+COPY requirements_dev.txt ${LAMBDA_TASK_ROOT}/requirements_dev.txt
 COPY ./src ${LAMBDA_TASK_ROOT}/src
 
 RUN apt update && apt install -y python3-pip
-RUN python -m pip install awslambdaric
+RUN python -m pip install -r requirements_dev.txt
 
 ENTRYPOINT  ["/lambda-entrypoint.sh"]
 CMD [ "src.app.lambda_handler" ]
