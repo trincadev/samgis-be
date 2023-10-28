@@ -4,26 +4,23 @@ import loguru
 from src.utilities.constants import ROOT
 
 
-def setup_logging(debug: bool = False, formatter: str = "{time} - {level} - ({extra[request_id]}) {message} ") -> loguru.logger:
-    """
-    Create a logging instance with log string formatter.
+def is_base64(s):
+    import base64
 
-    Args:
-        debug: logging debug argument
-        formatter: log string formatter
+    try:
+        return base64.b64encode(base64.b64decode(s, validate=True)) == s
+    except Exception as e:
+        print("e:", e, "#")
+        return False
 
-    Returns:
-        Logger
 
-    """
-    import sys
+def base64_decode(s):
+    import base64
 
-    logger = loguru.logger
-    logger.remove()
-    level_logger = "DEBUG" if debug else "INFO"
-    logger.add(sys.stdout, format=formatter, level=level_logger)
-    logger.debug(f"type_logger:{type(logger)}.")
-    return logger
+    if isinstance(s, str) and is_base64(s):
+        return base64.b64decode(s, validate=True).decode("utf-8")
+
+    return s
 
 
 def get_constants(event: dict, debug=False) -> dict:

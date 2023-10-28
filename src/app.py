@@ -7,7 +7,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel, ValidationError
 
 from src.utilities.type_hints import input_floatlist, input_floatlist2
-
+from src.utilities.utilities import base64_decode
 
 logger = Logger()
 
@@ -59,11 +59,26 @@ def lambda_handler(event: dict, context: LambdaContext):
     logger.info(f"start with aws_request_id:{context.aws_request_id}.")
     start_time = time.time()
     try:
-        logger.debug(f"event:{json.dumps(event)}...")
-        logger.debug(f"context:{context}...")
+        logger.info(f"event:{json.dumps(event)}...")
+        logger.info(f"context:{context}...")
 
         try:
-            bbox_points = BBoxWithPointInput(bbox=event["bbox"], points=event["points"])
+            body = event["body"]
+        except Exception as e_constants1:
+            logger.error(f"e_constants1:{e_constants1}.")
+            body = event
+
+        logger.info(f"body: {type(body)}, {body}...")
+
+        if isinstance(body, str):
+            body = base64_decode(body)
+            logger.info(f"body #2: {type(body)}, {body}...")
+            body = json.loads(body)
+
+        logger.info(f"body:{body}...")
+
+        try:
+            bbox_points = BBoxWithPointInput(bbox=body["bbox"], points=body["points"])
             logger.info(f"validation ok, bbox_points:{bbox_points}...")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, bbox_points)
         except ValidationError as ve:
