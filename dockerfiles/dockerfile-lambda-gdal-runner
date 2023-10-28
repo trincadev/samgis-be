@@ -8,7 +8,6 @@ ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/l
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements_dev.txt ${LAMBDA_TASK_ROOT}/requirements_dev.txt
-COPY ./src ${LAMBDA_TASK_ROOT}/src
 
 RUN apt update && apt install -y curl python3-pip
 RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_dev.txt --target ${LAMBDA_TASK_ROOT}
@@ -21,4 +20,3 @@ RUN chmod +x /lambda-entrypoint.sh
 RUN ls -l /lambda-entrypoint.sh
 
 ENTRYPOINT  ["/lambda-entrypoint.sh"]
-CMD [ "src.app.lambda_handler" ]
