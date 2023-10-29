@@ -12,11 +12,6 @@ from src.utilities.utilities import base64_decode
 logger = Logger()
 
 
-class JSONResponse(Response):
-    def response_to_json(self):
-        return json.dumps(self.__dict__)
-
-
 class BBoxWithPointInput(BaseModel):
     bbox: input_floatlist
     points: input_floatlist2
@@ -46,18 +41,25 @@ def get_response(status: int, start_time: float, request_id: str, output: BBoxWi
         output.message = messages[status]
         output.request_id = request_id
         body = output.model_dump_json()
-    response = JSONResponse(
-        status_code=status,
-        content_type=content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN,
-        body=body
-    )
+    response = {
+        "statusCode": status,
+        "headers": {
+            "Content-Type": content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN
+        },
+        "body": body,
+        "isBase64Encoded": False
+    }
     logger.info(f"response type:{type(response)} => {response}.")
-    return response.response_to_json()
+    return json.dumps(response)
 
 
 def lambda_handler(event: dict, context: LambdaContext):
     logger.info(f"start with aws_request_id:{context.aws_request_id}.")
     start_time = time.time()
+
+    if "version" in event:
+        logger.info(f"event version: {event['version']}.")
+
     try:
         logger.info(f"event:{json.dumps(event)}...")
         logger.info(f"context:{context}...")
@@ -71,9 +73,9 @@ def lambda_handler(event: dict, context: LambdaContext):
         logger.info(f"body: {type(body)}, {body}...")
 
         if isinstance(body, str):
-            body = base64_decode(body)
-            logger.info(f"body #2: {type(body)}, {body}...")
-            body = json.loads(body)
+            body_decoded_str = base64_decode(body)
+            logger.info(f"body_decoded_str: {type(body_decoded_str)}, {body_decoded_str}...")
+            body = json.loads(body_decoded_str)
 
         logger.info(f"body:{body}...")
 
