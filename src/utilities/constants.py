@@ -17,3 +17,8 @@ GEOJSON_SQUARE_TEMPLATE = {
     'crs': {'type': 'name', 'properties': {'name': 'urn:ogc:def:crs:OGC:1.3:CRS84'}},
     'features': FEATURE_SQUARE_TEMPLATE
 }
+CUSTOM_RESPONSE_MESSAGES = {
+    200: "ok",
+    422: "Missing required parameter",
+    500: "Internal server error"
+}

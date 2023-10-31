@@ -2,12 +2,13 @@ import json
 import time
 from http import HTTPStatus
 from aws_lambda_powertools import Logger
-from aws_lambda_powertools.event_handler import content_types, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel, ValidationError
 
+from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES
 from src.utilities.type_hints import input_floatlist, input_floatlist2
 from src.utilities.utilities import base64_decode
+
 
 logger = Logger()
 
@@ -15,9 +16,7 @@ logger = Logger()
 class BBoxWithPointInput(BaseModel):
     bbox: input_floatlist
     points: input_floatlist2
-    duration_run: float = 0
     message: str = ""
-    request_id: str = ""
 
 
 def get_response(status: int, start_time: float, request_id: str, output: BBoxWithPointInput = None) -> str:
@@ -34,23 +33,16 @@ def get_response(status: int, start_time: float, request_id: str, output: BBoxWi
         dict: response
 
     """
-    messages = {200: "ok", 422: "validation error", 500: "internal server error"}
-    body = f"{messages[status]}, request_id: {request_id}."
-    if status == 200:
-        output.duration_run = time.time() - start_time
-        output.message = messages[status]
-        output.request_id = request_id
-        body = output.model_dump_json()
-    response = {
+    duration_run = time.time() - start_time
+    if output and status == 200:
+        output.message = f"{CUSTOM_RESPONSE_MESSAGES[status]} - duration_run: {duration_run}, request_id: {request_id}."
+        return output.model_dump_json()
+    elif status == 200:
+        raise KeyError("missing BBoxWithPointInput...")
+    return json.dumps({
         "statusCode": status,
-        "headers": {
-            "Content-Type": content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN
-        },
-        "body": body,
-        "isBase64Encoded": False
-    }
-    logger.info(f"response type:{type(response)} => {response}.")
-    return json.dumps(response)
+        "message": f"{CUSTOM_RESPONSE_MESSAGES[status]} - duration_run: {duration_run}, request_id: {request_id}."
+    })
 
 
 def lambda_handler(event: dict, context: LambdaContext):
@@ -85,10 +77,10 @@ def lambda_handler(event: dict, context: LambdaContext):
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, bbox_points)
         except ValidationError as ve:
             logger.error(f"validation error:{ve}.")
-            response = get_response(422, start_time, context.aws_request_id)
+            response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id)
     except Exception as e:
         logger.error(f"exception:{e}.")
-        response = get_response(500, start_time, context.aws_request_id)
+        response = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, context.aws_request_id)
 
     logger.info(f"response_dumped:{response}...")
     return response
