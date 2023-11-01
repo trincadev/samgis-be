@@ -2,6 +2,7 @@ import json
 import time
 from http import HTTPStatus
 from aws_lambda_powertools import Logger
+from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel, ValidationError
 
@@ -16,7 +17,9 @@ logger = Logger()
 class BBoxWithPointInput(BaseModel):
     bbox: input_floatlist
     points: input_floatlist2
+    duration_run: float = 0
     message: str = ""
+    request_id: str = ""
 
 
 def get_response(status: int, start_time: float, request_id: str, output: BBoxWithPointInput = None) -> str:
@@ -34,15 +37,22 @@ def get_response(status: int, start_time: float, request_id: str, output: BBoxWi
 
     """
     duration_run = time.time() - start_time
-    if output and status == 200:
-        output.message = f"{CUSTOM_RESPONSE_MESSAGES[status]} - duration_run: {duration_run}, request_id: {request_id}."
-        return output.model_dump_json()
+    body = f"{CUSTOM_RESPONSE_MESSAGES[status]} - duration_run: {duration_run}, request_id: {request_id}."
+    if output is not None and status == 200:
+        output.duration_run = duration_run
+        output.message = CUSTOM_RESPONSE_MESSAGES[status]
+        output.request_id = request_id
+        body = output.model_dump_json()
     elif status == 200:
-        raise KeyError("missing BBoxWithPointInput...")
-    return json.dumps({
+        # should never be here...
+        raise KeyError("status 200, but missing BBoxWithPointInput argument.")
+    response = {
         "statusCode": status,
-        "message": f"{CUSTOM_RESPONSE_MESSAGES[status]} - duration_run: {duration_run}, request_id: {request_id}."
-    })
+        "Content-Type": content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN,
+        "body": body
+    }
+    logger.info(f"response type:{type(response)} => {response}.")
+    return json.dumps(response)
 
 
 def lambda_handler(event: dict, context: LambdaContext):
