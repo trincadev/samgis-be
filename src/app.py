@@ -48,8 +48,9 @@ def get_response(status: int, start_time: float, request_id: str, output: BBoxWi
         raise KeyError("status 200, but missing BBoxWithPointInput argument.")
     response = {
         "statusCode": status,
-        "Content-Type": content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN,
-        "body": body
+        "header": {"Content-Type": content_types.APPLICATION_JSON if status == 200 else content_types.TEXT_PLAIN},
+        "body": body,
+        "isBase64Encoded": False
     }
     logger.info(f"response type:{type(response)} => {response}.")
     return json.dumps(response)
