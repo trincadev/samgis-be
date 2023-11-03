@@ -11,7 +11,7 @@ RUN echo "ENV RIE: $RIE ..."
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
 
-RUN apt update && apt install -y curl python3-pip
+RUN apt update && apt install -y curl python3-pip libgl1
 RUN which python
 RUN python --version
 RUN python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu

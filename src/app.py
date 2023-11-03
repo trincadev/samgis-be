@@ -24,16 +24,15 @@ class LatLngTupleLeaflet(BaseModel):
 class RequestBody(BaseModel):
     ne: LatLngTupleLeaflet
     sw: LatLngTupleLeaflet
-    points: List[LatLngTupleLeaflet]
     model: str = MODEL_NAME
     zoom: float = ZOOM
 
 
 class ResponseBody(BaseModel):
+    request_id: str = None
+    duration_run: float = None
+    message: str = None
     geojson: Dict = None
-    request_id: str
-    duration_run: float
-    message: str
 
 
 def get_response(status: int, start_time: float, request_id: str, response_body: ResponseBody = None) -> str:
@@ -50,6 +49,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
         str: json response
 
     """
+    app_logger.info(f"response_body:{response_body}.")
     response_body.duration_run = time.time() - start_time
     response_body.message = CUSTOM_RESPONSE_MESSAGES[status]
     response_body.request_id = request_id
@@ -65,12 +65,17 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
 
 
 def get_parsed_bbox_points(request_input: RequestBody) -> Dict:
+    model_name = request_input["model"] if "model" in request_input else MODEL_NAME
+    zoom = request_input["zoom"] if "zoom" in request_input else ZOOM
+    app_logger.info(f"try to validate input request {request_input}...")
+    request_body = RequestBody(ne=request_input["ne"], sw=request_input["sw"], model=model_name, zoom=zoom)
     return {
         "bbox": [
-            request_input.ne.lat, request_input.sw.lat,
-            request_input.ne.lng, request_input.sw.lng
+            request_body.ne.lat, request_body.sw.lat,
+            request_body.ne.lng, request_body.sw.lng
         ],
-        "points": [[p.lat, p.lng] for p in request_input.points]
+        "model": request_body.model,
+        "zoom": request_body.zoom
     }
 
 
@@ -101,12 +106,9 @@ def lambda_handler(event: dict, context: LambdaContext):
         app_logger.info(f"body:{body}...")
 
         try:
-            model_name = body["model"] if "model" in body else MODEL_NAME
-            zoom = body["zoom"] if "zoom" in body else ZOOM
-            body_request_validated = RequestBody(ne=body["ne"], sw=body["sw"], points=body["points"], model=model_name, zoom=zoom)
-            body_request = get_parsed_bbox_points(body_request_validated)
+            body_request = get_parsed_bbox_points(body)
             app_logger.info(f"validation ok - body_request:{body_request}, starting prediction...")
-            output_geojson_dict = base_predict(bbox=body_request["bbox"], model_name=body_request_validated["model"], zoom=body_request_validated["zoom"])
+            output_geojson_dict = base_predict(bbox=body_request["bbox"], model_name=body_request["model"], zoom=body_request["zoom"])
 
             # raise ValidationError in case this is not a valid geojson by GeoJSON specification rfc7946
             PolygonFeatureCollectionModel(**output_geojson_dict)
@@ -114,10 +116,10 @@ def lambda_handler(event: dict, context: LambdaContext):
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
         except ValidationError as ve:
             app_logger.error(f"validation error:{ve}.")
-            response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id)
+            response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id, ResponseBody())
     except Exception as e:
         app_logger.error(f"exception:{e}.")
-        response = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, context.aws_request_id)
+        response = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, context.aws_request_id, ResponseBody())
 
     app_logger.info(f"response_dumped:{response}...")
     return response
