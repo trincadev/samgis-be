@@ -2,23 +2,23 @@
 import json
 
 from src import app_logger
-from src.utilities.constants import ROOT, MODEL_NAME, ZOOM
+from src.utilities.constants import ROOT, MODEL_NAME, ZOOM, SOURCE_TYPE
 from src.utilities.type_hints import input_floatlist, input_floatlist2
 
 
-def base_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MODEL_NAME, root_folder: str = ROOT) -> dict:
+def samgeo_fast_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MODEL_NAME, root_folder: str = ROOT, source_type: str = SOURCE_TYPE) -> dict:
     import tempfile
     from samgeo import tms_to_geotiff
     from samgeo.fast_sam import SamGeo
 
-    with tempfile.NamedTemporaryFile(prefix="satellite_", suffix=".tif", dir=root_folder) as image_input_tmp:
+    with tempfile.NamedTemporaryFile(prefix=f"{source_type}_", suffix=".tif", dir=root_folder) as image_input_tmp:
         app_logger.info(f"start tms_to_geotiff using bbox:{bbox}, type:{type(bbox)}, download image to {image_input_tmp.name} ...")
         for coord in bbox:
             app_logger.info(f"coord:{coord}, type:{type(coord)}.")
 
         # bbox: image input coordinate
-        tms_to_geotiff(output=image_input_tmp.name, bbox=bbox, zoom=zoom, source="Satellite", overwrite=True)
-        app_logger.info(f"geotiff created, start to initialize samgeo instance (read model {model_name} from {root_folder})...")
+        tms_to_geotiff(output=image_input_tmp.name, bbox=bbox, zoom=zoom, source=source_type, overwrite=True)
+        app_logger.info(f"geotiff created, start to initialize SamGeo instance (read model {model_name} from {root_folder})...")
 
         predictor = SamGeo(
             model_type=model_name,
@@ -26,7 +26,7 @@ def base_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MO
             automatic=False,
             sam_kwargs=None,
         )
-        app_logger.info(f"initialized samgeo instance, start to use SamGeo.set_image({image_input_tmp.name})...")
+        app_logger.info(f"initialized SamGeo instance, start to use SamGeo.set_image({image_input_tmp.name})...")
         predictor.set_image(image_input_tmp.name)
 
         with tempfile.NamedTemporaryFile(prefix="output_", suffix=".tif", dir=root_folder) as image_output_tmp:
