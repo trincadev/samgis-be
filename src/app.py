@@ -9,8 +9,8 @@ from geojson_pydantic import FeatureCollection, Feature, Polygon
 from pydantic import BaseModel, ValidationError
 
 from src import app_logger
-from src.prediction_api.predictor import base_predict
-from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES, MODEL_NAME, ZOOM
+from src.prediction_api.samgeo_predictors import samgeo_fast_predict
+from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES, MODEL_NAME, ZOOM, SOURCE_TYPE
 from src.utilities.utilities import base64_decode
 
 PolygonFeatureCollectionModel = FeatureCollection[Feature[Polygon, Dict]]
@@ -22,17 +22,18 @@ class LatLngTupleLeaflet(BaseModel):
 
 
 class RequestBody(BaseModel):
-    ne: LatLngTupleLeaflet
-    sw: LatLngTupleLeaflet
     model: str = MODEL_NAME
+    ne: LatLngTupleLeaflet
+    source_type: str = SOURCE_TYPE
+    sw: LatLngTupleLeaflet
     zoom: float = ZOOM
 
 
 class ResponseBody(BaseModel):
-    request_id: str = None
     duration_run: float = None
-    message: str = None
     geojson: Dict = None
+    message: str = None
+    request_id: str = None
 
 
 def get_response(status: int, start_time: float, request_id: str, response_body: ResponseBody = None) -> str:
@@ -67,15 +68,17 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
 def get_parsed_bbox_points(request_input: RequestBody) -> Dict:
     model_name = request_input["model"] if "model" in request_input else MODEL_NAME
     zoom = request_input["zoom"] if "zoom" in request_input else ZOOM
+    source_type = request_input["source_type"] if "zoom" in request_input else SOURCE_TYPE
     app_logger.info(f"try to validate input request {request_input}...")
-    request_body = RequestBody(ne=request_input["ne"], sw=request_input["sw"], model=model_name, zoom=zoom)
+    request_body = RequestBody(ne=request_input["ne"], sw=request_input["sw"], model=model_name, zoom=zoom, source_type=source_type)
     return {
         "bbox": [
             request_body.ne.lat, request_body.sw.lat,
             request_body.ne.lng, request_body.sw.lng
         ],
         "model": request_body.model,
-        "zoom": request_body.zoom
+        "zoom": request_body.zoom,
+        "source_type": request_body.source_type
     }
 
 
@@ -108,7 +111,9 @@ def lambda_handler(event: dict, context: LambdaContext):
         try:
             body_request = get_parsed_bbox_points(body)
             app_logger.info(f"validation ok - body_request:{body_request}, starting prediction...")
-            output_geojson_dict = base_predict(bbox=body_request["bbox"], model_name=body_request["model"], zoom=body_request["zoom"])
+            output_geojson_dict = samgeo_fast_predict(
+                bbox=body_request["bbox"], model_name=body_request["model"], zoom=body_request["zoom"], source_type=body_request["source_type"]
+            )
 
             # raise ValidationError in case this is not a valid geojson by GeoJSON specification rfc7946
             PolygonFeatureCollectionModel(**output_geojson_dict)
