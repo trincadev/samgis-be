@@ -1,4 +1,5 @@
 """Various utilities (logger, time benchmark, args dump, numerical and stats info)"""
+from src import app_logger
 
 
 def is_base64(sb):
@@ -15,6 +16,22 @@ def is_base64(sb):
         return base64.b64encode(base64.b64decode(sb_bytes, validate=True)) == sb_bytes
     except ValueError:
         return False
+
+
+def get_system_info():
+    import multiprocessing
+    import torch.multiprocessing as mp
+    import os
+    import subprocess
+
+    app_logger.info(f"mp::cpu_count:{mp.cpu_count()}.")
+    app_logger.info(f"multiprocessing::cpu_count:{multiprocessing.cpu_count()}.")
+    app_logger.info(f"os::cpu_count:{os.cpu_count()}")
+    app_logger.info(f"os::sched_getaffinity:{len(os.sched_getaffinity(0))}")
+    lscpu_output = subprocess.run("/usr/bin/lscpu", capture_output=True)
+    app_logger.info(f"lscpu:{lscpu_output.stdout.decode('utf-8')}.")
+    free_mem_output = subprocess.run(["/usr/bin/free", "-m"], capture_output=True)
+    app_logger.info(f"free_mem_output:{free_mem_output.stdout.decode('utf-8')}.")
 
 
 def base64_decode(s):

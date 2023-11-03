@@ -1,15 +1,25 @@
 # Press the green button in the gutter to run the script.
 import json
+import os
 
 from src import app_logger
 from src.utilities.constants import ROOT, MODEL_NAME, ZOOM, SOURCE_TYPE
-from src.utilities.type_hints import input_floatlist, input_floatlist2
+from src.utilities.type_hints import input_floatlist
+from src.utilities.utilities import get_system_info
 
 
-def samgeo_fast_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MODEL_NAME, root_folder: str = ROOT, source_type: str = SOURCE_TYPE) -> dict:
+def samgeo_fast_predict(
+        bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MODEL_NAME, root_folder: str = ROOT, source_type: str = SOURCE_TYPE, crs="EPSG:4326"
+) -> dict:
     import tempfile
     from samgeo import tms_to_geotiff
     from samgeo.fast_sam import SamGeo
+
+    try:
+        os.environ['MPLCONFIGDIR'] = root_folder
+        get_system_info()
+    except Exception as e:
+        app_logger.error(f"Error while setting 'MPLCONFIGDIR':{e}.")
 
     with tempfile.NamedTemporaryFile(prefix=f"{source_type}_", suffix=".tif", dir=root_folder) as image_input_tmp:
         app_logger.info(f"start tms_to_geotiff using bbox:{bbox}, type:{type(bbox)}, download image to {image_input_tmp.name} ...")
@@ -17,7 +27,7 @@ def samgeo_fast_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: s
             app_logger.info(f"coord:{coord}, type:{type(coord)}.")
 
         # bbox: image input coordinate
-        tms_to_geotiff(output=image_input_tmp.name, bbox=bbox, zoom=zoom, source=source_type, overwrite=True)
+        tms_to_geotiff(output=image_input_tmp.name, bbox=bbox, zoom=zoom, source=source_type, overwrite=True, crs=crs)
         app_logger.info(f"geotiff created, start to initialize SamGeo instance (read model {model_name} from {root_folder})...")
 
         predictor = SamGeo(
