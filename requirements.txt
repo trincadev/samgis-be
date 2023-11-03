@@ -1,4 +1,7 @@
+awslambdaric
 aws-lambda-powertools
 bson
+geojson-pydantic
 python-dotenv
+segment-anything-fast
 segment-geospatial

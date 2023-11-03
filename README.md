@@ -9,6 +9,9 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 # build the base docker image with the docker aws repository tag
 docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner
 
+# OPTIONAL: to build the lambda-gdal-runner image on a x86 machine use the build arg `RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"`:
+docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --build-arg RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie" --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner --progress=plain
+
 # build the final docker image
 docker build . -f dockerfiles/dockerfile-lambda-samgeo-api --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-samgeo-api
 ```

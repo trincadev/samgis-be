@@ -22,3 +22,5 @@ CUSTOM_RESPONSE_MESSAGES = {
     422: "Missing required parameter",
     500: "Internal server error"
 }
+MODEL_NAME = "FastSAM-s.pt"
+ZOOM = 13
