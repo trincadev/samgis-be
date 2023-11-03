@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [46.143, 9.361],
+            [46.151, 9.401],
+            [46.137, 9.353]
+          ]
+        ]
+      },
+      "properties": {"name": "Colico"}
+    }
+  ]
+}

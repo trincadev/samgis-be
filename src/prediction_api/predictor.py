@@ -2,15 +2,14 @@
 import json
 
 from src import app_logger
-from src.utilities.constants import ROOT
+from src.utilities.constants import ROOT, MODEL_NAME, ZOOM
 from src.utilities.type_hints import input_floatlist, input_floatlist2
 
 
-def base_predict(
-        bbox: input_floatlist, point_coords: input_floatlist2, point_crs: str = "EPSG:4326", zoom: float = 16, model_name: str = "vit_h", root_folder: str = ROOT
-) -> str:
+def base_predict(bbox: input_floatlist, zoom: float = ZOOM, model_name: str = MODEL_NAME, root_folder: str = ROOT) -> dict:
     import tempfile
-    from samgeo import SamGeo, tms_to_geotiff
+    from samgeo import tms_to_geotiff
+    from samgeo.fast_sam import SamGeo
 
     with tempfile.NamedTemporaryFile(prefix="satellite_", suffix=".tif", dir=root_folder) as image_input_tmp:
         app_logger.info(f"start tms_to_geotiff using bbox:{bbox}, type:{type(bbox)}, download image to {image_input_tmp.name} ...")
@@ -32,7 +31,7 @@ def base_predict(
 
         with tempfile.NamedTemporaryFile(prefix="output_", suffix=".tif", dir=root_folder) as image_output_tmp:
             app_logger.info(f"done set_image, start prediction using {image_output_tmp.name} as output...")
-            predictor.predict(point_coords, point_labels=len(point_coords), point_crs=point_crs, output=image_output_tmp.name)
+            predictor.everything_prompt(output=image_output_tmp.name)
 
             # geotiff to geojson
             with tempfile.NamedTemporaryFile(prefix="feats_", suffix=".geojson", dir=root_folder) as vector_tmp:
