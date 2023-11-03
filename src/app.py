@@ -71,6 +71,7 @@ def get_parsed_bbox_points(request_input: RequestBody) -> Dict:
     source_type = request_input["source_type"] if "zoom" in request_input else SOURCE_TYPE
     app_logger.info(f"try to validate input request {request_input}...")
     request_body = RequestBody(ne=request_input["ne"], sw=request_input["sw"], model=model_name, zoom=zoom, source_type=source_type)
+    app_logger.info(f"unpacking {request_body}...")
     return {
         "bbox": [
             request_body.ne.lat, request_body.sw.lat,
