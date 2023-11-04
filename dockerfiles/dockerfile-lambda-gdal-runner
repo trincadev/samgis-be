@@ -11,11 +11,10 @@ RUN echo "ENV RIE: $RIE ..."
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
 
-RUN apt update && apt install -y curl python3-pip libgl1
+RUN apt update && apt install -y curl python3-pip
 RUN which python
 RUN python --version
-RUN python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt --target ${LAMBDA_TASK_ROOT}
+RUN python -m pip install pillow awslambdaric aws-lambda-powertools httpx jmespath
 
 RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 RUN chmod +x /usr/local/bin/aws-lambda-rie
