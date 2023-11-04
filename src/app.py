@@ -32,7 +32,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body 
     response = {
         "statusCode": status,
         "header": {"Content-Type": content_types.APPLICATION_JSON},
-        "body": response_body.model_dump_json(),
+        "body": json.dumps(response_body),
         "isBase64Encoded": False
     }
     app_logger.info(f"response type:{type(response)} => {response}.")
