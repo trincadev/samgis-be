@@ -24,20 +24,21 @@ docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --tag 686901913580.d
 docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --build-arg RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie" --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner --progress=plain
 
 # build the final docker image
-docker build . -f dockerfiles/dockerfile-lambda-samgeo-api --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-samgeo-api
+docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name lambda-samgeo-api -p 8080:8080 lambda-samgeo-api; docker logs -f lambda-samgeo-api
+docker tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api:latest lambda-fastsam-api;docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
 ```
 
 Test it with curl:
 
 ```bash
+URL=http://localhost:8080/2015-03-31/functions/function/invocations
 curl -X 'POST' \
-  'http://localhost:8080/infer_samgeo' \
+  ${URL} \
   -H 'accept: application/json' \
   -d '{}'
 ```
@@ -50,6 +51,6 @@ curl -X 'POST' \
 2. Build and tag the docker images, then push them:
     ```
     docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner:latest
-    docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-samgeo-api:latest
+    docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api:latest
     ```
 3. It's possible to publish a new aws lambda version from cmd or from lambda page
