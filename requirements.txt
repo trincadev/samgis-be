@@ -1,8 +1,9 @@
 aws-lambda-powertools
 awslambdaric
 bson
-geojson-pydantic
+httpx
 jmespath
-python-dotenv
-segment-anything-fast
-segment-geospatial
+numpy
+onnxruntime
+opencv-python
+pillow

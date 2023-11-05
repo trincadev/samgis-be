@@ -1,7 +1,9 @@
+aws-lambda-powertools
 awslambdaric
-aws_lambda_powertools
-fastjsonschema
-geojson-pydantic
+bson
+httpx
 jmespath
-pydantic
-requests
+numpy
+onnxruntime
+opencv-python
+pillow

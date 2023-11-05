@@ -22,7 +22,8 @@ CUSTOM_RESPONSE_MESSAGES = {
     422: "Missing required parameter",
     500: "Internal server error"
 }
-MODEL_NAME = "FastSAM-s.pt"
+MODEL_ENCODER_NAME = "mobile_sam.encoder.onnx"
+MODEL_DECODER_NAME = "sam_vit_h_4b8939.decoder.onnx"
 ZOOM = 13
 SOURCE_TYPE = "Satellite"
 
