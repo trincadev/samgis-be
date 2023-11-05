@@ -7,3 +7,5 @@ numpy
 onnxruntime
 opencv-python
 pillow
+rasterio
+geopandas

@@ -51,13 +51,6 @@ def lambda_handler(event: dict, context: LambdaContext):
         app_logger.info(f"context:{context}...")
 
         try:
-            """
-            img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], 6)
-            model_path = Path(MODEL_FOLDER) / "mobile_sam.encoder.onnx"
-            model_path_isfile = model_path.is_file()
-            model_path_stats = model_path.stat()
-            app_logger.info(f"model_path:{model_path_isfile}, {model_path_stats}.")
-            """
             pt0 = 45.699, 127.1
             pt1 = 30.1, 148.492
             bbox = [pt0, pt1]
