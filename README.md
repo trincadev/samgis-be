@@ -1,5 +1,16 @@
 # Segment Geospatial
 
+## todo
+
+1. export output to mask: OK local, OK aws lambda
+2. resolve model paths: OK local
+3. inference: 
+4. from mask to json (rasterio + geopandas, check for re-projection to EPSG_4326)
+5. check mandatory dependencies
+6. check for alternative python interpreters
+
+## Build instructions
+
 Build the docker image:
 
 ```bash

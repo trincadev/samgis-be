@@ -9,12 +9,15 @@ RUN echo "ENV RIE: $RIE ..."
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
+COPY requirements_dev.txt ${LAMBDA_TASK_ROOT}/requirements_dev.txt
 
-RUN apt update && apt install -y curl python3-pip
+# avoid segment-geospatial exception caused by missing libGL.so.1 library
+RUN apt update && apt install -y libgl1 curl python3-pip
+RUN ls -ld /usr/lib/*linux-gnu/libGL.so* || echo "libGL.so* not found..."
 RUN which python
 RUN python --version
-RUN python -m pip install pillow awslambdaric aws-lambda-powertools httpx jmespath
+RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_dev.txt --target ${LAMBDA_TASK_ROOT}
+# RUN python -m pip install pillow awslambdaric aws-lambda-powertools httpx jmespath --target ${LAMBDA_TASK_ROOT}
 
 RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 RUN chmod +x /usr/local/bin/aws-lambda-rie
