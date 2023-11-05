@@ -21,6 +21,7 @@ RUN ls -l ${LAMBDA_TASK_ROOT}/models
 RUN python -c "import sys; print(sys.path)"
 RUN python -c "import osgeo"
 RUN python -c "import cv2"
+RUN python -c "import geopandas"
 RUN python -c "import onnxruntime"
 # RUN python -c "import rasterio"
 RUN python -c "import awslambdaric"

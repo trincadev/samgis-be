@@ -1,0 +1,11 @@
+{
+  "ne": {"lat": 45.699, "lng": 127.1},
+  "sw": {"lat": 30.1, "lng": 148.492},
+  "prompt": [{
+    "type": "point",
+    "data": [500, 600],
+    "label": 0
+  }],
+  "zoom": 6,
+  "source_type": "Satellite"
+}
