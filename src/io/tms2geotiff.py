@@ -14,19 +14,19 @@ import concurrent.futures
 from PIL import Image
 from PIL import TiffImagePlugin
 
+from src import PROJECT_ROOT_FOLDER, app_logger
 from src.utilities.constants import EARTH_EQUATORIAL_RADIUS, WKT_3857, DEFAULT_TMS
-
 
 Image.MAX_IMAGE_PIXELS = None
 
-
 try:
     import httpx
+
     SESSION = httpx.Client()
 except ImportError:
     import requests
-    SESSION = requests.Session()
 
+    SESSION = requests.Session()
 
 SESSION.headers.update({
     "Accept": "*/*",
@@ -40,14 +40,14 @@ re_coords_split = re.compile('[ ,;]+')
 def from4326_to3857(lat, lon):
     xtile = math.radians(lon) * EARTH_EQUATORIAL_RADIUS
     ytile = math.log(math.tan(math.radians(45 + lat / 2.0))) * EARTH_EQUATORIAL_RADIUS
-    return (xtile, ytile)
+    return xtile, ytile
 
 
 def deg2num(lat, lon, zoom):
     n = 2 ** zoom
     xtile = ((lon + 180) / 360 * n)
     ytile = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) * n / 2
-    return (xtile, ytile)
+    return xtile, ytile
 
 
 def is_empty(im):
@@ -69,12 +69,12 @@ def mbtiles_init(dbname):
     cur.execute("BEGIN")
     cur.execute("CREATE TABLE IF NOT EXISTS metadata (name TEXT PRIMARY KEY, value TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS tiles ("
-        "zoom_level INTEGER NOT NULL, "
-        "tile_column INTEGER NOT NULL, "
-        "tile_row INTEGER NOT NULL, "
-        "tile_data BLOB NOT NULL, "
-        "UNIQUE (zoom_level, tile_column, tile_row)"
-    ")")
+                "zoom_level INTEGER NOT NULL, "
+                "tile_column INTEGER NOT NULL, "
+                "tile_row INTEGER NOT NULL, "
+                "tile_data BLOB NOT NULL, "
+                "UNIQUE (zoom_level, tile_column, tile_row)"
+                ")")
     cur.execute("COMMIT")
     return db
 
@@ -89,13 +89,13 @@ def paste_tile(bigim, base_size, tile, corner_xy, bbox):
         base_size[0] = size[0]
         base_size[1] = size[1]
         newim = Image.new(mode, (
-            size[0]*(bbox[2]-bbox[0]), size[1]*(bbox[3]-bbox[1])))
+            size[0] * (bbox[2] - bbox[0]), size[1] * (bbox[3] - bbox[1])))
     else:
         newim = bigim
 
     dx = abs(corner_xy[0] - bbox[0])
     dy = abs(corner_xy[1] - bbox[1])
-    xy0 = (size[0]*dx, size[1]*dy)
+    xy0 = (size[0] * dx, size[1] * dy)
     if mode == 'RGB':
         newim.paste(im, xy0)
     else:
@@ -113,7 +113,8 @@ def get_tile(url):
         try:
             r = SESSION.get(url, timeout=60)
             break
-        except Exception:
+        except Exception as request_tile_exception:
+            app_logger.error(f"retry {retry}, request_tile_exception:{request_tile_exception}.")
             retry -= 1
             if not retry:
                 raise
@@ -127,7 +128,7 @@ def get_tile(url):
 
 def print_progress(progress, total, done=False):
     if done:
-        print('Downloaded image %d/%d, %.2f%%' % (progress, total, progress*100/total))
+        print('Downloaded image %d/%d, %.2f%%' % (progress, total, progress * 100 / total))
 
 
 class ProgressBar:
@@ -175,7 +176,7 @@ def mbtiles_save(db, img_data, xy, zoom, img_format):
     else:
         current_format = 'image/' + im.format.lower()
     x, y = xy
-    y = 2**zoom - 1 - y
+    y = 2 ** zoom - 1 - y
     cur = db.cursor()
     if img_format is None or img_format == current_format:
         cur.execute("REPLACE INTO tiles VALUES (?,?,?,?)", (
@@ -196,10 +197,10 @@ def mbtiles_save(db, img_data, xy, zoom, img_format):
 
 
 def download_extent(
-    source, lat0, lon0, lat1, lon1, zoom,
-    mbtiles=None, save_image=True,
-    progress_callback=print_progress,
-    callback_interval=0.05
+        source, lat0, lon0, lat1, lon1, zoom,
+        mbtiles=None, save_image=True,
+        progress_callback=print_progress,
+        callback_interval=0.05
 ):
     x0, y0 = deg2num(lat0, lon0, zoom)
     x1, y1 = deg2num(lat1, lon1, zoom)
@@ -241,7 +242,7 @@ def download_extent(
         cur.execute("REPLACE INTO metadata VALUES ('bounds', ?)", (
             ",".join(map(str, bounds)),))
         cur.execute("REPLACE INTO metadata VALUES ('center', ?)", ("%s,%s,%d" % (
-            (lon_max + lon_min)/2, (lat_max + lat_min)/2, zoom),))
+            (lon_max + lon_min) / 2, (lat_max + lat_min) / 2, zoom),))
         cur.execute("""
             INSERT INTO metadata VALUES ('minzoom', ?)
             ON CONFLICT(name) DO UPDATE SET value=excluded.value
@@ -267,7 +268,7 @@ def download_extent(
     with concurrent.futures.ThreadPoolExecutor(5) as executor:
         for x, y in corners:
             future = executor.submit(get_tile, source.format(z=zoom, x=x, y=y))
-            futures[future] = (x, y) 
+            futures[future] = (x, y)
         bbox = (math.floor(x0), math.floor(y0), math.ceil(x1), math.ceil(y1))
         bigim = None
         base_size = [256, 256]
@@ -316,11 +317,11 @@ def download_extent(
 
     xfrac = x0 - bbox[0]
     yfrac = y0 - bbox[1]
-    x2 = round(base_size[0]*xfrac)
-    y2 = round(base_size[1]*yfrac)
-    imgw = round(base_size[0]*(x1-x0))
-    imgh = round(base_size[1]*(y1-y0))
-    retim = bigim.crop((x2, y2, x2+imgw, y2+imgh))
+    x2 = round(base_size[0] * xfrac)
+    y2 = round(base_size[1] * yfrac)
+    imgw = round(base_size[0] * (x1 - x0))
+    imgh = round(base_size[1] * (y1 - y0))
+    retim = bigim.crop((x2, y2, x2 + imgw, y2 + imgh))
     if retim.mode == 'RGBA' and retim.getextrema()[3] == (255, 255):
         retim = retim.convert('RGB')
     bigim.close()
@@ -411,7 +412,7 @@ def save_image_fn(img, filename, matrix, **params):
     elif ext == '.png':
         img_params['optimize'] = True
     elif ext.startswith('.tif'):
-        if img_memorysize(img) >= 4*1024*1024*1024:
+        if img_memorysize(img) >= 4 * 1024 * 1024 * 1024:
             # BigTIFF
             return save_geotiff_gdal(img, filename, matrix)
         img_params['compression'] = 'tiff_adobe_deflate'
@@ -437,14 +438,14 @@ def save_geotiff_gdal(img, filename, matrix):
     imgbands = len(img.getbands())
     driver = gdal.GetDriverByName('GTiff')
     gdal_options = ['COMPRESS=DEFLATE', 'PREDICTOR=2', 'ZLEVEL=9', 'TILED=YES']
-    if img_memorysize(img) >= 4*1024*1024*1024:
+    if img_memorysize(img) >= 4 * 1024 * 1024 * 1024:
         gdal_options.append('BIGTIFF=YES')
-    if img_memorysize(img) >= 50*1024*1024:
+    if img_memorysize(img) >= 50 * 1024 * 1024:
         gdal_options.append('NUM_THREADS=%d' % max(1, os.cpu_count()))
 
     gtiff = driver.Create(filename, img.size[0], img.size[1],
-        imgbands, gdal.GDT_Byte,
-        options=gdal_options)
+                          imgbands, gdal.GDT_Byte,
+                          options=gdal_options)
     gtiff.SetGeoTransform(matrix)
     gtiff.SetProjection(WKT_3857)
     for band in range(imgbands):
@@ -589,12 +590,12 @@ def gui():
             return
         root_tk.update()
         try:
-            img, matrix = download_extent(
+            img, matrix_projection = download_extent(
                 *args, progress_callback=update_progress, **kwargs)
             b_download.configure(text='Saving...', state='disabled')
             root_tk.update()
             if filename:
-                save_image_auto(img, filename, matrix)
+                save_image_auto(img, filename, matrix_projection)
             reset()
         except TaskCancelled:
             reset()
@@ -632,7 +633,6 @@ def gui():
 
 
 def downloader(input_args, input_parser):
-
     download_args = [input_args.source]
     try:
         if input_args.extent:
@@ -652,11 +652,11 @@ def downloader(input_args, input_parser):
     download_args.append(bool(input_args.output))
     progress_bar = ProgressBar()
     download_args.append(progress_bar.print_progress)
-    img, matrix = download_extent(*download_args)
+    img_geo, matrix = download_extent(*download_args)
     progress_bar.close()
     if input_args.output:
         print(f"Saving image to {input_args.output}.")
-        save_image_auto(img, input_args.output, matrix)
+        save_image_auto(img_geo, input_args.output, matrix)
     return 0
 
 
@@ -670,8 +670,8 @@ def main():
     parser.add_argument("-f", "--from", metavar='LAT,LON', help="one corner")
     parser.add_argument("-t", "--to", metavar='LAT,LON', help="the other corner")
     parser.add_argument("-e", "--extent",
-        metavar='min_lon,min_lat,max_lon,max_lat',
-        help="extent in one string (use either -e, or -f and -t)")
+                        metavar='min_lon,min_lat,max_lon,max_lat',
+                        help="extent in one string (use either -e, or -f and -t)")
     parser.add_argument("-z", "--zoom", type=int, help="zoom level")
     parser.add_argument("-m", "--mbtiles", help="save MBTiles file")
     parser.add_argument("-g", "--gui", action='store_true', help="show GUI")
@@ -690,8 +690,8 @@ if __name__ == '__main__':
     # sys.exit(main())
     pt0 = 45.699, 127.1
     pt1 = 30.1, 148.492
-    img_output_filename = "/Users/trincuz/workspace/segment-geospatial/tmp/japan_out_main.png"
-    img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], 6)
+    geo_img_output_filename = PROJECT_ROOT_FOLDER / "tmp" / "japan_out_main.png"
+    geo_img, projection_matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], 6)
 
-    print(f"Saving image to {img_output_filename}.")
-    save_image_auto(img, img_output_filename, matrix)
+    print(f"Saving image to {geo_img_output_filename}.")
+    save_image_auto(geo_img, geo_img_output_filename, projection_matrix)
