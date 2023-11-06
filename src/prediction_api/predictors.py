@@ -62,7 +62,7 @@ def samexporter_predict(bbox: input_float_tuples, prompt: list[dict], zoom: floa
         models_instance = models_dict[model_name]["instance"]
 
         for coord in bbox:
-            app_logger.info(f"bbox coord:{coord}, type:{type(coord)}.")
+            app_logger.debug(f"bbox coord:{coord}, type:{type(coord)}.")
         app_logger.info(f"start download_extent using bbox:{bbox}, type:{type(bbox)}, download image...")
 
         pt0 = bbox[0]
@@ -70,30 +70,28 @@ def samexporter_predict(bbox: input_float_tuples, prompt: list[dict], zoom: floa
         img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
 
         app_logger.info(f"img type {type(img)}, matrix type {type(matrix)}.")
-        app_logger.info(f"matrix values: {serialize(matrix)}.")
+        app_logger.debug(f"matrix values: {serialize(matrix)}.")
         np_img = np.array(img)
-        app_logger.info(f"np_img type {type(np_img)}.")
-        app_logger.info(f"np_img dtype {np_img.dtype}, shape {np_img.shape}.")
+        app_logger.debug(f"np_img type {type(np_img)}.")
+        app_logger.debug(f"np_img dtype {np_img.dtype}, shape {np_img.shape}.")
         app_logger.info(f"geotiff created with size/shape {img.size} and transform matrix {str(matrix)}, start to initialize SamGeo instance:")
-        app_logger.info(f"use fastsam_model, ENCODER model {MODEL_ENCODER_NAME} and {MODEL_DECODER_NAME} from {MODEL_FOLDER})...")
-
-        app_logger.info(f"model instantiated, creating embedding...")
+        app_logger.info(f"use {model_name} model, ENCODER model {MODEL_ENCODER_NAME} and {MODEL_DECODER_NAME} from {MODEL_FOLDER}): model instantiated, creating embedding...")
         embedding = models_instance.encode(np_img)
         app_logger.info(f"embedding created, running predict_masks...")
         prediction_masks = models_instance.predict_masks(embedding, prompt)
-        app_logger.info(f"predict_masks terminated")
-        app_logger.info(f"prediction masks shape:{prediction_masks.shape}, {prediction_masks.dtype}.")
+        app_logger.debug(f"predict_masks terminated...")
+        app_logger.info(f"predict_masks terminated, prediction masks shape:{prediction_masks.shape}, {prediction_masks.dtype}.")
 
         mask = np.zeros((prediction_masks.shape[2], prediction_masks.shape[3]), dtype=np.uint8)
         for m in prediction_masks[0, :, :, :]:
             mask[m > 0.0] = 255
 
         mask_unique_values, mask_unique_values_count = serialize(np.unique(mask, return_counts=True))
-        app_logger.info(f"mask_unique_values:{mask_unique_values}.")
-        app_logger.info(f"mask_unique_values_count:{mask_unique_values_count}.")
+        app_logger.debug(f"mask_unique_values:{mask_unique_values}.")
+        app_logger.debug(f"mask_unique_values_count:{mask_unique_values_count}.")
 
         transform = load_affine_transformation_from_matrix(matrix)
-        app_logger.info(f"image/geojson origin matrix:{matrix}, transform:{transform}.")
+        app_logger.info(f"image/geojson origin matrix:{matrix}, transform:{transform}: create shapes_generator...")
         shapes_generator = ({
             'properties': {'raster_val': v}, 'geometry': s}
             for i, (s, v)
