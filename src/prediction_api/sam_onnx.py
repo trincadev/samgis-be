@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 
 import cv2
@@ -5,6 +6,7 @@ import numpy as np
 import onnxruntime
 
 from src import app_logger
+from src.utilities.serialize import serialize
 
 
 class SegmentAnythingONNX:
@@ -145,12 +147,35 @@ class SegmentAnythingONNX:
             batch_masks = []
             for mask_id in range(masks.shape[1]):
                 mask = masks[batch, mask_id]
-                mask = cv2.warpAffine(
-                    mask,
-                    transform_matrix[:2],
-                    (original_size[1], original_size[0]),
-                    flags=cv2.INTER_LINEAR,
-                )
+                try:
+                    try:
+                        app_logger.info(f"mask_shape transform_masks:{mask.shape}, dtype:{mask.dtype}.")
+                    except Exception as e_mask_shape_transform_masks:
+                        app_logger.error(f"e_mask_shape_transform_masks:{e_mask_shape_transform_masks}.")
+                        # raise e_mask_shape_transform_masks
+                    output_filename = f"2_cv2img_{'_'.join([str(s) for s in mask.shape])}.npy"
+                    np.save(output_filename, np.array(mask), allow_pickle=True, fix_imports=True)
+                    app_logger.info(f"written: /tmp/{output_filename} ...")
+                    with open("/tmp/2_args.json", "w") as jj_out_dst:
+                        json.dump({
+                            "transform_matrix": serialize(transform_matrix),
+                            "M": serialize(transform_matrix[:2]),
+                            "original_size": serialize(original_size),
+                            "dsize": serialize((original_size[1], original_size[0])),
+                            "flags": cv2.INTER_LINEAR
+                        }, jj_out_dst)
+                    app_logger.info(f"written: /tmp/jj_out.json")
+                    mask = cv2.warpAffine(
+                        mask,
+                        transform_matrix[:2],
+                        (original_size[1], original_size[0]),
+                        flags=cv2.INTER_LINEAR,
+                    )
+                except Exception as e_warp_affine1:
+                    app_logger.error(f"e_warp_affine1 mask shape:{mask.shape}, dtype:{mask.dtype}.")
+                    app_logger.error(f"e_warp_affine1 transform_matrix:{transform_matrix}, [:2] {transform_matrix[:2]}.")
+                    app_logger.error(f"e_warp_affine1 original_size:{original_size}.")
+                    raise e_warp_affine1
                 batch_masks.append(mask)
             output_masks.append(batch_masks)
         return np.array(output_masks)
@@ -172,12 +197,36 @@ class SegmentAnythingONNX:
                 [0, 0, 1],
             ]
         )
-        cv_image = cv2.warpAffine(
-            cv_image,
-            transform_matrix[:2],
-            (self.input_size[1], self.input_size[0]),
-            flags=cv2.INTER_LINEAR,
-        )
+        try:
+            np_cv_image = np.array(cv_image)
+            try:
+                app_logger.info(f"cv_image shape_encode:{np_cv_image.shape}, dtype:{np_cv_image.dtype}.")
+            except Exception as e_cv_image_shape_encode:
+                app_logger.error(f"e_cv_image_shape_encode:{e_cv_image_shape_encode}.")
+                # raise e_cv_image_shape_encode
+            output_filename = f"/tmp/1_cv2img_{'_'.join([str(s) for s in np_cv_image.shape])}.npy"
+            np.save(output_filename, np_cv_image, allow_pickle=True, fix_imports=True)
+            app_logger.info(f"written: /tmp/{output_filename} ...")
+            with open("/tmp/1_args.json", "w") as jj_out_dst:
+                json.dump({
+                    "transform_matrix": serialize(transform_matrix),
+                    "M": serialize(transform_matrix[:2]),
+                    "flags": cv2.INTER_LINEAR
+                }, jj_out_dst)
+            app_logger.info(f"written: /tmp/jj_out.json")
+            cv_image = cv2.warpAffine(
+                cv_image,
+                transform_matrix[:2],
+                (self.input_size[1], self.input_size[0]),
+                flags=cv2.INTER_LINEAR,
+            )
+        except Exception as e_warp_affine2:
+            app_logger.error(f"e_warp_affine2:{e_warp_affine2}.")
+            np_cv_image = np.array(cv_image)
+            app_logger.error(f"e_warp_affine2 cv_image shape:{np_cv_image.shape}, dtype:{np_cv_image.dtype}.")
+            app_logger.error(f"e_warp_affine2 transform_matrix:{transform_matrix}, [:2] {transform_matrix[:2]}")
+            app_logger.error(f"e_warp_affine2 self.input_size:{self.input_size}.")
+            raise e_warp_affine2
 
         encoder_inputs = {
             self.encoder_input_name: cv_image.astype(np.float32),

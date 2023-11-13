@@ -33,9 +33,9 @@ def get_latlng2pixel_projection(latlng) -> PixelCoordinate:
 def get_point_latlng_to_pixel_coordinates(latlng, zoom: int) -> PixelCoordinate:
     try:
         world_coordinate: PixelCoordinate = get_latlng2pixel_projection(latlng)
-        app_logger.debug(f"world_coordinate:{world_coordinate}.")
+        app_logger.info(f"world_coordinate:{world_coordinate}.")
         scale: int = pow(2, zoom)
-        app_logger.debug(f"scale:{scale}.")
+        app_logger.info(f"scale:{scale}.")
         return PixelCoordinate(
             x=math.floor(world_coordinate["x"] * scale),
             y=math.floor(world_coordinate["y"] * scale)
@@ -45,9 +45,20 @@ def get_point_latlng_to_pixel_coordinates(latlng, zoom: int) -> PixelCoordinate:
         raise e_format_latlng_to_pixel_coordinates
 
 
-def get_latlng_to_pixel_coordinates(latlng_origin, latlng_current_point, zoom):
+def get_latlng_to_pixel_coordinates(latlng_origin, latlng_current_point, zoom, k: str):
+    # latlng_origin_list = get_latlng_coords_list(latlng_origin, k)
+    # latlng_current_point_list = get_latlng_coords_list(latlng_current_point, k)
+    app_logger.info(f"latlng_origin - {k}: {type(latlng_origin)}, value:{latlng_origin}.")
+    app_logger.info(f"latlng_current_point - {k}: {type(latlng_current_point)}, value:{latlng_current_point}.")
     latlng_map_origin = get_point_latlng_to_pixel_coordinates(latlng_origin, zoom)
     latlng_map_current_point = get_point_latlng_to_pixel_coordinates(latlng_current_point, zoom)
     diff_coord_x = abs(latlng_map_origin["x"] - latlng_map_current_point["x"])
     diff_coord_y = abs(latlng_map_origin["y"] - latlng_map_current_point["y"])
-    return PixelCoordinate(x=diff_coord_x, y=diff_coord_y)
+    point = PixelCoordinate(x=diff_coord_x, y=diff_coord_y)
+    app_logger.info(f"point - {k}: {point}.")
+    return point
+
+
+def get_latlng_coords_list(latlng_point, k: str):
+    latlng_current_point = latlng_point[k]
+    return [latlng_current_point["lat"], latlng_current_point["lng"]]
