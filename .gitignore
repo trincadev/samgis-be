@@ -5,3 +5,4 @@ __cache__
 tmp/
 .env*
 *.onnx
+.DS_Store
