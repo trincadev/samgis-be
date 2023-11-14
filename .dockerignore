@@ -5,3 +5,4 @@ __cache__
 tmp/
 .env*
 __pycache__
+.DS_Store

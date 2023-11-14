@@ -1,15 +1,17 @@
 import json
 import time
 from http import HTTPStatus
+from pathlib import Path
 from typing import Dict
 
 from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from src import app_logger
-from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
+from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates, get_point_latlng_to_pixel_coordinates
 from src.prediction_api.predictors import samexporter_predict
-from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES
+from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES, ROOT
+from src.utilities.serialize import serialize
 from src.utilities.utilities import base64_decode
 
 
@@ -57,20 +59,29 @@ def get_parsed_bbox_points(request_input: Dict) -> Dict:
     for prompt in request_input["prompt"]:
         app_logger.info(f"current prompt: {type(prompt)}, value:{prompt}.")
         data = prompt["data"]
-        app_logger.info(f"current data points: {type(data)}, value:{data}.")
-        data_ne = data["ne"]
-        app_logger.info(f"current data_ne point: {type(data_ne)}, value:{data_ne}.")
-        data_sw = data["sw"]
-        app_logger.info(f"current data_sw point: {type(data_sw)}, value:{data_sw}.")
+        if prompt["type"] == "rectangle":
+            app_logger.info(f"current data points: {type(data)}, value:{data}.")
+            data_ne = data["ne"]
+            app_logger.info(f"current data_ne point: {type(data_ne)}, value:{data_ne}.")
+            data_sw = data["sw"]
+            app_logger.info(f"current data_sw point: {type(data_sw)}, value:{data_sw}.")
 
-        diff_pixel_coords_origin_data_ne = get_latlng_to_pixel_coordinates(ne, data_ne, zoom, "ne")
-        app_logger.info(f'current diff prompt ne: {type(data)}, {data} => {diff_pixel_coords_origin_data_ne}.')
-        diff_pixel_coords_origin_data_sw = get_latlng_to_pixel_coordinates(ne, data_sw, zoom, "sw")
-        app_logger.info(f'current diff prompt sw: {type(data)}, {data} => {diff_pixel_coords_origin_data_sw}.')
-        prompt["data"] = [
-            diff_pixel_coords_origin_data_ne["x"], diff_pixel_coords_origin_data_ne["y"],
-            diff_pixel_coords_origin_data_sw["x"], diff_pixel_coords_origin_data_sw["y"]
-        ]
+            diff_pixel_coords_origin_data_ne = get_latlng_to_pixel_coordinates(ne, sw, data_ne, zoom, "ne")
+            app_logger.info(f'current diff prompt ne: {type(data)}, {data} => {diff_pixel_coords_origin_data_ne}.')
+            diff_pixel_coords_origin_data_sw = get_latlng_to_pixel_coordinates(ne, sw, data_sw, zoom, "sw")
+            app_logger.info(f'current diff prompt sw: {type(data)}, {data} => {diff_pixel_coords_origin_data_sw}.')
+            prompt["data"] = [
+                diff_pixel_coords_origin_data_ne["x"], diff_pixel_coords_origin_data_ne["y"],
+                diff_pixel_coords_origin_data_sw["x"], diff_pixel_coords_origin_data_sw["y"]
+            ]
+        elif prompt["type"] == "point":
+            current_point = get_latlng_to_pixel_coordinates(ne, sw, data, zoom, "point")
+            app_logger.info(f"current prompt: {type(current_point)}, value:{current_point}.")
+            new_prompt_data = [current_point['x'], current_point['y']]
+            app_logger.info(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
+            prompt["data"] = new_prompt_data
+        else:
+            raise ValueError("valid prompt types are only 'point' and 'rectangle'")
 
     app_logger.info(f"bbox => {bbox}.")
     app_logger.info(f'## request_input["prompt"] updated => {request_input["prompt"]}.')
@@ -110,9 +121,13 @@ def lambda_handler(event: dict, context: LambdaContext):
         app_logger.info(f"body, #2: {type(body)}, {body}...")
 
         try:
+            prompt_latlng = body["prompt"]
+            app_logger.info(f"prompt_latlng:{prompt_latlng}.")
             body_request = get_parsed_bbox_points(body)
             app_logger.info(f"body_request=> {type(body_request)}, {body_request}.")
-            body_response = samexporter_predict(body_request["bbox"], body_request["prompt"], body_request["zoom"])
+            body_response = samexporter_predict(
+                body_request["bbox"], body_request["prompt"], body_request["zoom"], prompt_latlng
+            )
             app_logger.info(f"output body_response:{body_response}.")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
         except Exception as ex2:

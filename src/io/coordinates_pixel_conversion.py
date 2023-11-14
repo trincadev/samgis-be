@@ -45,17 +45,16 @@ def get_point_latlng_to_pixel_coordinates(latlng, zoom: int) -> PixelCoordinate:
         raise e_format_latlng_to_pixel_coordinates
 
 
-def get_latlng_to_pixel_coordinates(latlng_origin, latlng_current_point, zoom, k: str):
-    # latlng_origin_list = get_latlng_coords_list(latlng_origin, k)
-    # latlng_current_point_list = get_latlng_coords_list(latlng_current_point, k)
-    app_logger.info(f"latlng_origin - {k}: {type(latlng_origin)}, value:{latlng_origin}.")
+def get_latlng_to_pixel_coordinates(latlng_origin_ne, latlng_origin_sw, latlng_current_point, zoom, k: str):
+    app_logger.info(f"latlng_origin - {k}: {type(latlng_origin_ne)}, value:{latlng_origin_ne}.")
     app_logger.info(f"latlng_current_point - {k}: {type(latlng_current_point)}, value:{latlng_current_point}.")
-    latlng_map_origin = get_point_latlng_to_pixel_coordinates(latlng_origin, zoom)
+    latlng_map_origin_ne = get_point_latlng_to_pixel_coordinates(latlng_origin_ne, zoom)
+    latlng_map_origin_sw = get_point_latlng_to_pixel_coordinates(latlng_origin_sw, zoom)
     latlng_map_current_point = get_point_latlng_to_pixel_coordinates(latlng_current_point, zoom)
-    diff_coord_x = abs(latlng_map_origin["x"] - latlng_map_current_point["x"])
-    diff_coord_y = abs(latlng_map_origin["y"] - latlng_map_current_point["y"])
+    diff_coord_x = abs(latlng_map_origin_sw["x"] - latlng_map_current_point["x"])
+    diff_coord_y = abs(latlng_map_origin_ne["y"] - latlng_map_current_point["y"])
     point = PixelCoordinate(x=diff_coord_x, y=diff_coord_y)
-    app_logger.info(f"point - {k}: {point}.")
+    app_logger.info(f"point type - {k}: {point}.")
     return point
 
 

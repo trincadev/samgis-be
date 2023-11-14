@@ -100,28 +100,27 @@ def samexporter_predict(bbox, prompt: list[dict], zoom: float = ZOOM, model_name
         )
         app_logger.info(f"saved prediction_masks:{prediction_masks_output}.")
 
-        # mask = np.zeros((prediction_masks.shape[2], prediction_masks.shape[3]), dtype=np.uint8)
-        # app_logger.info(f"output mask shape:{mask.shape}, {mask.dtype}.")
-        # ## todo: convert to geojson directly within the loop to avoid merging two objects
-        # for n, m in enumerate(prediction_masks[0, :, :, :]):
-        #     app_logger.info(f"## {n} mask => m shape:{mask.shape}, {mask.dtype}.")
-        #     mask[m > 0.0] = 255
-        prediction_masks0 = prediction_masks[0]
-        app_logger.info(f"prediction_masks0 shape:{prediction_masks0.shape}.")
-
-        try:
-            pmf = np.sum(prediction_masks0, axis=0).astype(np.uint8)
-        except Exception as e_sum_pmf:
-            app_logger.error(f"e_sum_pmf:{e_sum_pmf}.")
-            pmf = prediction_masks0[0]
-        app_logger.info(f"creating pil image from prediction mask with shape {pmf.shape}.")
-        pil_pmf = Image.fromarray(pmf)
-        pil_pmf_output = f"/tmp/pil_pmf_{pmf.shape[0]}_{pmf.shape[1]}.png"
-        pil_pmf.save(pil_pmf_output)
-        app_logger.info(f"saved pil_pmf:{pil_pmf_output}.")
-
-        mask = np.zeros(pmf.shape, dtype=np.uint8)
-        mask[pmf > 0] = 255
+        mask = np.zeros((prediction_masks.shape[2], prediction_masks.shape[3]), dtype=np.uint8)
+        app_logger.info(f"output mask shape:{mask.shape}, {mask.dtype}.")
+        for n, m in enumerate(prediction_masks[0, :, :, :]):
+            app_logger.info(f"## {n} mask => m shape:{mask.shape}, {mask.dtype}.")
+            mask[m > 0.0] = 255
+        # prediction_masks0 = prediction_masks[0]
+        # app_logger.info(f"prediction_masks0 shape:{prediction_masks0.shape}.")
+        #
+        # try:
+        #     pmf = np.sum(prediction_masks0, axis=0).astype(np.uint8)
+        # except Exception as e_sum_pmf:
+        #     app_logger.error(f"e_sum_pmf:{e_sum_pmf}.")
+        #     pmf = prediction_masks0[0]
+        # app_logger.info(f"creating pil image from prediction mask with shape {pmf.shape}.")
+        # pil_pmf = Image.fromarray(pmf)
+        # pil_pmf_output = f"/tmp/pil_pmf_{pmf.shape[0]}_{pmf.shape[1]}.png"
+        # pil_pmf.save(pil_pmf_output)
+        # app_logger.info(f"saved pil_pmf:{pil_pmf_output}.")
+        #
+        # mask = np.zeros(pmf.shape, dtype=np.uint8)
+        # mask[pmf > 0] = 255
 
         # cv2.imwrite(f"/tmp/cv2_mask_predicted_{mask.shape[0]}_{mask.shape[1]}_{mask.shape[2]}.png", mask)
         pil_mask = Image.fromarray(mask)
