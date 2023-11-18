@@ -2,10 +2,10 @@ aws-lambda-powertools
 awslambdaric
 bson
 geopandas
-httpx
 jmespath
 numpy
 onnxruntime
 opencv-python
 pillow
 rasterio
+requests

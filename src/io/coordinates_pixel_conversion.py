@@ -1,5 +1,5 @@
 import math
-from typing import TypedDict, List
+from typing import TypedDict
 
 from src import app_logger
 from src.utilities.constants import TILE_SIZE

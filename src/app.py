@@ -27,7 +27,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
         str: json response
 
     """
-    app_logger.info(f"response_body:{response_body}.")
+    app_logger.debug(f"response_body:{response_body}.")
     response_body["duration_run"] = time.time() - start_time
     response_body["message"] = CUSTOM_RESPONSE_MESSAGES[status]
     response_body["request_id"] = request_id
@@ -38,59 +38,36 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
         "body": json.dumps(response_body),
         "isBase64Encoded": False
     }
-    app_logger.info(f"response type:{type(response)} => {response}.")
+    app_logger.debug(f"response type:{type(response)} => {response}.")
     return json.dumps(response)
 
 
 def get_parsed_bbox_points(request_input: Dict) -> Dict:
     app_logger.info(f"try to parsing input request {request_input}...")
     bbox = request_input["bbox"]
-    app_logger.info(f"request bbox: {type(bbox)}, value:{bbox}.")
+    app_logger.debug(f"request bbox: {type(bbox)}, value:{bbox}.")
     ne = bbox["ne"]
     sw = bbox["sw"]
-    app_logger.info(f"request ne: {type(ne)}, value:{ne}.")
-    app_logger.info(f"request sw: {type(sw)}, value:{sw}.")
+    app_logger.debug(f"request ne: {type(ne)}, value:{ne}.")
+    app_logger.debug(f"request sw: {type(sw)}, value:{sw}.")
     ne_latlng = [float(ne["lat"]), float(ne["lng"])]
     sw_latlng = [float(sw["lat"]), float(sw["lng"])]
     bbox = [ne_latlng, sw_latlng]
     zoom = int(request_input["zoom"])
     for prompt in request_input["prompt"]:
-        app_logger.info(f"current prompt: {type(prompt)}, value:{prompt}.")
+        app_logger.debug(f"current prompt: {type(prompt)}, value:{prompt}.")
         data = prompt["data"]
-        # if prompt["type"] == "rectangle":
-        #     app_logger.info(f"current data points: {type(data)}, value:{data}.")
-        #     data_ne = data["ne"]
-        #     app_logger.info(f"current data_ne point: {type(data_ne)}, value:{data_ne}.")
-        #     data_sw = data["sw"]
-        #     app_logger.info(f"current data_sw point: {type(data_sw)}, value:{data_sw}.")
-        #
-        #     diff_pixel_coords_origin_data_ne = get_latlng_to_pixel_coordinates(ne, sw, data_ne, zoom, "ne")
-        #     app_logger.info(f'current diff prompt ne: {type(data)}, {data} => {diff_pixel_coords_origin_data_ne}.')
-        #     diff_pixel_coords_origin_data_sw = get_latlng_to_pixel_coordinates(ne, sw, data_sw, zoom, "sw")
-        #     app_logger.info(f'current diff prompt sw: {type(data)}, {data} => {diff_pixel_coords_origin_data_sw}.')
-        #     prompt["data"] = [
-        #         diff_pixel_coords_origin_data_ne["x"], diff_pixel_coords_origin_data_ne["y"],
-        #         diff_pixel_coords_origin_data_sw["x"], diff_pixel_coords_origin_data_sw["y"]
-        #     ]
-        #     # rect_diffs_input = str(Path(ROOT) / "rect_diffs_input.json")
-        #     # with open(rect_diffs_input, "w") as jj_out3:
-        #     #     json.dump({
-        #     #         "prompt_data": serialize(prompt["data"]),
-        #     #         "diff_pixel_coords_origin_data_ne": serialize(diff_pixel_coords_origin_data_ne),
-        #     #         "diff_pixel_coords_origin_data_sw": serialize(diff_pixel_coords_origin_data_sw),
-        #     #     }, jj_out3)
-        #     # app_logger.info(f"written json:{rect_diffs_input}.")
         if prompt["type"] == "point":
             current_point = get_latlng_to_pixel_coordinates(ne, sw, data, zoom, "point")
-            app_logger.info(f"current prompt: {type(current_point)}, value:{current_point}.")
+            app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}.")
             new_prompt_data = [current_point['x'], current_point['y']]
-            app_logger.info(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
+            app_logger.debug(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
             prompt["data"] = new_prompt_data
         else:
             raise ValueError("valid prompt type is only 'point'")
 
-    app_logger.info(f"bbox => {bbox}.")
-    app_logger.info(f'## request_input-prompt updated => {request_input["prompt"]}.')
+    app_logger.debug(f"bbox => {bbox}.")
+    app_logger.debug(f'## request_input-prompt updated => {request_input["prompt"]}.')
 
     app_logger.info(f"unpacking elaborated {request_input}...")
     return {
@@ -117,18 +94,18 @@ def lambda_handler(event: dict, context: LambdaContext):
             app_logger.error(f"e_constants1:{e_constants1}.")
             body = event
 
-        app_logger.info(f"body, #1: {type(body)}, {body}...")
+        app_logger.debug(f"body, #1: {type(body)}, {body}...")
 
         if isinstance(body, str):
             body_decoded_str = base64_decode(body)
-            app_logger.info(f"body_decoded_str: {type(body_decoded_str)}, {body_decoded_str}...")
+            app_logger.debug(f"body_decoded_str: {type(body_decoded_str)}, {body_decoded_str}...")
             body = json.loads(body_decoded_str)
 
         app_logger.info(f"body, #2: {type(body)}, {body}...")
 
         try:
             prompt_latlng = body["prompt"]
-            app_logger.info(f"prompt_latlng:{prompt_latlng}.")
+            app_logger.debug(f"prompt_latlng:{prompt_latlng}.")
             body_request = get_parsed_bbox_points(body)
             app_logger.info(f"body_request=> {type(body_request)}, {body_request}.")
             body_response = samexporter_predict(body_request["bbox"], body_request["prompt"], body_request["zoom"])
