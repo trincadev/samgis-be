@@ -1,13 +1,16 @@
 import json
 from unittest import TestCase
 
-from src.io.coordinates_pixel_conversion import get_latlng2pixel_projection, get_point_latlng_to_pixel_coordinates
+from src.io.coordinates_pixel_conversion import get_latlng2pixel_projection, get_point_latlng_to_pixel_coordinates, \
+    get_latlng_to_pixel_coordinates
+
 from tests import TEST_EVENTS_FOLDER
 
 
 names_fn_dict = {
     "get_latlng2pixel_projection": get_latlng2pixel_projection,
-    "get_point_latlng_to_pixel_coordinates": get_point_latlng_to_pixel_coordinates
+    "get_point_latlng_to_pixel_coordinates": get_point_latlng_to_pixel_coordinates,
+    "get_latlng_to_pixel_coordinates": get_latlng_to_pixel_coordinates
 }
 
 
@@ -29,8 +32,5 @@ class Test(TestCase):
     def test_get_point_latlng_to_pixel_coordinates(self):
         test_fn_reading_json_inputs_outputs("get_point_latlng_to_pixel_coordinates")
 
-    # def test_get_latlng_to_pixel_coordinates(self):
-    #     self.fail()
-    #
-    # def test_pixel_coordinate(self):
-    #     self.fail()
+    def test_get_latlng_to_pixel_coordinates(self):
+        test_fn_reading_json_inputs_outputs("get_latlng_to_pixel_coordinates")

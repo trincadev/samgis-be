@@ -1,0 +1,91 @@
+{
+  "europe": {
+    "input": {
+      "latlng_origin_ne": {
+        "lat": 39.00211112813057,
+          "lng": 15.047197603420843
+      },
+      "latlng_origin_sw": {
+        "lat": 38.26837671763853,
+          "lng": 13.640947603420843
+      },
+      "latlng_current_point": {
+        "lat": 38.48902081116029,
+          "lng": 14.93651187728213
+      },
+      "zoom": 10,
+        "k": "point"
+    },
+    "output": {
+      "x": 943,
+        "y": 480
+    }
+  },
+  "north_america": {
+    "input": {
+      "latlng_origin_ne": {
+        "lat": 49.582282020151446,
+          "lng": -114.91703409765535
+      },
+      "latlng_origin_sw": {
+        "lat": 44.465212628469644,
+          "lng": -126.16703409765536
+      },
+      "latlng_current_point": {
+        "lat": 45.80744471451486,
+          "lng": -115.76956041946815
+      },
+      "zoom": 7,
+        "k": "point"
+    },
+    "output": {
+      "x": 947,
+        "y": 511
+    }
+  },
+  "south_america": {
+    "input": {
+      "latlng_origin_ne": {
+        "lat": -25.977795571234143,
+          "lng": -61.78714474717111
+      },
+      "latlng_origin_sw": {
+        "lat": -32.52828619080139,
+          "lng": -73.03714474717113
+      },
+      "latlng_current_point": {
+        "lat": -30.50591463444477,
+          "lng": -62.94729295042129
+      },
+      "zoom": 7,
+        "k": "point"
+    },
+    "output": {
+      "x": 919,
+        "y": 469
+    }
+
+  },
+  "oceania": {
+    "input": {
+      "latlng_origin_ne": {
+        "lat": -1.4939713066293112,
+          "lng": 155.30273437500003
+      },
+      "latlng_origin_sw": {
+        "lat": -52.32191088594772,
+          "lng": 65.30273437500001
+      },
+      "latlng_current_point": {
+        "lat": -41.90533741995158,
+          "lng": 146.54890054574847
+      },
+      "zoom": 4,
+        "k": "point"
+    },
+    "output": {
+      "x": 924,
+        "y": 509
+    }
+  }
+}
