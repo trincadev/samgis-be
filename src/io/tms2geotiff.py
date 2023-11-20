@@ -128,7 +128,7 @@ def get_tile(url):
 
 def print_progress(progress, total, done=False):
     if done:
-        print('Downloaded image %d/%d, %.2f%%' % (progress, total, progress * 100 / total))
+        app_logger.info('Downloaded image %d/%d, %.2f%%' % (progress, total, progress * 100 / total))
 
 
 class ProgressBar:
@@ -160,7 +160,7 @@ class ProgressBar:
         if self.tqdm_bar:
             self.tqdm_bar.close()
         else:
-            print('\nDone.')
+            app_logger.info('\nDone.')
 
 
 def mbtiles_save(db, img_data, xy, zoom, img_format):
@@ -643,8 +643,8 @@ def downloader(input_args, input_parser):
             coords1 = tuple(map(float, getattr(input_args, 'to').split(',')))
             print("coords1:", coords1, "#")
             download_args.extend((coords0[0], coords0[1], coords1[0], coords1[1]))
-    except Exception as e:
-        print(f"e:", e, "#")
+    except Exception as e_downloader:
+        print(f"e_downloader:", e_downloader, "#")
         input_parser.print_help()
         return 1
     download_args.append(input_args.zoom)

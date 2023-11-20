@@ -29,7 +29,7 @@ def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str =
         with tempfile.TemporaryDirectory() as input_tmp_dir:
             app_logger.info(f'tile_source: {DEFAULT_TMS}!')
             pt0, pt1 = bbox
-            app_logger.info("downloading...")
+            app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
             img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
             app_logger.debug(f"img type {type(img)} with shape/size:{img.size}, matrix:{matrix}.")
 

@@ -9,5 +9,6 @@
     "label": 0
   }],
   "zoom": 6,
-  "source_type": "Satellite"
+  "source_type": "Satellite",
+  "debug": true
 }

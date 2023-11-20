@@ -2,6 +2,7 @@ import time
 from http import HTTPStatus
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
+from pydantic import ValidationError
 
 from src import app_logger
 from src.io.lambda_helpers import get_parsed_request_body, get_parsed_bbox_points, get_response
@@ -16,19 +17,22 @@ def lambda_handler(event: dict, context: LambdaContext):
         app_logger.info(f"event version: {event['version']}.")
 
     try:
-        body = get_parsed_request_body(event, context)
+        app_logger.info(f"try get_parsed_event...")
+        request_input = get_parsed_request_body(event)
+        app_logger.info(f"event parsed: ok")
+        body_request = get_parsed_bbox_points(request_input)
 
         try:
-            prompt_latlng = body["prompt"]
-            app_logger.debug(f"prompt_latlng:{prompt_latlng}.")
-            body_request = get_parsed_bbox_points(body)
-            app_logger.info(f"body_request=> {type(body_request)}, {body_request}.")
+            app_logger.info(f"body_request => {type(body_request)}, {body_request}.")
             body_response = samexporter_predict(body_request["bbox"], body_request["prompt"], body_request["zoom"])
             app_logger.info(f"output body_response:{body_response}.")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
         except Exception as ex2:
             app_logger.error(f"exception2:{ex2}.")
-            response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id, {})
+            response = get_response(HTTPStatus.BAD_REQUEST.value, start_time, context.aws_request_id, {})
+    except ValidationError as va1:
+        app_logger.error(f"ValidationError:{va1}.")
+        response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id, {})
     except Exception as ex1:
         app_logger.error(f"exception1:{ex1}.")
         response = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, context.aws_request_id, {})
