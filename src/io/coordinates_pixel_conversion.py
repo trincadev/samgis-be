@@ -3,6 +3,7 @@ from typing import TypedDict
 
 from src import app_logger
 from src.utilities.constants import TILE_SIZE
+from src.utilities.type_hints import LatLngDict
 
 
 class PixelCoordinate(TypedDict):
@@ -10,16 +11,16 @@ class PixelCoordinate(TypedDict):
     y: int
 
 
-def get_latlng2pixel_projection(latlng) -> PixelCoordinate:
+def get_latlng2pixel_projection(latlng: LatLngDict) -> PixelCoordinate:
     app_logger.info(f"latlng: {type(latlng)}, value:{latlng}.")
-    app_logger.info(f'latlng lat: {type(latlng["lat"])}, value:{latlng["lat"]}.')
-    app_logger.info(f'latlng lng: {type(latlng["lng"])}, value:{latlng["lng"]}.')
+    app_logger.info(f'latlng lat: {type(latlng.lat)}, value:{latlng.lat}.')
+    app_logger.info(f'latlng lng: {type(latlng.lng)}, value:{latlng.lng}.')
     try:
-        sin_y: float = math.sin(latlng["lat"] * math.pi / 180)
+        sin_y: float = math.sin(latlng.lat * math.pi / 180)
         app_logger.info(f"sin_y, #1:{sin_y}.")
         sin_y = min(max(sin_y, -0.9999), 0.9999)
         app_logger.info(f"sin_y, #2:{sin_y}.")
-        x = TILE_SIZE * (0.5 + latlng["lng"] / 360)
+        x = TILE_SIZE * (0.5 + latlng.lng / 360)
         app_logger.info(f"x:{x}.")
         y = TILE_SIZE * (0.5 - math.log((1 + sin_y) / (1 - sin_y)) / (4 * math.pi))
         app_logger.info(f"y:{y}.")
@@ -30,7 +31,7 @@ def get_latlng2pixel_projection(latlng) -> PixelCoordinate:
         raise e_get_latlng2pixel_projection
 
 
-def get_point_latlng_to_pixel_coordinates(latlng, zoom: int) -> PixelCoordinate:
+def get_point_latlng_to_pixel_coordinates(latlng: LatLngDict, zoom: int | float) -> PixelCoordinate:
     try:
         world_coordinate: PixelCoordinate = get_latlng2pixel_projection(latlng)
         app_logger.info(f"world_coordinate:{world_coordinate}.")
@@ -45,7 +46,13 @@ def get_point_latlng_to_pixel_coordinates(latlng, zoom: int) -> PixelCoordinate:
         raise e_format_latlng_to_pixel_coordinates
 
 
-def get_latlng_to_pixel_coordinates(latlng_origin_ne, latlng_origin_sw, latlng_current_point, zoom, k: str):
+def get_latlng_to_pixel_coordinates(
+        latlng_origin_ne: LatLngDict,
+        latlng_origin_sw: LatLngDict,
+        latlng_current_point: LatLngDict,
+        zoom: int | float,
+        k: str
+):
     app_logger.info(f"latlng_origin - {k}: {type(latlng_origin_ne)}, value:{latlng_origin_ne}.")
     app_logger.info(f"latlng_current_point - {k}: {type(latlng_current_point)}, value:{latlng_current_point}.")
     latlng_map_origin_ne = get_point_latlng_to_pixel_coordinates(latlng_origin_ne, zoom)

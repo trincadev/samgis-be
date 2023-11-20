@@ -1,4 +1,6 @@
 """custom type hints"""
+from enum import Enum
+
 from pydantic import BaseModel
 from typing import TypedDict
 
@@ -15,26 +17,13 @@ class LatLngDict(BaseModel):
     lng: float
 
 
-class RawBBox(BaseModel):
-    ne: LatLngDict
-    sw: LatLngDict
-
-
-class RawPrompt(BaseModel):
-    type: str
-    data: LatLngDict
-    label: int = 0
-
-
-class RawRequestInput(BaseModel):
-    bbox: RawBBox
-    prompt: RawPrompt
-    zoom: int | float
-    source_type: str = "Satellite"
+class PromptType(str, Enum):
+    point = "point"
+    # rectangle = "rectangle"
 
 
 class ParsedPrompt(BaseModel):
-    type: str
+    type: PromptType
     data: llist_float
     label: int = 0
 
@@ -48,3 +37,22 @@ class ParsedRequestInput(BaseModel):
 class PixelCoordinate(TypedDict):
     x: int
     y: int
+
+
+class RawBBox(BaseModel):
+    ne: LatLngDict
+    sw: LatLngDict
+
+
+class RawPrompt(BaseModel):
+    type: PromptType
+    data: LatLngDict
+    label: int = 0
+
+
+class RawRequestInput(BaseModel):
+    bbox: RawBBox
+    prompt: list[RawPrompt]
+    zoom: int | float
+    source_type: str = "Satellite"
+    debug: bool = False

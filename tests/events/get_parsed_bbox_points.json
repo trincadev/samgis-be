@@ -1,7 +1,7 @@
 {
   "europe": {
     "input": {
-      "request_input": {
+      "event": {
         "bbox": {
           "ne": {
             "lat": 38.03932961278458,
@@ -53,7 +53,7 @@
   },
   "north_america": {
     "input": {
-      "request_input": {
+      "event": {
         "bbox": {
           "ne": {
             "lat": 44.918201144476456,
@@ -104,7 +104,7 @@
   },
   "oceania": {
     "input": {
-      "request_input": {
+      "event": {
         "bbox": {
           "ne": {
             "lat": -1.4939713066293112,
@@ -155,7 +155,7 @@
   },
   "south_america": {
     "input": {
-      "request_input": {
+      "event": {
         "bbox": {
           "ne": {
             "lat": -24.80663308621806,
