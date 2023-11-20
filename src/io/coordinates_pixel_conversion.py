@@ -56,8 +56,3 @@ def get_latlng_to_pixel_coordinates(latlng_origin_ne, latlng_origin_sw, latlng_c
     point = PixelCoordinate(x=diff_coord_x, y=diff_coord_y)
     app_logger.info(f"point type - {k}: {point}.")
     return point
-
-
-def get_latlng_coords_list(latlng_point, k: str):
-    latlng_current_point = latlng_point[k]
-    return [latlng_current_point["lat"], latlng_current_point["lng"]]
