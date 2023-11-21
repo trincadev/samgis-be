@@ -7,5 +7,6 @@ numpy
 onnxruntime
 opencv-python
 pillow
+pydantic>=2.0.3
 rasterio
 requests
