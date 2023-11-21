@@ -1,7 +1,5 @@
 import json
 
-from aws_lambda_powertools.utilities.parser import parse
-
 from src.io.coordinates_pixel_conversion import get_latlng2pixel_projection, get_point_latlng_to_pixel_coordinates, \
     get_latlng_to_pixel_coordinates
 from src.utilities.type_hints import LatLngDict
@@ -16,7 +14,7 @@ def test_get_latlng2pixel_projection():
         for k, input_output in inputs_outputs.items():
             print(f"k:{k}")
             current_input = input_output["input"]
-            latlng_input = parse(event=current_input["latlng"], model=LatLngDict)
+            latlng_input = LatLngDict.model_validate(current_input["latlng"])
             output = get_latlng2pixel_projection(latlng_input)
             assert output == input_output["output"]
 
@@ -29,7 +27,7 @@ def test_get_point_latlng_to_pixel_coordinates():
         for k, input_output in inputs_outputs.items():
             print(f"k:{k}")
             current_input = input_output["input"]
-            latlng_input = parse(event=current_input["latlng"], model=LatLngDict)
+            latlng_input = LatLngDict.model_validate(current_input["latlng"])
             output = get_point_latlng_to_pixel_coordinates(latlng=latlng_input, zoom=current_input["zoom"])
             assert output == input_output["output"]
 
@@ -43,9 +41,9 @@ def test_get_latlng_to_pixel_coordinates():
             print(f"k:{k}")
             current_input = input_output["input"]
             zoom = current_input["zoom"]
-            latlng_origin_ne = parse(event=current_input['latlng_origin_ne'], model=LatLngDict)
-            latlng_origin_sw = parse(event=current_input['latlng_origin_sw'], model=LatLngDict)
-            latlng_current_point = parse(event=current_input['latlng_current_point'], model=LatLngDict)
+            latlng_origin_ne = LatLngDict.model_validate(current_input["latlng_origin_ne"])
+            latlng_origin_sw = LatLngDict.model_validate(current_input["latlng_origin_sw"])
+            latlng_current_point = LatLngDict.model_validate(current_input["latlng_current_point"])
             output = get_latlng_to_pixel_coordinates(
                 latlng_origin_ne=latlng_origin_ne,
                 latlng_origin_sw=latlng_origin_sw,
