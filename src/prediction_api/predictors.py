@@ -30,7 +30,7 @@ def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str =
         app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{matrix}.")
 
         transform = get_affine_transform_from_gdal(matrix)
-        app_logger.debug(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
+        app_logger.info(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
 
         mask, n_predictions = get_raster_inference(img, prompt, models_instance, model_name)
         app_logger.info(f"created {n_predictions} masks, preparing conversion to geojson...")
