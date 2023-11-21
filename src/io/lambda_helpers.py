@@ -2,9 +2,7 @@ import json
 import logging
 import time
 from typing import Dict
-
 from aws_lambda_powertools.event_handler import content_types
-from aws_lambda_powertools.utilities.parser import parse
 
 from src import app_logger
 from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
@@ -94,7 +92,7 @@ def get_parsed_request_body(event):
         raw_body = json.loads(body_decoded_str)
     app_logger.info(f"body, #2: {type(raw_body)}, {raw_body}...")
 
-    parsed_body = parse(event=raw_body, model=RawRequestInput)
+    parsed_body = RawRequestInput.model_validate(raw_body)
     log_level = "DEBUG" if parsed_body.debug else "INFO"
     app_logger.setLevel(log_level)
     app_logger.warning(f"set log level to {logging.getLevelName(app_logger.log_level)}.")
