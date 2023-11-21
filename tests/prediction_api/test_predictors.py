@@ -30,11 +30,11 @@ def test_get_raster_inference(
             model_mocked.predict_masks.return_value = inference_out
             model_mocked.predict_masks.side_effect = None
             print(f"k:{k}.")
-            output_mask, output_inference_out = get_raster_inference(
+            output_mask, len_inference_out = get_raster_inference(
                 img=img,
                 prompt=prompt,
                 models_instance=model_mocked,
                 model_name=model_name
             )
             assert np.array_equal(output_mask, mask)
-            assert np.array_equal(output_inference_out, inference_out)
+            assert len_inference_out == input_output["output"]["n_predictions"]

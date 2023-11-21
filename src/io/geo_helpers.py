@@ -22,42 +22,36 @@ def load_affine_transformation_from_matrix(matrix_source_coeffs: List):
         app_logger.error(f"exception:{e}, check https://github.com/rasterio/affine project for updates")
 
 
-def get_vectorized_raster_as_geojson(rio_output, mask):
+def get_affine_transform_from_gdal(matrix):
+    from rasterio import Affine
+
+    return Affine.from_gdal(*matrix)
+
+
+def get_vectorized_raster_as_geojson(mask, transform):
     try:
-        from rasterio import open as rio_open
         from rasterio.features import shapes
         from geopandas import GeoDataFrame
 
-        app_logger.info(f"read downloaded geotiff:{rio_output} to create the shapes_generator...")
-
-        with rio_open(rio_output, "r", driver="GTiff") as rio_src:
-            raster = rio_src.read()
-            transform = rio_src.transform
-            crs = rio_src.crs
-
-            app_logger.debug(f"geotiff band:{raster.shape}, type: {type(raster)}, dtype: {raster.dtype}.")
-            app_logger.debug(f"rio_src crs:{crs}.")
-            app_logger.debug(f"rio_src transform:{transform}.")
-
-            # mask = band != 0
-            shapes_generator = ({
-                'properties': {'raster_val': v}, 'geometry': s}
-                for i, (s, v)
-                # in enumerate(shapes(mask, mask=(band != 0), transform=rio_src.transform))
-                # use mask=None to avoid using source
-                in enumerate(shapes(mask, mask=None, transform=transform))
-            )
-            app_logger.info(f"created shapes_generator, transform it to a polygon list...")
-            shapes_list = list(shapes_generator)
-            app_logger.info(f"created {len(shapes_list)} polygons.")
-            gpd_polygonized_raster = GeoDataFrame.from_features(shapes_list, crs="EPSG:3857")
-            app_logger.info(f"created a GeoDataFrame, export to geojson...")
-            geojson = gpd_polygonized_raster.to_json(to_wgs84=True)
-            app_logger.info(f"created geojson, preparing API response...")
-            return {
-                "geojson": geojson,
-                "n_shapes_geojson": len(shapes_list)
-            }
+        # mask = band != 0
+        shapes_generator = ({
+            'properties': {'raster_val': v}, 'geometry': s}
+            for i, (s, v)
+            # in enumerate(shapes(mask, mask=(band != 0), transform=rio_src.transform))
+            # use mask=None to avoid using source
+            in enumerate(shapes(mask, mask=None, transform=transform))
+        )
+        app_logger.info(f"created shapes_generator, transform it to a polygon list...")
+        shapes_list = list(shapes_generator)
+        app_logger.info(f"created {len(shapes_list)} polygons.")
+        gpd_polygonized_raster = GeoDataFrame.from_features(shapes_list, crs="EPSG:3857")
+        app_logger.info(f"created a GeoDataFrame, export to geojson...")
+        geojson = gpd_polygonized_raster.to_json(to_wgs84=True)
+        app_logger.info(f"created geojson, preparing API response...")
+        return {
+            "geojson": geojson,
+            "n_shapes_geojson": len(shapes_list)
+        }
     except Exception as e_shape_band:
         app_logger.error(f"e_shape_band:{e_shape_band}.")
         raise e_shape_band
