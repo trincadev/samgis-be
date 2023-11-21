@@ -28,10 +28,13 @@ def get_affine_transform_from_gdal(matrix):
     return Affine.from_gdal(*matrix)
 
 
-def get_vectorized_raster_as_geojson(mask, transform):
+def get_vectorized_raster_as_geojson(mask, matrix):
     try:
         from rasterio.features import shapes
         from geopandas import GeoDataFrame
+
+        transform = get_affine_transform_from_gdal(matrix)
+        app_logger.info(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
 
         # mask = band != 0
         shapes_generator = ({
