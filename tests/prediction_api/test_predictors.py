@@ -12,7 +12,7 @@ from tests import TEST_EVENTS_FOLDER
 def test_get_raster_inference(
     segment_anything_onnx_mocked
 ):
-    name_fn = "get_raster_inference"
+    name_fn = "samexporter_predict"
 
     with open(TEST_EVENTS_FOLDER / f"{name_fn}.json") as tst_json:
         inputs_outputs = json.load(tst_json)
