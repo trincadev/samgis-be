@@ -1,5 +1,5 @@
 {
-  "OK": {
+  "200": {
     "input": {
       "n_predictions": 1,
       "geojson": "{\"type\": \"FeatureCollection\", \"features\": [{\"id\": \"0\", \"type\": \"Feature\", \"properties\": {\"raster_val\": 255.0}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[148.359375, -40.4469470596005], [148.447265625, -40.4469470596005], [148.447265625, -40.51379915504414], [148.359375, -40.4469470596005]]]}}]}",
