@@ -18,18 +18,23 @@ def test_get_response(time_mocked):
 
     with open(TEST_EVENTS_FOLDER / "get_response.json") as tst_json:
         inputs_outputs = json.load(tst_json)
-        body_response = inputs_outputs["OK"]["input"]
-        output = get_response(HTTPStatus.OK.value, start_time, aws_request_id, body_response)
-        assert json.loads(output) == inputs_outputs["OK"]["output"]
-        
+
+    response_type = "200"
+    body_response = inputs_outputs[response_type]["input"]
+    output = get_response(HTTPStatus.OK.value, start_time, aws_request_id, body_response)
+    assert json.loads(output) == inputs_outputs[response_type]["output"]
+
+    response_type = "400"
     response_400 = get_response(HTTPStatus.BAD_REQUEST.value, start_time, aws_request_id, {})
-    assert response_400 == inputs_outputs["400"]["output"]
-    
+    assert response_400 == inputs_outputs[response_type]["output"]
+
+    response_type = "422"
     response_422 = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, aws_request_id, {})
-    assert response_422 == inputs_outputs["422"]["output"]
-    
+    assert response_422 == inputs_outputs[response_type]["output"]
+
+    response_type = "500"
     response_500 = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, aws_request_id, {})
-    assert response_500 == inputs_outputs["500"]["output"]
+    assert response_500 == inputs_outputs[response_type]["output"]
 
 
 def test_get_parsed_bbox_points():
