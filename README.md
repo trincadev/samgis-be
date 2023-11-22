@@ -54,3 +54,12 @@ curl -X 'POST' \
     docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api:latest
     ```
 3. It's possible to publish a new aws lambda version from cmd or from lambda page
+
+
+## Tests
+
+Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
+
+```bash
+python -m pytest --cov=src --cov-report=term-missing && coverage html
+```

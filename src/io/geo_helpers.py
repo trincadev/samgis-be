@@ -20,6 +20,7 @@ def load_affine_transformation_from_matrix(matrix_source_coeffs: List):
         return center * Affine.translation(-0.5, -0.5)
     except Exception as e:
         app_logger.error(f"exception:{e}, check https://github.com/rasterio/affine project for updates")
+        raise e
 
 
 def get_affine_transform_from_gdal(matrix):

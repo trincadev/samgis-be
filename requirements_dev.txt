@@ -8,5 +8,9 @@ onnxruntime
 opencv-python
 pillow
 pydantic>=2.0.3
+pytest
+pytest-cov
+pytest-dotenv
+python-dotenv
 rasterio
 requests
