@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2
+FROM python:3.11-slim-bookworm
 
 # Include global arg in this stage of the build
 ARG LAMBDA_TASK_ROOT="/var/task"
@@ -9,13 +9,15 @@ RUN echo "ENV RIE: $RIE ..."
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY requirements_dev.txt ${LAMBDA_TASK_ROOT}/requirements.txt
+COPY requirements_pip.txt ${LAMBDA_TASK_ROOT}/requirements_pip.txt
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
 RUN apt update && apt install -y libgl1 curl python3-pip
 RUN ls -ld /usr/lib/*linux-gnu/libGL.so* || echo "libGL.so* not found..."
 RUN which python
 RUN python --version
+RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_pip.txt --upgrade --target ${LAMBDA_TASK_ROOT}
 RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt --target ${LAMBDA_TASK_ROOT}
 RUN python -c "import sys;print(sys.path)"
 # RUN python -m pip install pillow awslambdaric aws-lambda-powertools httpx jmespath --target ${LAMBDA_TASK_ROOT}
