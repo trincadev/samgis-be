@@ -1,9 +1,35 @@
 import json
-
-from src.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body
+import time
+from http import HTTPStatus
+from unittest.mock import patch
+from src.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body, get_response
 from src.utilities.type_hints import RawRequestInput
-from src.utilities.utilities import base64_encode
+from src.utilities import utilities
 from tests import TEST_EVENTS_FOLDER
+
+
+@patch.object(time, "time")
+def test_get_response(time_mocked):
+    time_diff = 108
+    end_run = 1000
+    time_mocked.return_value = end_run
+    start_time = end_run-time_diff
+    aws_request_id = "test_invoke_id"
+
+    with open(TEST_EVENTS_FOLDER / "get_response.json") as tst_json:
+        inputs_outputs = json.load(tst_json)
+        body_response = inputs_outputs["OK"]["input"]
+        output = get_response(HTTPStatus.OK.value, start_time, aws_request_id, body_response)
+        assert json.loads(output) == inputs_outputs["OK"]["output"]
+        
+    response_400 = get_response(HTTPStatus.BAD_REQUEST.value, start_time, aws_request_id, {})
+    assert response_400 == inputs_outputs["400"]["output"]
+    
+    response_422 = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, aws_request_id, {})
+    assert response_422 == inputs_outputs["422"]["output"]
+    
+    response_500 = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, aws_request_id, {})
+    assert response_500 == inputs_outputs["500"]["output"]
 
 
 def test_get_parsed_bbox_points():
@@ -42,6 +68,6 @@ def test_get_parsed_request_body():
     output = get_parsed_request_body(input_event_str)
     assert output == RawRequestInput.model_validate(expected_output_dict)
 
-    event = {"body": base64_encode(input_event_str).decode("utf-8")}
+    event = {"body": utilities.base64_encode(input_event_str).decode("utf-8")}
     output = get_parsed_request_body(event)
     assert output == RawRequestInput.model_validate(expected_output_dict)
