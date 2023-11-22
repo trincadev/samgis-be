@@ -10,12 +10,11 @@ from src.io.tms2geotiff import download_extent
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
 from src.utilities.serialize import serialize
-from src.utilities.utilities import LogArgumentsDecorator
+
 
 models_dict = {"fastsam": {"instance": None}}
 
 
-@LogArgumentsDecorator.log_arguments_decorator
 def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str = "fastsam") -> dict:
     try:
         if models_dict[model_name]["instance"] is None:
