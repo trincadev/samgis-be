@@ -4,6 +4,7 @@ OUTPUT_CRS_STRING = "EPSG:3857"
 ROOT = "/tmp"
 CUSTOM_RESPONSE_MESSAGES = {
     200: "ok",
+    400: "Bad Request",
     422: "Missing required parameter",
     500: "Internal server error"
 }

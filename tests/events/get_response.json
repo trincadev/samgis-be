@@ -1,0 +1,29 @@
+{
+  "OK": {
+    "input": {
+      "n_predictions": 1,
+      "geojson": "{\"type\": \"FeatureCollection\", \"features\": [{\"id\": \"0\", \"type\": \"Feature\", \"properties\": {\"raster_val\": 255.0}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[148.359375, -40.4469470596005], [148.447265625, -40.4469470596005], [148.447265625, -40.51379915504414], [148.359375, -40.4469470596005]]]}}]}",
+      "n_shapes_geojson": 2
+    },
+    "output": {
+      "statusCode": 200,
+      "header": {
+        "Content-Type": "application/json"
+      },
+      "body": "{\"n_predictions\": 1, \"geojson\": \"{\\\"type\\\": \\\"FeatureCollection\\\", \\\"features\\\": [{\\\"id\\\": \\\"0\\\", \\\"type\\\": \\\"Feature\\\", \\\"properties\\\": {\\\"raster_val\\\": 255.0}, \\\"geometry\\\": {\\\"type\\\": \\\"Polygon\\\", \\\"coordinates\\\": [[[148.359375, -40.4469470596005], [148.447265625, -40.4469470596005], [148.447265625, -40.51379915504414], [148.359375, -40.4469470596005]]]}}]}\", \"n_shapes_geojson\": 2, \"duration_run\": 108, \"message\": \"ok\", \"request_id\": \"test_invoke_id\"}",
+      "isBase64Encoded": false
+    }
+  },
+  "400": {
+    "input": {},
+    "output": "{\"statusCode\": 400, \"header\": {\"Content-Type\": \"application/json\"}, \"body\": \"{\\\"duration_run\\\": 108, \\\"message\\\": \\\"Bad Request\\\", \\\"request_id\\\": \\\"test_invoke_id\\\"}\", \"isBase64Encoded\": false}"
+  },
+  "422": {
+    "input": {},
+    "output": "{\"statusCode\": 422, \"header\": {\"Content-Type\": \"application/json\"}, \"body\": \"{\\\"duration_run\\\": 108, \\\"message\\\": \\\"Missing required parameter\\\", \\\"request_id\\\": \\\"test_invoke_id\\\"}\", \"isBase64Encoded\": false}"
+  },
+  "500": {
+    "input": {},
+    "output": "{\"statusCode\": 500, \"header\": {\"Content-Type\": \"application/json\"}, \"body\": \"{\\\"duration_run\\\": 108, \\\"message\\\": \\\"Internal server error\\\", \\\"request_id\\\": \\\"test_invoke_id\\\"}\", \"isBase64Encoded\": false}"
+  }
+}
