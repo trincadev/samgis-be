@@ -1,4 +1,4 @@
-# Segment Geospatial
+# SamGIS
 
 ## todo
 
@@ -63,3 +63,25 @@ Tests are defined in the `tests` folder in this project. Use PIP to install the 
 ```bash
 python -m pytest --cov=src --cov-report=term-missing && coverage html
 ```
+
+## Update the static documentation with sphinx
+
+Run the sphinx-apidoc: it's a tool for automatic generation of Sphinx sources that, using the autodoc
+extension, document a whole package in the style of other automatic API documentation tools. See the 
+[documentation page](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html) for details.
+Run the command from the project root:
+
+```bash
+# missing docs folder
+sphinx-quickstart -p SamGIS -a "alessandro trinca tornidor" -r 1.0.0 -l python --master index
+
+# update docs folder
+sphinx-apidoc -f -o docs src
+```
+
+Then it's possible to generate the HTML pages 
+```bash
+cd docs && make html
+```
+
+The static documentation it's now ready at the path `_build/html/index.html`.

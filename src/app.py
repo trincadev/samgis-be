@@ -1,3 +1,4 @@
+"""Lambda entry point"""
 import time
 from http import HTTPStatus
 
@@ -10,6 +11,17 @@ from src.prediction_api.predictors import samexporter_predict
 
 
 def lambda_handler(event: dict, context: LambdaContext):
+    """
+    Handle the request for the serverless backend, dispatch the response.
+
+    Args:
+        event: request content
+        context: request context
+
+    Returns:
+        dict: response from try_return_output() function
+
+    """
     app_logger.info(f"start with aws_request_id:{context.aws_request_id}.")
     start_time = time.time()
 
