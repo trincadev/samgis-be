@@ -1,7 +1,8 @@
+"""lambda helper functions"""
 import json
 import logging
 import time
-from typing import Dict
+from typing import Dict, List
 from aws_lambda_powertools.event_handler import content_types
 
 from src import app_logger
@@ -41,6 +42,15 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
 
 
 def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
+    """
+    Format the bbox and prompt request input
+
+    Args:
+        request_input: input dict
+
+    Returns:
+        Dict:
+    """
     app_logger.info(f"try to parsing input request {request_input}...")
 
     bbox = request_input.bbox
@@ -78,7 +88,16 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     }
 
 
-def get_parsed_request_body(event):
+def get_parsed_request_body(event: Dict):
+    """
+    Parse the input request lambda event.
+
+    Args:
+        event: input dict
+
+    Returns:
+        RawRequestInput: parsed request input
+    """
     app_logger.info(f"event:{json.dumps(event)}...")
     try:
         raw_body = event["body"]

@@ -39,7 +39,9 @@ napoleon_google_docstring = True
 # napoleon_attr_annotations = True
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'build/*']
+exclude_patterns = [
+    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*'
+]
 
 source_suffix = {
     '.rst': 'restructuredtext',

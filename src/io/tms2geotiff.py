@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""download geo-referenced raster tiles images"""
 
 import io
 import os

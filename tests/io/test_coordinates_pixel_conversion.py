@@ -1,6 +1,6 @@
 import json
 
-from src.io.coordinates_pixel_conversion import get_latlng2pixel_projection, get_point_latlng_to_pixel_coordinates, \
+from src.io.coordinates_pixel_conversion import _get_latlng2pixel_projection, _get_point_latlng_to_pixel_coordinates, \
     get_latlng_to_pixel_coordinates
 from src.utilities.type_hints import LatLngDict
 from tests import TEST_EVENTS_FOLDER
@@ -15,7 +15,7 @@ def test_get_latlng2pixel_projection():
             print(f"k:{k}")
             current_input = input_output["input"]
             latlng_input = LatLngDict.model_validate(current_input["latlng"])
-            output = get_latlng2pixel_projection(latlng_input)
+            output = _get_latlng2pixel_projection(latlng_input)
             assert output == input_output["output"]
 
 
@@ -28,7 +28,7 @@ def test_get_point_latlng_to_pixel_coordinates():
             print(f"k:{k}")
             current_input = input_output["input"]
             latlng_input = LatLngDict.model_validate(current_input["latlng"])
-            output = get_point_latlng_to_pixel_coordinates(latlng=latlng_input, zoom=current_input["zoom"])
+            output = _get_point_latlng_to_pixel_coordinates(latlng=latlng_input, zoom=current_input["zoom"])
             assert output == input_output["output"]
 
 

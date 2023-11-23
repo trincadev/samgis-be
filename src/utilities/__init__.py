@@ -1,1 +1,1 @@
-"""various helpers utilities"""
+"""various helpers functions"""

@@ -1,7 +1,6 @@
-# Press the green button in the gutter to run the script.
-import json
-import tempfile
-
+"""functions using the machine learning instance model"""
+from typing import Dict, Tuple
+from PIL.Image import Image
 import numpy as np
 
 from src import app_logger, MODEL_FOLDER
@@ -9,13 +8,29 @@ from src.io.geo_helpers import get_vectorized_raster_as_geojson, get_affine_tran
 from src.io.tms2geotiff import download_extent
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
-from src.utilities.serialize import serialize
-
+from src.utilities.type_hints import llist_float
 
 models_dict = {"fastsam": {"instance": None}}
 
 
-def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str = "fastsam") -> dict:
+def samexporter_predict(
+        bbox: llist_float, prompt: list[dict], zoom: float, model_name: str = "fastsam") -> Dict[str, int]:
+    """
+    Return predictions as a geojson from a geo-referenced image using the given input prompt.
+    1. if necessary instantiate a segment anything machine learning instance model
+    2. download a geo-referenced raster image delimited by the coordinates bounding box (bbox)
+    3. get a prediction image from the segment anything instance model using the input prompt
+    4. get a geo-referenced geojson from the prediction image
+
+    Args:
+        bbox: coordinates bounding box
+        prompt: machine learning input prompt
+        zoom: zoom value
+        model_name: machine learning model name
+
+    Returns:
+        dict: Affine transform
+    """
     try:
         if models_dict[model_name]["instance"] is None:
             app_logger.info(f"missing instance model {model_name}, instantiating it now!")
@@ -31,10 +46,7 @@ def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str =
         pt0, pt1 = bbox
         app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
         img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
-        app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{matrix}.")
-
-        with tempfile.NamedTemporaryFile(mode='w', prefix=f"matrix_", delete=False) as temp_f1:
-            json.dump({"matrix": serialize(matrix)}, temp_f1)
+        app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{type(matrix)}, matrix:{matrix}.")
 
         transform = get_affine_transform_from_gdal(matrix)
         app_logger.debug(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
@@ -49,7 +61,20 @@ def samexporter_predict(bbox, prompt: list[dict], zoom: float, model_name: str =
         app_logger.error(f"Error trying import module:{e_import_module}.")
 
 
-def get_raster_inference(img, prompt, models_instance, model_name):
+def get_raster_inference(
+        img: Image, prompt: list[dict], models_instance: SegmentAnythingONNX, model_name: str
+     ) -> Tuple[np.ndarray, int]:
+    """wrapper for rasterio Affine from_gdal method
+
+    Args:
+        img: input PIL Image
+        prompt: list of prompt dict
+        models_instance: SegmentAnythingONNX instance model
+        model_name: model name string
+
+    Returns:
+        Tuple[np.ndarray, int]: raster prediction mask, prediction number
+    """
     np_img = np.array(img)
     app_logger.info(f"img type {type(np_img)}, prompt:{prompt}.")
     app_logger.debug(f"onnxruntime input shape/size (shape if PIL) {np_img.size}.")
@@ -57,12 +82,6 @@ def get_raster_inference(img, prompt, models_instance, model_name):
         app_logger.debug(f"onnxruntime input shape (NUMPY) {np_img.shape}.")
     except Exception as e_shape:
         app_logger.error(f"e_shape:{e_shape}.")
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', prefix=f"get_raster_inference__img_", delete=False) as temp_f0:
-            np.save(str(temp_f0.file.name), np_img)
-    except Exception as e_save:
-        app_logger.error(f"e_save:{e_save}.")
-        raise e_save
     app_logger.info(f"instantiated model {model_name}, ENCODER {MODEL_ENCODER_NAME}, "
                     f"DECODER {MODEL_DECODER_NAME} from {MODEL_FOLDER}: Creating embedding...")
     embedding = models_instance.encode(np_img)
@@ -76,12 +95,4 @@ def get_raster_inference(img, prompt, models_instance, model_name):
         app_logger.debug(f"{n}th of prediction_masks shape {inference_out.shape}"
                          f" => mask shape:{mask.shape}, {mask.dtype}.")
         mask[m > 0.0] = 255
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', prefix=f"get_raster_inference__mask_", delete=False) as temp_f1:
-            np.save(temp_f1.file.name, mask)
-        with tempfile.NamedTemporaryFile(mode='w', prefix=f"get_raster_inference__inference_out_", delete=False) as temp_f2:
-            np.save(temp_f2.file.name, inference_out)
-    except Exception as e_save1:
-        app_logger.error(f"e_save1:{e_save1}.")
-        raise e_save1
     return mask, len_inference_out

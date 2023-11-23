@@ -13,44 +13,37 @@ llist_float = list[list_float]
 
 
 class LatLngDict(BaseModel):
+    """A latitude-longitude type"""
     lat: float
     lng: float
 
 
 class PromptType(str, Enum):
+    """Segment Anyting enumeration prompt type"""
     point = "point"
     # rectangle = "rectangle"
 
 
-class ParsedPrompt(BaseModel):
-    type: PromptType
-    data: llist_float
-    label: int = 0
-
-
-class ParsedRequestInput(BaseModel):
-    bbox: llist_float
-    prompt: ParsedPrompt
-    zoom: int | float
-
-
-class PixelCoordinate(TypedDict):
+class ImagePixelCoordinates(TypedDict):
     x: int
     y: int
 
 
 class RawBBox(BaseModel):
+    """Input lambda bbox request - not parsed"""
     ne: LatLngDict
     sw: LatLngDict
 
 
 class RawPrompt(BaseModel):
+    """Input lambda prompt request - not parsed"""
     type: PromptType
     data: LatLngDict
     label: int = 0
 
 
 class RawRequestInput(BaseModel):
+    """Input lambda request - not parsed"""
     bbox: RawBBox
     prompt: list[RawPrompt]
     zoom: int | float

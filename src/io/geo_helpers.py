@@ -1,14 +1,22 @@
-"""Async download raster tiles"""
+"""handle geo-referenced raster images"""
 from pathlib import Path
-from typing import List
+from typing import List, Tuple, Dict
 
+from affine import Affine
 import numpy as np
 
 from src import app_logger, PROJECT_ROOT_FOLDER
 
 
-def load_affine_transformation_from_matrix(matrix_source_coeffs: List):
-    from affine import Affine
+def load_affine_transformation_from_matrix(matrix_source_coeffs: List[float]) -> Affine:
+    """wrapper for rasterio Affine from_gdal method
+
+    Args:
+        matrix_source_coeffs: 6 floats ordered by GDAL.
+
+    Returns:
+        Affine: Affine transform
+    """
 
     if len(matrix_source_coeffs) != 6:
         raise ValueError(f"Expected 6 coefficients, found {len(matrix_source_coeffs)}; "
@@ -23,13 +31,29 @@ def load_affine_transformation_from_matrix(matrix_source_coeffs: List):
         raise e
 
 
-def get_affine_transform_from_gdal(matrix):
-    from rasterio import Affine
+def get_affine_transform_from_gdal(matrix_source_coeffs: List[float]) -> Affine:
+    """wrapper for rasterio Affine from_gdal method
 
-    return Affine.from_gdal(*matrix)
+    Args:
+        matrix_source_coeffs: 6 floats ordered by GDAL.
+
+    Returns:
+        Affine: Affine transform
+    """
+    return Affine.from_gdal(*matrix_source_coeffs)
 
 
-def get_vectorized_raster_as_geojson(mask, matrix):
+def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> Dict[str, int]:
+    """
+        Parse the input request lambda event.
+
+        Args:
+            mask: numpy mask
+            matrix: tuple of float to transform into an Affine transform
+
+        Returns:
+            Dict: dict containing the output geojson and the predictions number
+    """
     try:
         from rasterio.features import shapes
         from geopandas import GeoDataFrame

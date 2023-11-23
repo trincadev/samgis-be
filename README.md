@@ -72,10 +72,10 @@ extension, document a whole package in the style of other automatic API document
 Run the command from the project root:
 
 ```bash
-# missing docs folder
-sphinx-quickstart -p SamGIS -a "alessandro trinca tornidor" -r 1.0.0 -l python --master index
+# missing docs folder (run from project root)
+cd docs && sphinx-quickstart -p SamGIS -a "alessandro trinca tornidor" -r 1.0.0 -l python --master index
 
-# update docs folder
+# update docs folder (from project root)
 sphinx-apidoc -f -o docs src
 ```
 
