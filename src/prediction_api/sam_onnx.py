@@ -1,3 +1,4 @@
+"""machine learning segment anything class"""
 from copy import deepcopy
 
 import cv2
