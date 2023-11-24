@@ -21,6 +21,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints'
     # 'sphinx_autodoc_defaultargs'
 ]
 # Napoleon settings
@@ -37,6 +38,9 @@ napoleon_google_docstring = True
 # napoleon_preprocess_types = False
 # napoleon_type_aliases = None
 # napoleon_attr_annotations = True
+
+#
+typehints_defaults = "comma"
 
 templates_path = ['_templates']
 exclude_patterns = [
@@ -70,3 +74,8 @@ html_sidebars = {
     ]
 }
 html_static_path = ['_static']
+html_theme_options = {
+    "description": "Segment Anything applied to geodata",
+    "fixed_sidebar": "true",
+    "sidebar_collapse": "false"
+}
