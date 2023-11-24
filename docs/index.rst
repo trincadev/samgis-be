@@ -13,6 +13,10 @@ Welcome to SamGIS's documentation!
 
    modules
 
+   src.io
+   src.prediction_api
+   src.utilities
+
 Indices and tables
 ==================
 
