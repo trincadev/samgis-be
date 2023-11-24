@@ -9,8 +9,9 @@ Welcome to SamGIS's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :hidden:
 
-
+   modules
 
 Indices and tables
 ==================

@@ -14,9 +14,14 @@ models_dict = {"fastsam": {"instance": None}}
 
 
 def samexporter_predict(
-        bbox: llist_float, prompt: list[dict], zoom: float, model_name: str = "fastsam") -> Dict[str, int]:
+        bbox: llist_float,
+        prompt: list[dict],
+        zoom: float,
+        model_name: str = "fastsam"
+) -> Dict[str, int]:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
+
     1. if necessary instantiate a segment anything machine learning instance model
     2. download a geo-referenced raster image delimited by the coordinates bounding box (bbox)
     3. get a prediction image from the segment anything instance model using the input prompt
@@ -25,7 +30,7 @@ def samexporter_predict(
     Args:
         bbox: coordinates bounding box
         prompt: machine learning input prompt
-        zoom: zoom value
+        zoom:
         model_name: machine learning model name
 
     Returns:
@@ -73,7 +78,7 @@ def get_raster_inference(
         model_name: model name string
 
     Returns:
-        Tuple[np.ndarray, int]: raster prediction mask, prediction number
+        raster prediction mask, prediction number
     """
     np_img = np.array(img)
     app_logger.info(f"img type {type(np_img)}, prompt:{prompt}.")
