@@ -19,7 +19,7 @@ class LatLngDict(BaseModel):
 
 
 class PromptType(str, Enum):
-    """Segment Anyting enumeration prompt type"""
+    """Segment Anything enumeration prompt type"""
     point = "point"
     # rectangle = "rectangle"
 

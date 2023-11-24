@@ -5,7 +5,7 @@ from src import app_logger
 from src.utilities.type_hints import ts_dict_str2, ts_dict_str3
 
 
-def serialize(obj: any, include_none: bool = False) -> object:
+def serialize(obj: any, include_none: bool = False):
     """
     Return the input object into a serializable one
 
@@ -14,7 +14,7 @@ def serialize(obj: any, include_none: bool = False) -> object:
         include_none: bool to indicate if include also keys with None values during dict serialization
 
     Returns:
-        object: serialized object
+        any: serialized object
 
     """
     return _serialize(obj, include_none)
