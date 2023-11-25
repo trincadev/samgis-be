@@ -1,5 +1,6 @@
 """
-machine learning segment anything class.
+Define a machine learning executed by ONNX Runtime (https://onnxruntime.ai/)
+for Segment Anything (https://segment-anything.com).
 Modified from https://github.com/vietanhdev/samexporter/
 
 Copyright (c) 2023 Viet Anh Nguyen
