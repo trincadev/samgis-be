@@ -1,4 +1,4 @@
-"""functions using the machine learning instance model"""
+"""functions using machine learning instance model(s)"""
 from typing import Dict, Tuple
 from PIL.Image import Image
 import numpy as np
@@ -9,6 +9,7 @@ from src.io.tms2geotiff import download_extent
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
 from src.utilities.type_hints import llist_float
+
 
 models_dict = {"fastsam": {"instance": None}}
 
@@ -36,34 +37,31 @@ def samexporter_predict(
     Returns:
         dict: Affine transform
     """
-    try:
-        if models_dict[model_name]["instance"] is None:
-            app_logger.info(f"missing instance model {model_name}, instantiating it now!")
-            model_instance = SegmentAnythingONNX(
-                encoder_model_path=MODEL_FOLDER / MODEL_ENCODER_NAME,
-                decoder_model_path=MODEL_FOLDER / MODEL_DECODER_NAME
-            )
-            models_dict[model_name]["instance"] = model_instance
-        app_logger.debug(f"using a {model_name} instance model...")
-        models_instance = models_dict[model_name]["instance"]
+    if models_dict[model_name]["instance"] is None:
+        app_logger.info(f"missing instance model {model_name}, instantiating it now!")
+        model_instance = SegmentAnythingONNX(
+            encoder_model_path=MODEL_FOLDER / MODEL_ENCODER_NAME,
+            decoder_model_path=MODEL_FOLDER / MODEL_DECODER_NAME
+        )
+        models_dict[model_name]["instance"] = model_instance
+    app_logger.debug(f"using a {model_name} instance model...")
+    models_instance = models_dict[model_name]["instance"]
 
-        app_logger.info(f'tile_source: {DEFAULT_TMS}!')
-        pt0, pt1 = bbox
-        app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
-        img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
-        app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{type(matrix)}, matrix:{matrix}.")
+    app_logger.info(f'tile_source: {DEFAULT_TMS}!')
+    pt0, pt1 = bbox
+    app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
+    img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
+    app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{type(matrix)}, matrix:{matrix}.")
 
-        transform = get_affine_transform_from_gdal(matrix)
-        app_logger.debug(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
+    transform = get_affine_transform_from_gdal(matrix)
+    app_logger.debug(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
 
-        mask, n_predictions = get_raster_inference(img, prompt, models_instance, model_name)
-        app_logger.info(f"created {n_predictions} masks, preparing conversion to geojson...")
-        return {
-            "n_predictions": n_predictions,
-            **get_vectorized_raster_as_geojson(mask, matrix)
-        }
-    except ImportError as e_import_module:
-        app_logger.error(f"Error trying import module:{e_import_module}.")
+    mask, n_predictions = get_raster_inference(img, prompt, models_instance, model_name)
+    app_logger.info(f"created {n_predictions} masks, preparing conversion to geojson...")
+    return {
+        "n_predictions": n_predictions,
+        **get_vectorized_raster_as_geojson(mask, matrix)
+    }
 
 
 def get_raster_inference(

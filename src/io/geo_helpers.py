@@ -31,7 +31,7 @@ def load_affine_transformation_from_matrix(matrix_source_coeffs: List[float]) ->
         raise e
 
 
-def get_affine_transform_from_gdal(matrix_source_coeffs: List[float]) -> Affine:
+def get_affine_transform_from_gdal(matrix_source_coeffs: List[float] or Tuple[float]) -> Affine:
     """wrapper for rasterio Affine from_gdal method
 
     Args:

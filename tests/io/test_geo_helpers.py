@@ -62,7 +62,7 @@ class TestGeoHelpers(unittest.TestCase):
                                              "check https://github.com/rasterio/affine project for updates")
                     raise e
 
-    def test_get_vectorized_raster_as_geojson(self):
+    def test_get_vectorized_raster_as_geojson_ok(self):
         from src.io.geo_helpers import get_vectorized_raster_as_geojson
 
         name_fn = "samexporter_predict"
@@ -78,3 +78,26 @@ class TestGeoHelpers(unittest.TestCase):
                 output_geojson = shapely.from_geojson(output["geojson"])
                 expected_output_geojson = shapely.from_geojson(input_output["output"]["geojson"])
                 assert shapely.equals_exact(output_geojson, expected_output_geojson, tolerance=0.000006)
+
+    def test_get_vectorized_raster_as_geojson_fail(self):
+        from src.io.geo_helpers import get_vectorized_raster_as_geojson
+
+        name_fn = "samexporter_predict"
+
+        with open(TEST_EVENTS_FOLDER / f"{name_fn}.json") as tst_json:
+            inputs_outputs = json.load(tst_json)
+            for k, input_output in inputs_outputs.items():
+                print(f"k:{k}.")
+                mask = np.load(TEST_EVENTS_FOLDER / name_fn / k / "mask.npy")
+
+                # Could be also another generic Exception, here we intercept TypeError caused by wrong matrix input on
+                # rasterio.Affine.from_gdal() wrapped by get_affine_transform_from_gdal()
+                with self.assertRaises(TypeError):
+                    try:
+                        wrong_matrix = 1.0,
+                        get_vectorized_raster_as_geojson(mask=mask, matrix=wrong_matrix)
+                    except TypeError as te:
+                        print(f"te:{te}.")
+                        msg = "Affine.from_gdal() missing 5 required positional arguments: 'a', 'b', 'f', 'd', and 'e'"
+                        self.assertEqual(str(te), msg)
+                        raise te
