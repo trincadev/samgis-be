@@ -34,14 +34,13 @@ import io
 import itertools
 import math
 import re
-import sqlite3
 import time
 
 from PIL import Image
 
 from src import app_logger
-from src.utilities.constants import EARTH_EQUATORIAL_RADIUS
-
+from src.utilities.constants import EARTH_EQUATORIAL_RADIUS, RETRY_DOWNLOAD, TIMEOUT_DOWNLOAD, TILE_SIZE, \
+    CALLBACK_INTERVAL_DOWNLOAD
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -64,16 +63,16 @@ re_coords_split = re.compile('[ ,;]+')
 
 
 def from4326_to3857(lat, lon):
-    xtile = math.radians(lon) * EARTH_EQUATORIAL_RADIUS
-    ytile = math.log(math.tan(math.radians(45 + lat / 2.0))) * EARTH_EQUATORIAL_RADIUS
-    return xtile, ytile
+    x_tile = math.radians(lon) * EARTH_EQUATORIAL_RADIUS
+    y_tile = math.log(math.tan(math.radians(45 + lat / 2.0))) * EARTH_EQUATORIAL_RADIUS
+    return x_tile, y_tile
 
 
 def deg2num(lat, lon, zoom):
     n = 2 ** zoom
-    xtile = ((lon + 180) / 360 * n)
-    ytile = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) * n / 2
-    return xtile, ytile
+    x_tile = ((lon + 180) / 360 * n)
+    y_tile = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) * n / 2
+    return x_tile, y_tile
 
 
 def is_empty(im):
@@ -89,56 +88,40 @@ def is_empty(im):
         return extrema[0] == (0, 0)
 
 
-def mbtiles_init(dbname):
-    db = sqlite3.connect(dbname, isolation_level=None)
-    cur = db.cursor()
-    cur.execute("BEGIN")
-    cur.execute("CREATE TABLE IF NOT EXISTS metadata (name TEXT PRIMARY KEY, value TEXT)")
-    cur.execute("CREATE TABLE IF NOT EXISTS tiles ("
-                "zoom_level INTEGER NOT NULL, "
-                "tile_column INTEGER NOT NULL, "
-                "tile_row INTEGER NOT NULL, "
-                "tile_data BLOB NOT NULL, "
-                "UNIQUE (zoom_level, tile_column, tile_row)"
-                ")")
-    cur.execute("COMMIT")
-    return db
-
-
-def paste_tile(bigim, base_size, tile, corner_xy, bbox):
+def paste_tile(big_im, base_size, tile, corner_xy, bbox):
     if tile is None:
-        return bigim
+        return big_im
     im = Image.open(io.BytesIO(tile))
     mode = 'RGB' if im.mode == 'RGB' else 'RGBA'
     size = im.size
-    if bigim is None:
+    if big_im is None:
         base_size[0] = size[0]
         base_size[1] = size[1]
-        newim = Image.new(mode, (
+        new_im = Image.new(mode, (
             size[0] * (bbox[2] - bbox[0]), size[1] * (bbox[3] - bbox[1])))
     else:
-        newim = bigim
+        new_im = big_im
 
     dx = abs(corner_xy[0] - bbox[0])
     dy = abs(corner_xy[1] - bbox[1])
     xy0 = (size[0] * dx, size[1] * dy)
     if mode == 'RGB':
-        newim.paste(im, xy0)
+        new_im.paste(im, xy0)
     else:
         if im.mode != mode:
             im = im.convert(mode)
         if not is_empty(im):
-            newim.paste(im, xy0)
+            new_im.paste(im, xy0)
     im.close()
-    return newim
+    return new_im
 
 
 def get_tile(url):
-    retry = 3
+    retry = RETRY_DOWNLOAD
     while 1:
         try:
             app_logger.debug(f"image tile url to download: {url}.")
-            r = SESSION.get(url, timeout=60)
+            r = SESSION.get(url, timeout=TIMEOUT_DOWNLOAD)
             break
         except Exception as request_tile_exception:
             app_logger.error(f"retry {retry}, request_tile_exception:{request_tile_exception}.")
@@ -156,44 +139,10 @@ def print_progress(progress, total, done=False):
         app_logger.info('Downloaded image %d/%d, %.2f%%' % (progress, total, progress * 100 / total))
 
 
-def mbtiles_save(db, img_data, xy, zoom, img_format):
-    if not img_data:
-        return
-    im = Image.open(io.BytesIO(img_data))
-    if im.format == 'PNG':
-        current_format = 'png'
-    elif im.format == 'JPEG':
-        current_format = 'jpg'
-    elif im.format == 'WEBP':
-        current_format = 'webp'
-    else:
-        current_format = 'image/' + im.format.lower()
-    x, y = xy
-    y = 2 ** zoom - 1 - y
-    cur = db.cursor()
-    if img_format is None or img_format == current_format:
-        cur.execute("REPLACE INTO tiles VALUES (?,?,?,?)", (
-            zoom, x, y, img_data))
-        return img_format or current_format
-    buf = io.BytesIO()
-    if img_format == 'png':
-        im.save(buf, 'PNG')
-    elif img_format == 'jpg':
-        im.save(buf, 'JPEG', quality=93)
-    elif img_format == 'webp':
-        im.save(buf, 'WEBP')
-    else:
-        im.save(buf, img_format.split('/')[-1].upper())
-    cur.execute("REPLACE INTO tiles VALUES (?,?,?,?)", (
-        zoom, x, y, buf.getvalue()))
-    return img_format
-
-
 def download_extent(
         source, lat0, lon0, lat1, lon1, zoom,
-        mbtiles=None, save_image=True,
-        progress_callback=print_progress,
-        callback_interval=0.05
+        save_image=True, progress_callback=print_progress,
+        callback_interval=CALLBACK_INTERVAL_DOWNLOAD
 ):
     x0, y0 = deg2num(lat0, lon0, zoom)
     x1, y1 = deg2num(lat1, lon1, zoom)
@@ -202,59 +151,13 @@ def download_extent(
     if y0 > y1:
         y0, y1 = y1, y0
 
-    db = None
-    mbt_img_format = None
-    if mbtiles:
-        db = mbtiles_init(mbtiles)
-        cur = db.cursor()
-        cur.execute("BEGIN")
-        cur.execute("REPLACE INTO metadata VALUES ('name', ?)", (source,))
-        cur.execute("REPLACE INTO metadata VALUES ('type', 'overlay')")
-        cur.execute("REPLACE INTO metadata VALUES ('version', '1.1')")
-        cur.execute("REPLACE INTO metadata VALUES ('description', ?)", (source,))
-        cur.execute("SELECT value FROM metadata WHERE name='format'")
-        row = cur.fetchone()
-        if row and row[0]:
-            mbt_img_format = row[0]
-        else:
-            cur.execute("REPLACE INTO metadata VALUES ('format', 'png')")
-
-        lat_min = min(lat0, lat1)
-        lat_max = max(lat0, lat1)
-        lon_min = min(lon0, lon1)
-        lon_max = max(lon0, lon1)
-        bounds = [lon_min, lat_min, lon_max, lat_max]
-        cur.execute("SELECT value FROM metadata WHERE name='bounds'")
-        row = cur.fetchone()
-        if row and row[0]:
-            last_bounds = [float(x) for x in row[0].split(',')]
-            bounds[0] = min(last_bounds[0], bounds[0])
-            bounds[1] = min(last_bounds[1], bounds[1])
-            bounds[2] = max(last_bounds[2], bounds[2])
-            bounds[3] = max(last_bounds[3], bounds[3])
-        cur.execute("REPLACE INTO metadata VALUES ('bounds', ?)", (
-            ",".join(map(str, bounds)),))
-        cur.execute("REPLACE INTO metadata VALUES ('center', ?)", ("%s,%s,%d" % (
-            (lon_max + lon_min) / 2, (lat_max + lat_min) / 2, zoom),))
-        cur.execute("""
-            INSERT INTO metadata VALUES ('minzoom', ?)
-            ON CONFLICT(name) DO UPDATE SET value=excluded.value
-            WHERE CAST(excluded.value AS INTEGER)<CAST(metadata.value AS INTEGER)
-        """, (str(zoom),))
-        cur.execute("""
-            INSERT INTO metadata VALUES ('maxzoom', ?)
-            ON CONFLICT(name) DO UPDATE SET value=excluded.value
-            WHERE CAST(excluded.value AS INTEGER)>CAST(metadata.value AS INTEGER)
-        """, (str(zoom),))
-        cur.execute("COMMIT")
-
     corners = tuple(itertools.product(
         range(math.floor(x0), math.ceil(x1)),
         range(math.floor(y0), math.ceil(y1))))
-    totalnum = len(corners)
+    total_num = len(corners)
     futures = {}
     done_num = 0
-    progress_callback(done_num, totalnum, False)
+    progress_callback(done_num, total_num, False)
     last_done_num = 0
     last_callback = time.monotonic()
     cancelled = False
@@ -263,67 +166,65 @@ def download_extent(
             future = executor.submit(get_tile, source.format(z=zoom, x=x, y=y))
             futures[future] = (x, y)
         bbox = (math.floor(x0), math.floor(y0), math.ceil(x1), math.ceil(y1))
-        bigim = None
-        base_size = [256, 256]
-        while futures:
-            done, _ = concurrent.futures.wait(
-                futures.keys(), timeout=callback_interval,
-                return_when=concurrent.futures.FIRST_COMPLETED
-            )
-            cur = None
-            if mbtiles:
-                cur = db.cursor()
-                cur.execute("BEGIN")
-            for fut in done:
-                img_data = fut.result()
-                xy = futures[fut]
-                if save_image:
-                    bigim = paste_tile(bigim, base_size, img_data, xy, bbox)
-                if mbtiles:
-                    new_format = mbtiles_save(db, img_data, xy, zoom, mbt_img_format)
-                    if not mbt_img_format:
-                        cur.execute(
-                            "UPDATE metadata SET value=? WHERE name='format'",
-                            (new_format,))
-                        mbt_img_format = new_format
-                del futures[fut]
-                done_num += 1
-            if mbtiles:
-                cur.execute("COMMIT")
-            if time.monotonic() > last_callback + callback_interval:
-                try:
-                    progress_callback(done_num, totalnum, (done_num > last_done_num))
-                except TaskCancelled:
-                    for fut in futures.keys():
-                        fut.cancel()
-                    futures.clear()
-                    cancelled = True
-                    break
-                last_callback = time.monotonic()
-                last_done_num = done_num
+        big_im = None
+        base_size = [TILE_SIZE, TILE_SIZE]
+        big_im, cancelled, done_num = run_future_tile_download(
+            base_size, bbox, big_im, callback_interval, cancelled, done_num, futures, last_callback, last_done_num,
+            progress_callback, save_image, total_num
+        )
     if cancelled:
         raise TaskCancelled()
-    progress_callback(done_num, totalnum, True)
+    progress_callback(done_num, total_num, True)
 
     if not save_image:
         return None, None
 
-    xfrac = x0 - bbox[0]
-    yfrac = y0 - bbox[1]
-    x2 = round(base_size[0] * xfrac)
-    y2 = round(base_size[1] * yfrac)
-    imgw = round(base_size[0] * (x1 - x0))
-    imgh = round(base_size[1] * (y1 - y0))
-    retim = bigim.crop((x2, y2, x2 + imgw, y2 + imgh))
-    if retim.mode == 'RGBA' and retim.getextrema()[3] == (255, 255):
-        retim = retim.convert('RGB')
-    bigim.close()
+    x_frac = x0 - bbox[0]
+    y_frac = y0 - bbox[1]
+    x2 = round(base_size[0] * x_frac)
+    y2 = round(base_size[1] * y_frac)
+    img_w = round(base_size[0] * (x1 - x0))
+    img_h = round(base_size[1] * (y1 - y0))
+    ret_im = big_im.crop((x2, y2, x2 + img_w, y2 + img_h))
+    if ret_im.mode == 'RGBA' and ret_im.getextrema()[3] == (255, 255):
+        ret_im = ret_im.convert('RGB')
+    big_im.close()
     xp0, yp0 = from4326_to3857(lat0, lon0)
     xp1, yp1 = from4326_to3857(lat1, lon1)
-    pwidth = abs(xp1 - xp0) / retim.size[0]
-    pheight = abs(yp1 - yp0) / retim.size[1]
-    matrix = (min(xp0, xp1), pwidth, 0, max(yp0, yp1), 0, -pheight)
-    return retim, matrix
+    p_width = abs(xp1 - xp0) / ret_im.size[0]
+    p_height = abs(yp1 - yp0) / ret_im.size[1]
+    matrix = (min(xp0, xp1), p_width, 0, max(yp0, yp1), 0, -p_height)
+    return ret_im, matrix
+
+
+def run_future_tile_download(
+        base_size, bbox, big_im, callback_interval, cancelled, done_num, futures, last_callback, last_done_num,
+        progress_callback, save_image, total_num
+):
+    while futures:
+        done, _ = concurrent.futures.wait(
+            futures.keys(), timeout=callback_interval,
+            return_when=concurrent.futures.FIRST_COMPLETED
+        )
+        for fut in done:
+            img_data = fut.result()
+            xy = futures[fut]
+            if save_image:
+                big_im = paste_tile(big_im, base_size, img_data, xy, bbox)
+            del futures[fut]
+            done_num += 1
+        if time.monotonic() > last_callback + callback_interval:
+            try:
+                progress_callback(done_num, total_num, (done_num > last_done_num))
+            except TaskCancelled:
+                for fut in futures.keys():
+                    fut.cancel()
+                futures.clear()
+                cancelled = True
+                break
+            last_callback = time.monotonic()
+            last_done_num = done_num
+    return big_im, cancelled, done_num
 
 
 class TaskCancelled(RuntimeError):
