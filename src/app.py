@@ -10,7 +10,7 @@ from src.io.lambda_helpers import get_parsed_request_body, get_parsed_bbox_point
 from src.prediction_api.predictors import samexporter_predict
 
 
-def lambda_handler(event: dict, context: LambdaContext):
+def lambda_handler(event: dict, context: LambdaContext) -> str:
     """
     Handle the request for the serverless backend, dispatch the response.
 
