@@ -175,7 +175,6 @@ class SegmentAnythingONNX:
                         app_logger.debug(f"mask_shape transform_masks:{mask.shape}, dtype:{mask.dtype}.")
                     except Exception as e_mask_shape_transform_masks:
                         app_logger.error(f"e_mask_shape_transform_masks:{e_mask_shape_transform_masks}.")
-                        # raise e_mask_shape_transform_masks
                     mask = cv2.warpAffine(
                         mask,
                         transform_matrix[:2],
