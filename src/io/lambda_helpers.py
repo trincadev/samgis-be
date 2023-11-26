@@ -80,7 +80,7 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     app_logger.debug(f"bbox => {bbox}.")
     app_logger.debug(f'request_input-prompt updated => {new_prompt_list}.')
 
-    app_logger.info(f"unpacking elaborated request...")
+    app_logger.info("unpacking elaborated request...")
     return {
         "bbox": [ne_latlng, sw_latlng],
         "prompt": new_prompt_list,
