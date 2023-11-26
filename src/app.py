@@ -29,9 +29,9 @@ def lambda_handler(event: dict, context: LambdaContext):
         app_logger.info(f"event version: {event['version']}.")
 
     try:
-        app_logger.info(f"try get_parsed_event...")
+        app_logger.info("try get_parsed_event...")
         request_input = get_parsed_request_body(event)
-        app_logger.info(f"event parsed: ok")
+        app_logger.info("event parsed: ok")
         body_request = get_parsed_bbox_points(request_input)
 
         try:

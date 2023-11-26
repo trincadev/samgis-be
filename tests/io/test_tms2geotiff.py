@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 import numpy as np
@@ -28,7 +29,7 @@ class TestTms2geotiff(unittest.TestCase):
         )
         server_thread = Thread(target=server.serve_forever, name="http_server")
         server_thread.start()
-        print(f"listen:: host {host}, port {port}.")
+        logging.info(f"listen:: host {host}, port {port}.")
 
         try:
             yield
@@ -49,6 +50,7 @@ class TestTms2geotiff(unittest.TestCase):
             np_img = np.array(img)
             output_hash = hash_calculate(np_img)
             assert output_hash == b'LJNhEuMMp2nRclFJfF6oM3iMVbnZnWDmZqWzrs3T4Hs='
+            assert matrix == (1628916.673269823, 76.42413122132838, 0, 4584983.258896411, 0, -76.45836079647981)
 
     def test_download_extent_io_error1(self):
 
@@ -91,9 +93,7 @@ if __name__ == '__main__':
     from tests import TEST_ROOT_FOLDER
 
     main_listen_port = 8000
-    print("http_basedir_serve:", TEST_ROOT_FOLDER, "#")
+    logging.info(f"http_basedir_serve: {TEST_ROOT_FOLDER}.")
     with TestTms2geotiff.http_server("127.0.0.1", main_listen_port, directory=TEST_ROOT_FOLDER):
-        pass
-        # import time
-        # time.sleep(10)
-    print("Http server stopped.")
+        logging.info("""import time; time.sleep(10)""")
+    logging.info("Http server stopped.")

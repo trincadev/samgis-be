@@ -61,7 +61,7 @@ def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> 
         transform = get_affine_transform_from_gdal(matrix)
         app_logger.info(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
 
-        # mask = band != 0
+        # old value for mask => band != 0
         shapes_generator = ({
             'properties': {'raster_val': v}, 'geometry': s}
             for i, (s, v)
@@ -69,13 +69,13 @@ def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> 
             # use mask=None to avoid using source
             in enumerate(shapes(mask, mask=None, transform=transform))
         )
-        app_logger.info(f"created shapes_generator, transform it to a polygon list...")
+        app_logger.info("created shapes_generator, transform it to a polygon list...")
         shapes_list = list(shapes_generator)
         app_logger.info(f"created {len(shapes_list)} polygons.")
         gpd_polygonized_raster = GeoDataFrame.from_features(shapes_list, crs="EPSG:3857")
-        app_logger.info(f"created a GeoDataFrame, export to geojson...")
+        app_logger.info("created a GeoDataFrame, export to geojson...")
         geojson = gpd_polygonized_raster.to_json(to_wgs84=True)
-        app_logger.info(f"created geojson, preparing API response...")
+        app_logger.info("created geojson, preparing API response...")
         return {
             "geojson": geojson,
             "n_shapes_geojson": len(shapes_list)

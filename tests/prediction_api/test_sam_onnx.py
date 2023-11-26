@@ -1,11 +1,9 @@
 import logging
 import unittest
-from unittest.mock import patch
 
 import numpy as np
 
 from src import MODEL_FOLDER
-from src.prediction_api import sam_onnx
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
 from src.utilities.utilities import hash_calculate
@@ -58,15 +56,12 @@ class TestSegmentAnythingONNX(unittest.TestCase):
         try:
             assert 1 not in perc
         except AssertionError:
-            logging.error(f"found {perc[1]} % different pixels between expected masks and output mask.")
+            n_pixels = perc[1]
+            logging.error(f"found {n_pixels:.2%} different pixels between expected masks and output mask.")
             # try to assert that the % of different pixels are minor than 5%
             assert perc[1] < 5
 
     def test_encode_predict_masks_ex1(self):
-        instance_sam_onnx = SegmentAnythingONNX(
-            encoder_model_path=MODEL_FOLDER / MODEL_ENCODER_NAME,
-            decoder_model_path=MODEL_FOLDER / MODEL_DECODER_NAME
-        )
         with self.assertRaises(Exception):
             try:
                 np_input = np.zeros((10, 10))
