@@ -137,7 +137,7 @@ def get_tile(url):
     retry = 3
     while 1:
         try:
-            app_logger.info(f"image tile url to download: {url}.")
+            app_logger.debug(f"image tile url to download: {url}.")
             r = SESSION.get(url, timeout=60)
             break
         except Exception as request_tile_exception:
