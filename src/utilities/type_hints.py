@@ -4,6 +4,7 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import TypedDict
 
+from src.utilities.constants import DEFAULT_TMS
 
 ts_dict_str2 = dict[str, str]
 ts_dict_str3 = dict[str, str, any]
@@ -49,3 +50,4 @@ class RawRequestInput(BaseModel):
     zoom: int | float
     source_type: str = "Satellite"
     debug: bool = False
+    url_tile: str = DEFAULT_TMS

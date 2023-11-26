@@ -18,7 +18,8 @@ def samexporter_predict(
         bbox: llist_float,
         prompt: list[dict],
         zoom: float,
-        model_name: str = "fastsam"
+        model_name: str = "fastsam",
+        url_tile: str = DEFAULT_TMS
 ) -> Dict[str, int]:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
@@ -33,6 +34,7 @@ def samexporter_predict(
         prompt: machine learning input prompt
         zoom:
         model_name: machine learning model name
+        url_tile: server url tile
 
     Returns:
         dict: Affine transform
@@ -47,10 +49,10 @@ def samexporter_predict(
     app_logger.debug(f"using a {model_name} instance model...")
     models_instance = models_dict[model_name]["instance"]
 
-    app_logger.info(f'tile_source: {DEFAULT_TMS}!')
+    app_logger.info(f'tile_source: {url_tile}!')
     pt0, pt1 = bbox
     app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
-    img, matrix = download_extent(DEFAULT_TMS, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
+    img, matrix = download_extent(url_tile, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
     app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{type(matrix)}, matrix:{matrix}.")
 
     transform = get_affine_transform_from_gdal(matrix)
