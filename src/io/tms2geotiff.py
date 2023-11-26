@@ -137,6 +137,7 @@ def get_tile(url):
     retry = 3
     while 1:
         try:
+            app_logger.info(f"image tile url to download: {url}.")
             r = SESSION.get(url, timeout=60)
             break
         except Exception as request_tile_exception:
@@ -144,9 +145,7 @@ def get_tile(url):
             retry -= 1
             if not retry:
                 raise
-    if r.status_code == 404:
-        return None
-    elif not r.content:
+    if r.status_code == 404 or not r.content:
         return None
     r.raise_for_status()
     return r.content
@@ -267,7 +266,7 @@ def download_extent(
         bigim = None
         base_size = [256, 256]
         while futures:
-            done, not_done = concurrent.futures.wait(
+            done, _ = concurrent.futures.wait(
                 futures.keys(), timeout=callback_interval,
                 return_when=concurrent.futures.FIRST_COMPLETED
             )

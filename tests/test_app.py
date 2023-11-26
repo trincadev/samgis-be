@@ -6,6 +6,7 @@ from unittest.mock import patch
 from awslambdaric.lambda_context import LambdaContext
 
 from src import app
+from tests.local_tiles_http_server import LocalTilesHttpServer
 
 
 class TestAppFailures(unittest.TestCase):
@@ -148,7 +149,7 @@ class TestAppFailures(unittest.TestCase):
         import shapely
 
         from src.app import lambda_handler
-        from tests import TEST_EVENTS_FOLDER
+        from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
         name_fn = "lambda_handler"
         invoke_id = "test_invoke_id"
@@ -162,8 +163,17 @@ class TestAppFailures(unittest.TestCase):
                 epoch_deadline_time_in_ms=time.time()
             )
             expected_response_dict = inputs_outputs["output"]
+            listen_port = 8000
+
             expected_response_body = json.loads(expected_response_dict["body"])
-            response = lambda_handler(event=inputs_outputs["input"], context=lambda_context)
+            expected_output_geojson = shapely.from_geojson(expected_response_body["geojson"])
+
+            with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
+                input_event = inputs_outputs["input"]
+                input_event_body = json.loads(input_event["body"])
+                input_event_body["url_tile"] = LOCAL_URL_TILE
+                input_event["body"] = json.dumps(input_event_body)
+                response = lambda_handler(event=input_event, context=lambda_context)
 
             response_dict = json.loads(response)
             body_dict = json.loads(response_dict["body"])
@@ -172,5 +182,5 @@ class TestAppFailures(unittest.TestCase):
             assert body_dict["message"] == "ok"
             assert body_dict["n_shapes_geojson"] == expected_response_body["n_shapes_geojson"]
             output_geojson = shapely.from_geojson(body_dict["geojson"])
-            expected_output_geojson = shapely.from_geojson(expected_response_body["geojson"])
+
             assert shapely.equals_exact(output_geojson, expected_output_geojson, tolerance=0.000006)
