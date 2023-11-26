@@ -91,7 +91,7 @@ class TestAppFailures(unittest.TestCase):
     @patch.object(app, "get_response")
     @patch.object(app, "get_parsed_bbox_points")
     @patch.object(app, "get_parsed_request_body")
-    def test_lambda_handler_200(
+    def test_lambda_handler_200_mocked(
             self,
             get_parsed_request_body_mocked,
             get_parsed_bbox_points_mocked,
@@ -143,3 +143,34 @@ class TestAppFailures(unittest.TestCase):
         expected_response_200 = get_response_io[response_type]["output"]
         print(f"types: response_200:{type(response_200)}, expected:{type(expected_response_200)}.")
         assert response_200 == expected_response_200
+
+    def test_lambda_handler_200_real(self):
+        import shapely
+
+        from src.app import lambda_handler
+        from tests import TEST_EVENTS_FOLDER
+
+        name_fn = "lambda_handler"
+        invoke_id = "test_invoke_id"
+
+        with open(TEST_EVENTS_FOLDER / f"{name_fn}.json") as tst_json:
+            inputs_outputs = json.load(tst_json)
+            lambda_context = LambdaContext(
+                invoke_id=invoke_id,
+                client_context=None,
+                cognito_identity=None,
+                epoch_deadline_time_in_ms=time.time()
+            )
+            expected_response_dict = inputs_outputs["output"]
+            expected_response_body = json.loads(expected_response_dict["body"])
+            response = lambda_handler(event=inputs_outputs["input"], context=lambda_context)
+
+            response_dict = json.loads(response)
+            body_dict = json.loads(response_dict["body"])
+            assert body_dict["n_predictions"] == 1
+            assert body_dict["request_id"] == invoke_id
+            assert body_dict["message"] == "ok"
+            assert body_dict["n_shapes_geojson"] == expected_response_body["n_shapes_geojson"]
+            output_geojson = shapely.from_geojson(body_dict["geojson"])
+            expected_output_geojson = shapely.from_geojson(expected_response_body["geojson"])
+            assert shapely.equals_exact(output_geojson, expected_output_geojson, tolerance=0.000006)
