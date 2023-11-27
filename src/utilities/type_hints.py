@@ -1,50 +1,54 @@
 """custom type hints"""
 from enum import Enum
-
-from pydantic import BaseModel
 from typing import TypedDict
 
+from PIL.Image import Image
+from pydantic import BaseModel
+
 from src.utilities.constants import DEFAULT_TMS
+
 
 ts_dict_str2 = dict[str, str]
 ts_dict_str3 = dict[str, str, any]
 ts_ddict1 = dict[str, dict[str, any], dict, dict, any]
 list_float = list[float]
 llist_float = list[list_float]
+PIL_Image = Image
 
 
 class LatLngDict(BaseModel):
-    """A latitude-longitude type"""
+    """Generic geographic latitude-longitude type"""
     lat: float
     lng: float
 
 
 class PromptType(str, Enum):
     """Segment Anything enumeration prompt type"""
-    point = "point"
     # rectangle = "rectangle"
+    point = "point"
 
 
 class ImagePixelCoordinates(TypedDict):
+    """Image pixel coordinates type"""
     x: int
     y: int
 
 
 class RawBBox(BaseModel):
-    """Input lambda bbox request - not parsed"""
+    """Input lambda bbox request type (not parsed)"""
     ne: LatLngDict
     sw: LatLngDict
 
 
 class RawPrompt(BaseModel):
-    """Input lambda prompt request - not parsed"""
+    """Input lambda prompt request type (not parsed)"""
     type: PromptType
     data: LatLngDict
     label: int = 0
 
 
 class RawRequestInput(BaseModel):
-    """Input lambda request - not parsed"""
+    """Input lambda request validator type (not parsed)"""
     bbox: RawBBox
     prompt: list[RawPrompt]
     zoom: int | float
