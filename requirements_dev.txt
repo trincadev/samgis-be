@@ -3,6 +3,7 @@ awslambdaric
 bson
 geopandas
 jmespath
+matplotlib
 numpy
 onnxruntime
 opencv-python
