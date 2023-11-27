@@ -28,19 +28,20 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
 import concurrent.futures
 import io
 import itertools
 import math
 import re
 import time
-
+from typing import Tuple, Callable
+import PIL
 from PIL import Image
 
 from src import app_logger
 from src.utilities.constants import EARTH_EQUATORIAL_RADIUS, RETRY_DOWNLOAD, TIMEOUT_DOWNLOAD, TILE_SIZE, \
     CALLBACK_INTERVAL_DOWNLOAD
+from src.utilities.type_hints import PIL_Image
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -140,10 +141,27 @@ def print_progress(progress, total, done=False):
 
 
 def download_extent(
-        source, lat0, lon0, lat1, lon1, zoom,
-        save_image=True, progress_callback=print_progress,
-        callback_interval=CALLBACK_INTERVAL_DOWNLOAD
-):
+        source: str, lat0: float, lon0: float, lat1: float, lon1: float, zoom: int,
+        save_image: bool = True, progress_callback: Callable = print_progress,
+        callback_interval: float = CALLBACK_INTERVAL_DOWNLOAD
+) -> Tuple[PIL_Image, Tuple[float]] or Tuple[None]:
+    """
+    Download, merge and crop a list of tiles into a single geo-referenced image or a raster geodata
+
+    Args:
+        source: remote url tile
+        lat0: point0 bounding box latitude
+        lat1: point0 bounding box longitude
+        lon0: point1 bounding box latitude
+        lon1: point1 bounding box longitude
+        zoom: bounding box zoom
+        save_image: boolean to choose if save the image
+        progress_callback: callback function
+        callback_interval: process callback interval time
+
+    Returns:
+        parsed request input
+    """
     x0, y0 = deg2num(lat0, lon0, zoom)
     x1, y1 = deg2num(lat1, lon1, zoom)
     if x0 > x1:
@@ -185,16 +203,16 @@ def download_extent(
     y2 = round(base_size[1] * y_frac)
     img_w = round(base_size[0] * (x1 - x0))
     img_h = round(base_size[1] * (y1 - y0))
-    ret_im = big_im.crop((x2, y2, x2 + img_w, y2 + img_h))
-    if ret_im.mode == 'RGBA' and ret_im.getextrema()[3] == (255, 255):
-        ret_im = ret_im.convert('RGB')
+    final_image = big_im.crop((x2, y2, x2 + img_w, y2 + img_h))
+    if final_image.mode == 'RGBA' and final_image.getextrema()[3] == (255, 255):
+        final_image = final_image.convert('RGB')
     big_im.close()
     xp0, yp0 = from4326_to3857(lat0, lon0)
     xp1, yp1 = from4326_to3857(lat1, lon1)
-    p_width = abs(xp1 - xp0) / ret_im.size[0]
-    p_height = abs(yp1 - yp0) / ret_im.size[1]
-    matrix = (min(xp0, xp1), p_width, 0, max(yp0, yp1), 0, -p_height)
-    return ret_im, matrix
+    p_width = abs(xp1 - xp0) / final_image.size[0]
+    p_height = abs(yp1 - yp0) / final_image.size[1]
+    matrix = min(xp0, xp1), p_width, 0, max(yp0, yp1), 0, -p_height
+    return final_image, matrix
 
 
 def run_future_tile_download(

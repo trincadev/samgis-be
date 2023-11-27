@@ -14,7 +14,7 @@ class TestAppFailures(unittest.TestCase):
     @patch.object(app, "samexporter_predict")
     @patch.object(app, "get_parsed_bbox_points")
     @patch.object(app, "get_parsed_request_body")
-    def test_lambda_handler_400(
+    def test_lambda_handler_500(
             self,
             get_parsed_request_body_mocked,
             get_parsed_bbox_points_mocked,
@@ -35,16 +35,15 @@ class TestAppFailures(unittest.TestCase):
             cognito_identity=None,
             epoch_deadline_time_in_ms=time.time()
         )
-        expected_response_400 = '{"statusCode": 400, "header": {"Content-Type": "application/json"}, '
-        expected_response_400 += '"body": "{\\"duration_run\\": 0, \\"message\\": \\"Bad Request\\", '
-        expected_response_400 += '\\"request_id\\": \\"test_invoke_id\\"}", "isBase64Encoded": false}'
+        expected_response_500 = '{"statusCode": 500, "header": {"Content-Type": "application/json"}, '
+        expected_response_500 += '"body": "{\\"duration_run\\": 0, \\"message\\": \\"Internal server error\\", '
+        expected_response_500 += '\\"request_id\\": \\"test_invoke_id\\"}", "isBase64Encoded": false}'
 
-        response_400 = lambda_handler(event, lambda_context)
-        assert response_400 == expected_response_400
+        assert lambda_handler(event, lambda_context) == expected_response_500
 
     @patch.object(time, "time")
     @patch.object(app, "get_parsed_request_body")
-    def test_lambda_handler_500(self, get_parsed_request_body_mocked, time_mocked):
+    def test_lambda_handler_400(self, get_parsed_request_body_mocked, time_mocked):
         from src.app import lambda_handler
 
         time_mocked.return_value = 0
@@ -58,14 +57,10 @@ class TestAppFailures(unittest.TestCase):
             epoch_deadline_time_in_ms=time.time()
         )
 
-        response_500 = lambda_handler(event, lambda_context)
-        check_500 = response_500 == (
-            '{"statusCode": 500, "header": {"Content-Type": "application/json"}, '
-            '"body": "{\\"duration_run\\": 0, \\"message\\": \\"Internal server error\\", '
+        assert lambda_handler(event, lambda_context) == (
+            '{"statusCode": 400, "header": {"Content-Type": "application/json"}, '
+            '"body": "{\\"duration_run\\": 0, \\"message\\": \\"Bad Request\\", '
             '\\"request_id\\": \\"test_invoke_id\\"}", "isBase64Encoded": false}')
-        print(f"test_lambda_handler_422:{check_500}.")
-        assert check_500
-        print("check_500")
 
     @patch.object(time, "time")
     def test_lambda_handler_422(self, time_mocked):

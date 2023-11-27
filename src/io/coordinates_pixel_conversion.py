@@ -3,8 +3,8 @@ import math
 
 from src import app_logger
 from src.utilities.constants import TILE_SIZE
-from src.utilities.type_hints import LatLngDict
 from src.utilities.type_hints import ImagePixelCoordinates
+from src.utilities.type_hints import LatLngDict
 
 
 def _get_latlng2pixel_projection(latlng: LatLngDict) -> ImagePixelCoordinates:
@@ -50,7 +50,7 @@ def get_latlng_to_pixel_coordinates(
         k: str
 ) -> ImagePixelCoordinates:
     """
-    Parse the input request lambda event.
+    Parse the input request lambda event
 
     Args:
         latlng_origin_ne: NE latitude-longitude origin point

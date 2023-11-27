@@ -2,28 +2,29 @@
 from pathlib import Path
 from typing import List, Tuple, Dict
 
-from affine import Affine
 import numpy as np
+from affine import Affine
 
 from src import app_logger, PROJECT_ROOT_FOLDER
 
 
-def load_affine_transformation_from_matrix(matrix_source_coeffs: List[float]) -> Affine:
-    """wrapper for rasterio Affine from_gdal method
+def load_affine_transformation_from_matrix(matrix_source_coefficients: List[float]) -> Affine:
+    """
+    Wrapper for rasterio.Affine.from_gdal() method
 
     Args:
-        matrix_source_coeffs: 6 floats ordered by GDAL.
+        matrix_source_coefficients: 6 floats ordered by GDAL.
 
     Returns:
-        Affine: Affine transform
+        Affine transform
     """
 
-    if len(matrix_source_coeffs) != 6:
-        raise ValueError(f"Expected 6 coefficients, found {len(matrix_source_coeffs)}; "
-                         f"argument type: {type(matrix_source_coeffs)}.")
+    if len(matrix_source_coefficients) != 6:
+        raise ValueError(f"Expected 6 coefficients, found {len(matrix_source_coefficients)}; "
+                         f"argument type: {type(matrix_source_coefficients)}.")
 
     try:
-        a, d, b, e, c, f = (float(x) for x in matrix_source_coeffs)
+        a, d, b, e, c, f = (float(x) for x in matrix_source_coefficients)
         center = tuple.__new__(Affine, [a, b, c, d, e, f, 0.0, 0.0, 1.0])
         return center * Affine.translation(-0.5, -0.5)
     except Exception as e:
@@ -31,28 +32,28 @@ def load_affine_transformation_from_matrix(matrix_source_coeffs: List[float]) ->
         raise e
 
 
-def get_affine_transform_from_gdal(matrix_source_coeffs: List[float] or Tuple[float]) -> Affine:
+def get_affine_transform_from_gdal(matrix_source_coefficients: List[float] or Tuple[float]) -> Affine:
     """wrapper for rasterio Affine from_gdal method
 
     Args:
-        matrix_source_coeffs: 6 floats ordered by GDAL.
+        matrix_source_coefficients: 6 floats ordered by GDAL.
 
     Returns:
-        Affine: Affine transform
+        Affine transform
     """
-    return Affine.from_gdal(*matrix_source_coeffs)
+    return Affine.from_gdal(*matrix_source_coefficients)
 
 
 def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> Dict[str, int]:
     """
-        Parse the input request lambda event.
+        Get shapes and values of connected regions in a dataset or array
 
         Args:
             mask: numpy mask
             matrix: tuple of float to transform into an Affine transform
 
         Returns:
-            Dict: dict containing the output geojson and the predictions number
+            dict containing the output geojson and the predictions number
     """
     try:
         from rasterio.features import shapes
@@ -65,7 +66,7 @@ def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> 
         shapes_generator = ({
             'properties': {'raster_val': v}, 'geometry': s}
             for i, (s, v)
-            # in enumerate(shapes(mask, mask=(band != 0), transform=rio_src.transform))
+            # instead of `enumerate(shapes(mask, mask=(band != 0), transform=rio_src.transform))`
             # use mask=None to avoid using source
             in enumerate(shapes(mask, mask=None, transform=transform))
         )

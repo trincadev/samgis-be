@@ -2,7 +2,7 @@
 import json
 import logging
 import time
-from typing import Dict, List
+from typing import Dict
 from aws_lambda_powertools.event_handler import content_types
 
 from src import app_logger
@@ -14,7 +14,7 @@ from src.utilities.utilities import base64_decode
 
 def get_response(status: int, start_time: float, request_id: str, response_body: Dict = None) -> str:
     """
-    Return a response for frontend clients.
+    Response composer
 
     Args:
         status: status response
@@ -23,7 +23,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
         response_body: dict we embed into our response
 
     Returns:
-        str: json response
+        json response
 
     """
     app_logger.debug(f"response_body:{response_body}.")
@@ -43,13 +43,13 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
 
 def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     """
-    Format the bbox and prompt request input
+    Parse the raw input request into bbox, prompt and zoom
 
     Args:
         request_input: input dict
 
     Returns:
-        Dict:
+        dict with bounding box, prompt and zoom
     """
     app_logger.info(f"try to parsing input request {request_input}...")
 
@@ -88,15 +88,15 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     }
 
 
-def get_parsed_request_body(event: Dict):
+def get_parsed_request_body(event: Dict) -> RawRequestInput:
     """
-    Parse the input request lambda event.
+    Validator for the raw input request lambda event
 
     Args:
         event: input dict
 
     Returns:
-        RawRequestInput: parsed request input
+        parsed request input
     """
     app_logger.info(f"event:{json.dumps(event)}...")
     try:
