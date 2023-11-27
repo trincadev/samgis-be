@@ -2,7 +2,7 @@
 from typing import Mapping
 
 from src import app_logger
-from src.utilities.type_hints import ts_dict_str2, ts_dict_str3
+from src.utilities.type_hints import dict_str, dict_str_any
 
 
 def serialize(obj: any, include_none: bool = False):
@@ -14,13 +14,12 @@ def serialize(obj: any, include_none: bool = False):
         include_none: bool to indicate if include also keys with None values during dict serialization
 
     Returns:
-        any: serialized object
-
+        serialized object
     """
     return _serialize(obj, include_none)
 
 
-def _serialize(obj: any, include_none: bool) -> any:
+def _serialize(obj: any, include_none: bool):
     import numpy as np
 
     primitive = (int, float, str, bool)
@@ -75,11 +74,11 @@ def _serialize_list(ls: list, include_none: bool) -> list:
     return [_serialize(elem, include_none) for elem in ls]
 
 
-def _serialize_bytes(b: bytes) -> ts_dict_str2:
+def _serialize_bytes(b: bytes) -> dict_str:
     import base64
     encoded = base64.b64encode(b)
     return {"value": encoded.decode('ascii'), "type": "bytes"}
 
 
-def _serialize_exception(e: Exception) -> ts_dict_str3:
+def _serialize_exception(e: Exception) -> dict_str_any:
     return {"msg": str(e), "type": str(type(e)), **e.__dict__}

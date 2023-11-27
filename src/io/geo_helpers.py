@@ -1,14 +1,15 @@
 """handle geo-referenced raster images"""
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Dict
 
 import numpy as np
 from affine import Affine
 
-from src import app_logger, PROJECT_ROOT_FOLDER
+from src import app_logger
+from src.utilities.type_hints import list_float, tuple_float, dict_str_int
 
 
-def load_affine_transformation_from_matrix(matrix_source_coefficients: List[float]) -> Affine:
+def load_affine_transformation_from_matrix(matrix_source_coefficients: list_float) -> Affine:
     """
     Wrapper for rasterio.Affine.from_gdal() method
 
@@ -32,7 +33,7 @@ def load_affine_transformation_from_matrix(matrix_source_coefficients: List[floa
         raise e
 
 
-def get_affine_transform_from_gdal(matrix_source_coefficients: List[float] or Tuple[float]) -> Affine:
+def get_affine_transform_from_gdal(matrix_source_coefficients: list_float or tuple_float) -> Affine:
     """wrapper for rasterio Affine from_gdal method
 
     Args:
@@ -44,7 +45,7 @@ def get_affine_transform_from_gdal(matrix_source_coefficients: List[float] or Tu
     return Affine.from_gdal(*matrix_source_coefficients)
 
 
-def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> Dict[str, int]:
+def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: tuple_float) -> dict_str_int:
     """
         Get shapes and values of connected regions in a dataset or array
 
@@ -84,10 +85,3 @@ def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: Tuple[float]) -> 
     except Exception as e_shape_band:
         app_logger.error(f"e_shape_band:{e_shape_band}.")
         raise e_shape_band
-
-
-if __name__ == '__main__':
-    npy_file = "prediction_masks_46.27697017893455_9.616470336914064_46.11441972281433_9.264907836914064.npy"
-    prediction_masks = np.load(Path(PROJECT_ROOT_FOLDER) / "tmp" / "try_by_steps" / "t0" / npy_file)
-
-    print("#")

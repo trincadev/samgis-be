@@ -56,7 +56,7 @@ def base64_encode(sb: str or bytes) -> bytes:
     return base64.b64encode(sb_bytes)
 
 
-def hash_calculate(arr: any) -> str or bytes:
+def hash_calculate(arr) -> str or bytes:
     """
     Return computed hash from input variable (typically a numpy array).
 
@@ -64,7 +64,7 @@ def hash_calculate(arr: any) -> str or bytes:
         arr: input variable
 
     Returns:
-        str or bytes: computed hash from input variable
+        computed hash from input variable
     """
     import hashlib
     import numpy as np
