@@ -39,7 +39,8 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
 
         try:
             body_response = samexporter_predict(body_request["bbox"], body_request["prompt"], body_request["zoom"])
-            app_logger.info(f"output body_response:{body_response}.")
+            app_logger.info(f"output body_response length:{len(body_response)}.")
+            app_logger.debug(f"output body_response:{body_response}.")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
         except Exception as ex2:
             app_logger.error(f"exception2:{ex2}.")
@@ -51,5 +52,5 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
         app_logger.error(f"exception1:{ex1}.")
         response = get_response(HTTPStatus.BAD_REQUEST.value, start_time, context.aws_request_id, {})
 
-    app_logger.info(f"response_dumped:{response}...")
+    app_logger.debug(f"response_dumped:{response}...")
     return response

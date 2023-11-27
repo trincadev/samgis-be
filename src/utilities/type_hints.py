@@ -3,16 +3,23 @@ from enum import Enum
 from typing import TypedDict
 
 from PIL.Image import Image
+from numpy import ndarray
 from pydantic import BaseModel
 
 from src.utilities.constants import DEFAULT_TMS
 
 
-ts_dict_str2 = dict[str, str]
-ts_dict_str3 = dict[str, str, any]
-ts_ddict1 = dict[str, dict[str, any], dict, dict, any]
+dict_str_int = dict[str, int]
+dict_str = dict[str]
+dict_str_any = dict[str, any]
+list_dict = list[dict]
 list_float = list[float]
+list_int = list[int]
+tuple_int = tuple[int]
+tuple_ndarr_int = tuple[ndarray, int]
 llist_float = list[list_float]
+tuple_float = tuple[float]
+tuple_float_any = tuple[float, any]
 PIL_Image = Image
 
 
