@@ -81,7 +81,10 @@ sphinx-apidoc -f -o docs src
 
 Then it's possible to generate the HTML pages 
 ```bash
-cd docs && make html
+cd docs && make html && ../
+
+# to clean old files
+cd docs && make clean html && cd ../
 ```
 
 The static documentation it's now ready at the path `_build/html/index.html`.
