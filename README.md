@@ -57,7 +57,7 @@ curl -X 'POST' \
 
 
 ## Dependencies installation and local tests
-The docker build process needs only the classic requirements.txt, instead for local development and sphinx-docs build 
+The docker build process needs only the classic requirements.txt (here renamed to `requirements_dockerfile.txt`), instead for local development and sphinx-docs build 
 there is `Pipfile` (sphinx docs is hosted on Cloudflare Pages).
 
 
