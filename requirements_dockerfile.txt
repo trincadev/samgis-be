@@ -1,0 +1,13 @@
+aws-lambda-powertools
+awslambdaric
+bson
+geopandas
+jmespath
+numpy
+onnxruntime
+opencv-python-headless
+pillow
+pydantic>=2.0.3
+python-dotenv
+rasterio
+requests
