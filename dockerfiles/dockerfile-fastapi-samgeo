@@ -1,7 +1,7 @@
 FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2
 
 WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements_dockerfile.txt /code/requirements_dockerfile.txt
 COPY ./requirements_pip.txt /code/requirements_pip.txt
 
 RUN apt update && apt install -y g++ make cmake unzip libcurl4-openssl-dev python3-pip
@@ -14,7 +14,7 @@ RUN which python
 RUN python --version
 RUN python -m pip install --no-cache-dir --upgrade -r /code/requirements_pip.txt
 RUN python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-RUN python -m pip install --no-cache-dir -r /code/requirements.txt
+RUN python -m pip install --no-cache-dir -r /code/requirements_dockerfile.txt
 
 RUN useradd -m -u 1000 user
 
