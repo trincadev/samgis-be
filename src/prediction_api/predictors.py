@@ -1,5 +1,4 @@
 """functions using machine learning instance model(s)"""
-from typing import Dict, Tuple
 from PIL.Image import Image
 import numpy as np
 
@@ -8,7 +7,7 @@ from src.io.geo_helpers import get_vectorized_raster_as_geojson, get_affine_tran
 from src.io.tms2geotiff import download_extent
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
-from src.utilities.type_hints import llist_float
+from src.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int
 
 
 models_dict = {"fastsam": {"instance": None}}
@@ -20,7 +19,7 @@ def samexporter_predict(
         zoom: float,
         model_name: str = "fastsam",
         url_tile: str = DEFAULT_TMS
-) -> Dict[str, int]:
+) -> dict_str_int:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
 
@@ -37,7 +36,7 @@ def samexporter_predict(
         url_tile: server url tile
 
     Returns:
-        dict: Affine transform
+        Affine transform
     """
     if models_dict[model_name]["instance"] is None:
         app_logger.info(f"missing instance model {model_name}, instantiating it now!")
@@ -67,9 +66,10 @@ def samexporter_predict(
 
 
 def get_raster_inference(
-        img: Image, prompt: list[dict], models_instance: SegmentAnythingONNX, model_name: str
-     ) -> Tuple[np.ndarray, int]:
-    """wrapper for rasterio Affine from_gdal method
+        img: Image, prompt: list_dict, models_instance: SegmentAnythingONNX, model_name: str
+     ) -> tuple_ndarr_int:
+    """
+    Wrapper for rasterio Affine from_gdal method
 
     Args:
         img: input PIL Image
