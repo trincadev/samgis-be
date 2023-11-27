@@ -56,6 +56,11 @@ curl -X 'POST' \
 3. It's possible to publish a new aws lambda version from cmd or from lambda page
 
 
+## Dependencies installation and local tests
+The docker build process needs only the classic requirements.txt, instead for local development and sphinx-docs build 
+there is `Pipfile` (sphinx docs is hosted on Cloudflare Pages).
+
+
 ## Tests
 
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
@@ -87,4 +92,4 @@ cd docs && make html && ../
 cd docs && make clean html && cd ../
 ```
 
-The static documentation it's now ready at the path `_build/html/index.html`.
+The static documentation it's now ready at the path `docs/_build/html/index.html`.
