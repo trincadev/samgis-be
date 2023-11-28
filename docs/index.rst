@@ -22,8 +22,8 @@ Welcome to SamGIS's documentation!
    external_links
 
 
-Indices and tables
-==================
+Indices and tables documentation
+================================
 
 * :ref:`genindex`
 * :ref:`modindex`
