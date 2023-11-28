@@ -21,7 +21,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints'
+    'sphinx_autodoc_typehints',
+    'myst_parser'
     # 'sphinx_autodoc_defaultargs'
 ]
 # Napoleon settings
