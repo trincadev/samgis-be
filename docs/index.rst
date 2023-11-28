@@ -6,9 +6,11 @@
 Welcome to SamGIS's documentation!
 ==================================
 
+.. include:: brief_project_presentation.md
+   :parser: myst_parser.sphinx_
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    :hidden:
 
    modules
@@ -16,6 +18,9 @@ Welcome to SamGIS's documentation!
    src.io
    src.prediction_api
    src.utilities
+
+   external_links
+
 
 Indices and tables
 ==================
