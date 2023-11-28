@@ -1,5 +1,5 @@
 """
-Define a machine learning executed by ONNX Runtime (https://onnxruntime.ai/)
+Define a machine learning model executed by ONNX Runtime (https://onnxruntime.ai/)
 for Segment Anything (https://segment-anything.com).
 Modified from https://github.com/vietanhdev/samexporter/
 

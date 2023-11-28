@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 sphinx = "*"
 sphinx-autodoc-typehints = "*"
+myst-parser = "*"
 
 [dev-packages]
 aws-lambda-powertools = "*"

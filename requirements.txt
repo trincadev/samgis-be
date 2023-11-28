@@ -3,6 +3,7 @@ awslambdaric
 bson
 geopandas
 jmespath
+myst-parser
 numpy
 onnxruntime
 opencv-python-headless
