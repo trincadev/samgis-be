@@ -5,4 +5,4 @@ The user interact on a [leaflet](https://leafletjs.com) webmap choosing areas to
 
 The backend perform machine learning inference using a [Segment Anything](https://segment-anything.com) model and [ONNXRuntime](https://onnxruntime.ai) as runtime.
 
-Check about implementation details on my [blog](https://trinca.tornidor.com/projects/samgis-sam-exporter-for-GIS).
+Check about implementation details on my [blog](https://trinca.tornidor.com/projects/samgis-segment-anything-applied-to-GIS).
