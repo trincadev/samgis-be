@@ -1,9 +1,6 @@
 """handle geo-referenced raster images"""
-from pathlib import Path
-from typing import Dict
-
-import numpy as np
 from affine import Affine
+from numpy import ndarray as np_ndarray
 
 from src import app_logger
 from src.utilities.type_hints import list_float, tuple_float, dict_str_int
@@ -45,7 +42,7 @@ def get_affine_transform_from_gdal(matrix_source_coefficients: list_float or tup
     return Affine.from_gdal(*matrix_source_coefficients)
 
 
-def get_vectorized_raster_as_geojson(mask: np.ndarray, matrix: tuple_float) -> dict_str_int:
+def get_vectorized_raster_as_geojson(mask: np_ndarray, matrix: tuple_float) -> dict_str_int:
     """
         Get shapes and values of connected regions in a dataset or array
 

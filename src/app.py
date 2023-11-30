@@ -1,5 +1,4 @@
 """Lambda entry point"""
-import time
 from http import HTTPStatus
 from typing import Dict
 
@@ -24,8 +23,9 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
         json response from get_response() function
 
     """
+    from time import time
     app_logger.info(f"start with aws_request_id:{context.aws_request_id}.")
-    start_time = time.time()
+    start_time = time()
 
     if "version" in event:
         app_logger.info(f"event version: {event['version']}.")

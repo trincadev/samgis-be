@@ -20,18 +20,18 @@ def serialize(obj: any, include_none: bool = False):
 
 
 def _serialize(obj: any, include_none: bool):
-    import numpy as np
+    from numpy import ndarray as np_ndarray, floating as np_floating, integer as np_integer
 
     primitive = (int, float, str, bool)
     # print(type(obj))
     try:
         if obj is None:
             return None
-        elif isinstance(obj, np.integer):
+        elif isinstance(obj, np_integer):
             return int(obj)
-        elif isinstance(obj, np.floating):
+        elif isinstance(obj, np_floating):
             return float(obj)
-        elif isinstance(obj, np.ndarray):
+        elif isinstance(obj, np_ndarray):
             return obj.tolist()
         elif isinstance(obj, primitive):
             return obj

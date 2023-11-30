@@ -1,6 +1,4 @@
 """functions useful to convert to/from latitude-longitude coordinates to pixel image coordinates"""
-import math
-
 from src import app_logger
 from src.utilities.constants import TILE_SIZE
 from src.utilities.type_hints import ImagePixelCoordinates
@@ -8,17 +6,19 @@ from src.utilities.type_hints import LatLngDict
 
 
 def _get_latlng2pixel_projection(latlng: LatLngDict) -> ImagePixelCoordinates:
+    from math import log, pi, sin
+
     app_logger.debug(f"latlng: {type(latlng)}, value:{latlng}.")
     app_logger.debug(f'latlng lat: {type(latlng.lat)}, value:{latlng.lat}.')
     app_logger.debug(f'latlng lng: {type(latlng.lng)}, value:{latlng.lng}.')
     try:
-        sin_y: float = math.sin(latlng.lat * math.pi / 180)
+        sin_y: float = sin(latlng.lat * pi / 180)
         app_logger.debug(f"sin_y, #1:{sin_y}.")
         sin_y = min(max(sin_y, -0.9999), 0.9999)
         app_logger.debug(f"sin_y, #2:{sin_y}.")
         x = TILE_SIZE * (0.5 + latlng.lng / 360)
         app_logger.debug(f"x:{x}.")
-        y = TILE_SIZE * (0.5 - math.log((1 + sin_y) / (1 - sin_y)) / (4 * math.pi))
+        y = TILE_SIZE * (0.5 - log((1 + sin_y) / (1 - sin_y)) / (4 * pi))
         app_logger.debug(f"y:{y}.")
 
         return {"x": x, "y": y}
@@ -28,14 +28,16 @@ def _get_latlng2pixel_projection(latlng: LatLngDict) -> ImagePixelCoordinates:
 
 
 def _get_point_latlng_to_pixel_coordinates(latlng: LatLngDict, zoom: int | float) -> ImagePixelCoordinates:
+    from math import floor
+
     try:
         world_coordinate: ImagePixelCoordinates = _get_latlng2pixel_projection(latlng)
         app_logger.debug(f"world_coordinate:{world_coordinate}.")
         scale: int = pow(2, zoom)
         app_logger.debug(f"scale:{scale}.")
         return ImagePixelCoordinates(
-            x=math.floor(world_coordinate["x"] * scale),
-            y=math.floor(world_coordinate["y"] * scale)
+            x=floor(world_coordinate["x"] * scale),
+            y=floor(world_coordinate["y"] * scale)
         )
     except Exception as e_format_latlng_to_pixel_coordinates:
         app_logger.error(f'format_latlng_to_pixel_coordinates:{e_format_latlng_to_pixel_coordinates}.')
