@@ -1,6 +1,5 @@
 """Get machine learning predictions from geodata raster images"""
 from aws_lambda_powertools import Logger
-import os
 from pathlib import Path
 
 from src.utilities.constants import SERVICE_NAME

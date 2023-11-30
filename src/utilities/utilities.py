@@ -66,26 +66,26 @@ def hash_calculate(arr) -> str or bytes:
     Returns:
         computed hash from input variable
     """
-    import hashlib
-    import numpy as np
+    from hashlib import sha256
     from base64 import b64encode
+    from numpy import ndarray as np_ndarray
 
-    if isinstance(arr, np.ndarray):
-        hash_fn = hashlib.sha256(arr.data)
+    if isinstance(arr, np_ndarray):
+        hash_fn = sha256(arr.data)
     elif isinstance(arr, dict):
         import json
 
         serialized = serialize(arr)
         variable_to_hash = json.dumps(serialized, sort_keys=True).encode('utf-8')
-        hash_fn = hashlib.sha256(variable_to_hash)
+        hash_fn = sha256(variable_to_hash)
     elif isinstance(arr, str):
         try:
-            hash_fn = hashlib.sha256(arr)
+            hash_fn = sha256(arr)
         except TypeError:
             app_logger.warning(f"TypeError, re-try encoding arg:{arr},type:{type(arr)}.")
-            hash_fn = hashlib.sha256(arr.encode('utf-8'))
+            hash_fn = sha256(arr.encode('utf-8'))
     elif isinstance(arr, bytes):
-        hash_fn = hashlib.sha256(arr)
+        hash_fn = sha256(arr)
     else:
         raise ValueError(f"variable 'arr':{arr} not yet handled.")
     return b64encode(hash_fn.digest())

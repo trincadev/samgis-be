@@ -1,7 +1,4 @@
 """lambda helper functions"""
-import json
-import logging
-import time
 from typing import Dict
 from aws_lambda_powertools.event_handler import content_types
 
@@ -26,19 +23,22 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
         json response
 
     """
+    from json import dumps
+    from time import time
+
     app_logger.debug(f"response_body:{response_body}.")
-    response_body["duration_run"] = time.time() - start_time
+    response_body["duration_run"] = time() - start_time
     response_body["message"] = CUSTOM_RESPONSE_MESSAGES[status]
     response_body["request_id"] = request_id
 
     response = {
         "statusCode": status,
         "header": {"Content-Type": content_types.APPLICATION_JSON},
-        "body": json.dumps(response_body),
+        "body": dumps(response_body),
         "isBase64Encoded": False
     }
     app_logger.debug(f"response type:{type(response)} => {response}.")
-    return json.dumps(response)
+    return dumps(response)
 
 
 def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
@@ -98,7 +98,10 @@ def get_parsed_request_body(event: Dict) -> RawRequestInput:
     Returns:
         parsed request input
     """
-    app_logger.info(f"event:{json.dumps(event)}...")
+    from json import dumps, loads
+    from logging import getLevelName
+
+    app_logger.info(f"event:{dumps(event)}...")
     try:
         raw_body = event["body"]
     except Exception as e_constants1:
@@ -108,12 +111,12 @@ def get_parsed_request_body(event: Dict) -> RawRequestInput:
     if isinstance(raw_body, str):
         body_decoded_str = base64_decode(raw_body)
         app_logger.debug(f"body_decoded_str: {type(body_decoded_str)}, {body_decoded_str}...")
-        raw_body = json.loads(body_decoded_str)
+        raw_body = loads(body_decoded_str)
     app_logger.info(f"body, #2: {type(raw_body)}, {raw_body}...")
 
     parsed_body = RawRequestInput.model_validate(raw_body)
     log_level = "DEBUG" if parsed_body.debug else "INFO"
     app_logger.setLevel(log_level)
-    app_logger.warning(f"set log level to {logging.getLevelName(app_logger.log_level)}.")
+    app_logger.warning(f"set log level to {getLevelName(app_logger.log_level)}.")
 
     return parsed_body

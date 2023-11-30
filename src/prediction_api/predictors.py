@@ -1,6 +1,6 @@
 """functions using machine learning instance model(s)"""
 from PIL.Image import Image
-import numpy as np
+from numpy import array as np_array, uint8, zeros
 
 from src import app_logger, MODEL_FOLDER
 from src.io.geo_helpers import get_vectorized_raster_as_geojson, get_affine_transform_from_gdal
@@ -80,7 +80,7 @@ def get_raster_inference(
     Returns:
         raster prediction mask, prediction number
     """
-    np_img = np.array(img)
+    np_img = np_array(img)
     app_logger.info(f"img type {type(np_img)}, prompt:{prompt}.")
     app_logger.debug(f"onnxruntime input shape/size (shape if PIL) {np_img.size}.")
     try:
@@ -95,7 +95,7 @@ def get_raster_inference(
     len_inference_out = len(inference_out[0, :, :, :])
     app_logger.info(f"Created {len_inference_out} prediction_masks,"
                     f"shape:{inference_out.shape}, dtype:{inference_out.dtype}.")
-    mask = np.zeros((inference_out.shape[2], inference_out.shape[3]), dtype=np.uint8)
+    mask = zeros((inference_out.shape[2], inference_out.shape[3]), dtype=uint8)
     for n, m in enumerate(inference_out[0, :, :, :]):
         app_logger.debug(f"{n}th of prediction_masks shape {inference_out.shape}"
                          f" => mask shape:{mask.shape}, {mask.dtype}.")
