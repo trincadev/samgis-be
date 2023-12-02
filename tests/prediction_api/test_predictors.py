@@ -2,7 +2,6 @@ import json
 from unittest.mock import patch
 
 import numpy as np
-import rasterio
 
 from src.prediction_api import predictors
 from src.prediction_api.predictors import get_raster_inference, samexporter_predict
@@ -43,9 +42,7 @@ def test_get_raster_inference(segment_anything_onnx_mocked):
 @patch.object(predictors, "SegmentAnythingONNX")
 @patch.object(predictors, "download_extent")
 @patch.object(predictors, "get_vectorized_raster_as_geojson")
-@patch.object(predictors, "get_affine_transform_from_gdal")
 def test_samexporter_predict(
-        get_affine_transform_from_gdal_mocked,
         get_vectorized_raster_as_geojson_mocked,
         download_extent_mocked,
         segment_anything_onnx_mocked,
@@ -61,7 +58,6 @@ def test_samexporter_predict(
     aff = 1, 2, 3, 4, 5, 6
     segment_anything_onnx_mocked.return_value = "SegmentAnythingONNX_instance"
     download_extent_mocked.return_value = np.zeros((10, 10)), aff
-    get_affine_transform_from_gdal_mocked.return_value = rasterio.Affine.from_gdal(*aff)
     get_raster_inference_mocked.return_value = np.ones((10, 10)), 1
     get_vectorized_raster_as_geojson_mocked.return_value = {"geojson": "{}", "n_shapes_geojson": 2}
     output = samexporter_predict(bbox=[[1, 2], [3, 4]], prompt=[{}], zoom=10, model_name="fastsam")
