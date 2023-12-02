@@ -63,6 +63,7 @@ class TestGeoHelpers(unittest.TestCase):
                     raise e
 
     def test_get_vectorized_raster_as_geojson_ok(self):
+        from rasterio.transform import Affine
         from src.io.geo_helpers import get_vectorized_raster_as_geojson
 
         name_fn = "samexporter_predict"
@@ -73,7 +74,8 @@ class TestGeoHelpers(unittest.TestCase):
                 print(f"k:{k}.")
                 mask = np.load(TEST_EVENTS_FOLDER / name_fn / k / "mask.npy")
 
-                output = get_vectorized_raster_as_geojson(mask=mask, matrix=input_output["input"]["matrix"])
+                transform = Affine.from_gdal(*input_output["input"]["matrix"])
+                output = get_vectorized_raster_as_geojson(mask=mask, transform=transform)
                 assert output["n_shapes_geojson"] == input_output["output"]["n_shapes_geojson"]
                 output_geojson = shapely.from_geojson(output["geojson"])
                 expected_output_geojson = shapely.from_geojson(input_output["output"]["geojson"])
@@ -92,12 +94,11 @@ class TestGeoHelpers(unittest.TestCase):
 
                 # Could be also another generic Exception, here we intercept TypeError caused by wrong matrix input on
                 # rasterio.Affine.from_gdal() wrapped by get_affine_transform_from_gdal()
-                with self.assertRaises(TypeError):
+                with self.assertRaises(IndexError):
                     try:
                         wrong_matrix = 1.0,
-                        get_vectorized_raster_as_geojson(mask=mask, matrix=wrong_matrix)
-                    except TypeError as te:
+                        get_vectorized_raster_as_geojson(mask=mask, transform=wrong_matrix)
+                    except IndexError as te:
                         print(f"te:{te}.")
-                        msg = "Affine.from_gdal() missing 5 required positional arguments: 'a', 'b', 'f', 'd', and 'e'"
-                        self.assertEqual(str(te), msg)
+                        self.assertEqual(str(te), 'tuple index out of range')
                         raise te
