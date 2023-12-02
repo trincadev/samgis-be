@@ -3,6 +3,7 @@ from enum import Enum
 from typing import TypedDict
 
 from PIL.Image import Image
+from affine import Affine
 from numpy import ndarray
 from pydantic import BaseModel
 
@@ -21,6 +22,7 @@ llist_float = list[list_float]
 tuple_float = tuple[float]
 tuple_float_any = tuple[float, any]
 PIL_Image = Image
+tuple_ndarray_transform = tuple[ndarray, Affine]
 
 
 class LatLngDict(BaseModel):

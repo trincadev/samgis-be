@@ -1,21 +1,19 @@
 """functions using machine learning instance model(s)"""
-from PIL.Image import Image
-from numpy import array as np_array, uint8, zeros
+from numpy import array as np_array, uint8, zeros, ndarray
 
 from src import app_logger, MODEL_FOLDER
-from src.io.geo_helpers import get_vectorized_raster_as_geojson, get_affine_transform_from_gdal
+from src.io.geo_helpers import get_vectorized_raster_as_geojson
 from src.io.tms2geotiff import download_extent
 from src.prediction_api.sam_onnx import SegmentAnythingONNX
 from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
-from src.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int
-
+from src.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
 
 models_dict = {"fastsam": {"instance": None}}
 
 
 def samexporter_predict(
         bbox: llist_float,
-        prompt: list[dict],
+        prompt: list_dict,
         zoom: float,
         model_name: str = "fastsam",
         url_tile: str = DEFAULT_TMS
@@ -31,7 +29,7 @@ def samexporter_predict(
     Args:
         bbox: coordinates bounding box
         prompt: machine learning input prompt
-        zoom:
+        zoom: Level of detail
         model_name: machine learning model name
         url_tile: server url tile
 
@@ -51,22 +49,20 @@ def samexporter_predict(
     app_logger.info(f'tile_source: {url_tile}!')
     pt0, pt1 = bbox
     app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
-    img, matrix = download_extent(url_tile, pt0[0], pt0[1], pt1[0], pt1[1], zoom)
-    app_logger.info(f"img type {type(img)} with shape/size:{img.size}, matrix:{type(matrix)}, matrix:{matrix}.")
-
-    transform = get_affine_transform_from_gdal(matrix)
-    app_logger.debug(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
+    img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=url_tile)
+    app_logger.info(
+        f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
 
     mask, n_predictions = get_raster_inference(img, prompt, models_instance, model_name)
     app_logger.info(f"created {n_predictions} masks, preparing conversion to geojson...")
     return {
         "n_predictions": n_predictions,
-        **get_vectorized_raster_as_geojson(mask, matrix)
+        **get_vectorized_raster_as_geojson(mask, transform)
     }
 
 
 def get_raster_inference(
-        img: Image, prompt: list_dict, models_instance: SegmentAnythingONNX, model_name: str
+        img: PIL_Image or ndarray, prompt: list_dict, models_instance: SegmentAnythingONNX, model_name: str
      ) -> tuple_ndarr_int:
     """
     Wrapper for rasterio Affine from_gdal method
