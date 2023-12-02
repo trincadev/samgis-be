@@ -7,12 +7,12 @@ from src.io.tms2geotiff import download_extent
 from src.utilities.utilities import hash_calculate
 from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
-
 input_bbox = [[39.036252959636606, 15.040283203125002], [38.302869955150044, 13.634033203125002]]
 
 
 class TestTms2geotiff(unittest.TestCase):
     def test_download_extent(self):
+        from rasterio import Affine
         from tests.local_tiles_http_server import LocalTilesHttpServer
 
         listen_port = 8000
@@ -20,25 +20,35 @@ class TestTms2geotiff(unittest.TestCase):
         with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
             pt0, pt1 = input_bbox
             zoom = 10
-            img, matrix = download_extent(
-                source=LOCAL_URL_TILE, lat0=pt0[0], lon0=pt0[1], lat1=pt1[0], lon1=pt1[1], zoom=zoom
-            )
-            app_logger.info("# DOWNLOAD ENDED! #")
-            np_img = np.array(img)
+
+            n_lat = pt0[0]
+            e_lng = pt0[1]
+            s_lat = pt1[0]
+            w_lng = pt1[1]
+
+            img, matrix = download_extent(w=w_lng, s=s_lat, e=e_lng, n=n_lat, zoom=zoom, source=LOCAL_URL_TILE)
+            app_logger.info(f"# DOWNLOAD ENDED, shape: {img.shape} #")
+            np_img = np.ascontiguousarray(img)
             output_hash = hash_calculate(np_img)
-            assert output_hash == b'Rd95Whd3nP4PW4pgcYsoyTqUUabpt8LfYxns022em7o='
-            assert matrix == (1517733.63363046, 152.8740565703522, 0, 4726865.829155299, 0, -152.87405657035038)
+            assert output_hash == b'UmbkwbPJpRT1XXcLnLUapUDP320w7YhS/AmT3H7u+b4='
+            assert Affine.to_gdal(matrix) == (
+                1517657.1966021745, 152.8740565703525, 0.0, 4726942.266183584, 0.0, -152.87405657034955)
 
     def test_download_extent_io_error1(self):
 
-        with self.assertRaises(IOError):
+        with self.assertRaises(Exception):
             try:
                 pt0, pt1 = input_bbox
                 zoom = 10
-                download_extent(
-                    source=LOCAL_URL_TILE, lat0=pt0[0], lon0=pt0[1], lat1=pt1[0], lon1=pt1[1], zoom=zoom
-                )
-            except IOError as ioe1:
+
+                n_lat = pt0[0]
+                e_lng = pt0[1]
+                s_lat = pt1[0]
+                w_lng = pt1[1]
+
+                download_extent(w=w_lng, s=s_lat, e=e_lng, n=n_lat, zoom=zoom, source=f"http://{LOCAL_URL_TILE}")
+                print("exception not raised")
+            except ConnectionError as ioe1:
                 app_logger.error(f"ioe1:{ioe1}.")
                 msg0 = "HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /lambda_handler"
                 msg1 = "Caused by NewConnectionError"
@@ -49,6 +59,7 @@ class TestTms2geotiff(unittest.TestCase):
                 raise ioe1
 
     def test_download_extent_io_error2(self):
+        from requests import HTTPError
         from tests.local_tiles_http_server import LocalTilesHttpServer
 
         listen_port = 8000
@@ -56,13 +67,16 @@ class TestTms2geotiff(unittest.TestCase):
             pt0, pt1 = input_bbox
             zoom = 10
 
-            with self.assertRaises(AttributeError):
+            with self.assertRaises(HTTPError):
                 try:
-                    download_extent(
-                        source=LOCAL_URL_TILE + "_not_found_raster!",
-                        lat0=pt0[0], lon0=pt0[1], lat1=pt1[0], lon1=pt1[1], zoom=zoom
-                    )
-                except AttributeError as ae:
-                    app_logger.error(f"ae:{ae}.")
-                    assert str(ae) == "'NoneType' object has no attribute 'crop'"
-                    raise ae
+                    n_lat = pt0[0]
+                    e_lng = pt0[1]
+                    s_lat = pt1[0]
+                    w_lng = pt1[1]
+
+                    download_extent(w=w_lng, s=s_lat, e=e_lng, n=n_lat, zoom=zoom,
+                                    source=LOCAL_URL_TILE + "_not_found_raster!")
+                except HTTPError as http_e:
+                    app_logger.error(f"ae:{http_e}.")
+                    assert "Tile URL resulted in a 404 error. Double-check your tile url:" in str(http_e)
+                    raise http_e
