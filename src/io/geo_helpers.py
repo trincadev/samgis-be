@@ -42,13 +42,13 @@ def get_affine_transform_from_gdal(matrix_source_coefficients: list_float or tup
     return Affine.from_gdal(*matrix_source_coefficients)
 
 
-def get_vectorized_raster_as_geojson(mask: np_ndarray, matrix: tuple_float) -> dict_str_int:
+def get_vectorized_raster_as_geojson(mask: np_ndarray, transform: tuple_float) -> dict_str_int:
     """
         Get shapes and values of connected regions in a dataset or array
 
         Args:
             mask: numpy mask
-            matrix: tuple of float to transform into an Affine transform
+            transform: tuple of float to transform into an Affine transform
 
         Returns:
             dict containing the output geojson and the predictions number
@@ -57,8 +57,7 @@ def get_vectorized_raster_as_geojson(mask: np_ndarray, matrix: tuple_float) -> d
         from rasterio.features import shapes
         from geopandas import GeoDataFrame
 
-        transform = get_affine_transform_from_gdal(matrix)
-        app_logger.info(f"transform to consume with rasterio.shapes: {type(transform)}, {transform}.")
+        app_logger.debug(f"matrix to consume with rasterio.shapes: {type(transform)}, {transform}.")
 
         # old value for mask => band != 0
         shapes_generator = ({

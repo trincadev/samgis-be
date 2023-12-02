@@ -1,6 +1,7 @@
 aws-lambda-powertools
 awslambdaric
 bson
+contextily
 geopandas
 jmespath
 myst-parser
