@@ -1,7 +1,7 @@
 """functions useful to convert to/from latitude-longitude coordinates to pixel image coordinates"""
 from src import app_logger
-from src.utilities.constants import TILE_SIZE
-from src.utilities.type_hints import ImagePixelCoordinates
+from src.utilities.constants import TILE_SIZE, EARTH_EQUATORIAL_RADIUS
+from src.utilities.type_hints import ImagePixelCoordinates, tuple_float, tuple_float_any
 from src.utilities.type_hints import LatLngDict
 
 
@@ -58,7 +58,7 @@ def get_latlng_to_pixel_coordinates(
         latlng_origin_ne: NE latitude-longitude origin point
         latlng_origin_sw: SW latitude-longitude origin point
         latlng_current_point: latitude-longitude prompt point
-        zoom: zoom value
+        zoom: Level of detail
         k: prompt type
 
     Returns:
@@ -74,3 +74,20 @@ def get_latlng_to_pixel_coordinates(
     point = ImagePixelCoordinates(x=diff_coord_x, y=diff_coord_y)
     app_logger.debug(f"point type - {k}: {point}.")
     return point
+
+
+def _from4326_to3857(lat: float, lon: float) -> tuple_float or tuple_float_any:
+    from math import radians, log, tan
+
+    x_tile: float = radians(lon) * EARTH_EQUATORIAL_RADIUS
+    y_tile: float = log(tan(radians(45 + lat / 2.0))) * EARTH_EQUATORIAL_RADIUS
+    return x_tile, y_tile
+
+
+def _deg2num(lat: float, lon: float, zoom: int):
+    from math import radians, pi, asinh, tan
+
+    n = 2 ** zoom
+    x_tile = ((lon + 180) / 360 * n)
+    y_tile = (1 - asinh(tan(radians(lat))) / pi) * n / 2
+    return x_tile, y_tile

@@ -1,246 +1,141 @@
-"""
-Download geo-referenced raster tiles images.
-Modified from https://github.com/gumblex/tms2geotiff/
-
-BSD 2-Clause License
-
-Copyright (c) 2019, Dingyuan Wang
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
-import concurrent.futures
-import io
-import itertools
-import math
-import re
-import time
-from typing import Tuple, Callable
-from PIL import Image
+from numpy import ndarray
 
 from src import app_logger
-from src.utilities.constants import EARTH_EQUATORIAL_RADIUS, RETRY_DOWNLOAD, TIMEOUT_DOWNLOAD, TILE_SIZE, \
-    CALLBACK_INTERVAL_DOWNLOAD
-from src.utilities.type_hints import PIL_Image, tuple_float, tuple_float_any, list_int, tuple_int
-
-Image.MAX_IMAGE_PIXELS = None
-
-try:
-    import httpx
-
-    SESSION = httpx.Client()
-except ImportError:
-    import requests
-
-    SESSION = requests.Session()
-
-SESSION.headers.update({
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
-})
-
-re_coords_split = re.compile('[ ,;]+')
+from src.utilities.constants import OUTPUT_CRS_STRING, DRIVER_RASTERIO_GTIFF, OSM_MAX_RETRIES, OSM_N_CONNECTIONS, \
+    OSM_WAIT, OSM_ZOOM_AUTO, OSM_USE_CACHE
+from src.utilities.type_hints import tuple_ndarray_transform, tuple_float
 
 
-def _from4326_to3857(lat: float, lon: float) -> tuple_float or tuple_float_any:
-    x_tile: float = math.radians(lon) * EARTH_EQUATORIAL_RADIUS
-    y_tile: float = math.log(math.tan(math.radians(45 + lat / 2.0))) * EARTH_EQUATORIAL_RADIUS
-    return x_tile, y_tile
-
-
-def _deg2num(lat: float, lon: float, zoom: int):
-    n = 2 ** zoom
-    x_tile = ((lon + 180) / 360 * n)
-    y_tile = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) * n / 2
-    return x_tile, y_tile
-
-
-def _is_empty(image):
-    extrema = image.getextrema()
-    if len(extrema) >= 3:
-        if len(extrema) > 3 and extrema[-1] == (0, 0):
-            return True
-        for ext in extrema[:3]:
-            if ext != (0, 0):
-                return False
-        return True
-    return extrema[0] == (0, 0)
-
-
-def _paste_tile(big_image: PIL_Image or None, base_size: list_int, tile: bytes, corner_xy: tuple_int, bbox: tuple_int):
-    if tile is None:
-        return big_image
-    with Image.open(io.BytesIO(tile)) as tmp_image:
-        mode = 'RGB' if tmp_image.mode == 'RGB' else 'RGBA'
-        size = tmp_image.size
-        new_image = big_image
-        if big_image is None:
-            base_size[0] = size[0]
-            base_size[1] = size[1]
-            new_image = Image.new(mode, (
-                size[0] * (bbox[2] - bbox[0]), size[1] * (bbox[3] - bbox[1])))
-
-        dx = abs(corner_xy[0] - bbox[0])
-        dy = abs(corner_xy[1] - bbox[1])
-        xy0 = (size[0] * dx, size[1] * dy)
-        if mode == 'RGB':
-            new_image.paste(tmp_image, xy0)
-        else:
-            if tmp_image.mode != mode:
-                tmp_image = tmp_image.convert(mode)
-            if not _is_empty(tmp_image):
-                new_image.paste(tmp_image, xy0)
-        return new_image
-
-
-def _get_tile(url: str) -> bytes or None:
-    retry = RETRY_DOWNLOAD
-    while 1:
-        try:
-            app_logger.debug(f"image tile url to download: {url}.")
-            r = SESSION.get(url, timeout=TIMEOUT_DOWNLOAD)
-            break
-        except Exception as request_tile_exception:
-            app_logger.error(f"retry {retry}, request_tile_exception:{request_tile_exception}.")
-            retry -= 1
-            if not retry:
-                raise
-    if r.status_code == 404 or not r.content:
-        return None
-    r.raise_for_status()
-    return r.content
-
-
-def log_progress(progress, total, done=False):
-    """log the progress download"""
-    if done:
-        app_logger.info('Downloaded image %d/%d, %.2f%%' % (progress, total, progress * 100 / total))
-
-
-def download_extent(
-        source: str, lat0: float, lon0: float, lat1: float, lon1: float, zoom: int,
-        save_image: bool = True, progress_callback: Callable = log_progress,
-        callback_interval: float = CALLBACK_INTERVAL_DOWNLOAD
-) -> Tuple[PIL_Image, Tuple[float]] or Tuple[None]:
+def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = OSM_ZOOM_AUTO, source: str = None,
+                    wait: int = OSM_WAIT, max_retries: int = OSM_MAX_RETRIES, n_connections: int = OSM_N_CONNECTIONS,
+                    use_cache: bool = OSM_USE_CACHE) -> tuple_ndarray_transform:
     """
     Download, merge and crop a list of tiles into a single geo-referenced image or a raster geodata
 
     Args:
-        source: remote url tile
-        lat0: point0 bounding box latitude
-        lat1: point0 bounding box longitude
-        lon0: point1 bounding box latitude
-        lon1: point1 bounding box longitude
-        zoom: bounding box zoom
-        save_image: boolean to choose if save the image
-        progress_callback: callback function
-        callback_interval: process callback interval time
+        w: West edge
+        s: South edge
+        e: East edge
+        n: North edge
+        zoom: Level of detail
+        source: xyzservices.TileProvider object or str
+            [Optional. Default: OpenStreetMap Humanitarian web tiles]
+            The tile source: web tile provider or path to local file. The web tile
+            provider can be in the form of a :class:`xyzservices.TileProvider` object or a
+            URL. The placeholders for the XYZ in the URL need to be `{x}`, `{y}`,
+            `{z}`, respectively. For local file paths, the file is read with
+            `rasterio` and all bands are loaded into the basemap.
+            IMPORTANT: tiles are assumed to be in the Spherical Mercator
+            projection (EPSG:3857), unless the `crs` keyword is specified.
+        wait: if the tile API is rate-limited, the number of seconds to wait
+            between a failed request and the next try
+        max_retries: total number of rejected requests allowed before contextily will stop trying to fetch more tiles
+            from a rate-limited API.
+        n_connections: Number of connections for downloading tiles in parallel. Be careful not to overload the tile
+            server and to check the tile provider's terms of use before increasing this value. E.g., OpenStreetMap has
+            a max. value of 2 (https://operations.osmfoundation.org/policies/tiles/). If allowed to download in
+            parallel, a recommended value for n_connections is 16, and should never be larger than 64.
+        use_cache: If False, caching of the downloaded tiles will be disabled. This can be useful in resource
+            constrained environments, especially when using n_connections > 1, or when a tile provider's terms of use
+            don't allow caching.
 
     Returns:
         parsed request input
     """
-    x0, y0 = _deg2num(lat0, lon0, zoom)
-    x1, y1 = _deg2num(lat1, lon1, zoom)
-    if x0 > x1:
-        x0, x1 = x1, x0
-    if y0 > y1:
-        y0, y1 = y1, y0
+    from contextily.tile import bounds2img
+    from src.io.coordinates_pixel_conversion import _from4326_to3857
 
-    corners = tuple(itertools.product(
-        range(math.floor(x0), math.ceil(x1)),
-        range(math.floor(y0), math.ceil(y1))))
-    total_num = len(corners)
-    futures = {}
-    done_num = 0
-    progress_callback(done_num, total_num, False)
-    last_done_num = 0
-    last_callback = time.monotonic()
-    cancelled = False
-    with concurrent.futures.ThreadPoolExecutor(5) as executor:
-        for x, y in corners:
-            future = executor.submit(_get_tile, source.format(z=zoom, x=x, y=y))
-            futures[future] = (x, y)
-        bbox = (math.floor(x0), math.floor(y0), math.ceil(x1), math.ceil(y1))
-        big_image = None
-        base_size = [TILE_SIZE, TILE_SIZE]
-        big_image, cancelled, done_num = _run_future_tile_download(
-            base_size, bbox, big_image, callback_interval, cancelled, done_num, futures, last_callback, last_done_num,
-            progress_callback, save_image, total_num
-        )
-    if cancelled:
-        raise TaskCancelled()
-    progress_callback(done_num, total_num, True)
-
-    if not save_image:
-        return None, None
-
-    x_frac = x0 - bbox[0]
-    y_frac = y0 - bbox[1]
-    x2 = round(base_size[0] * x_frac)
-    y2 = round(base_size[1] * y_frac)
-    img_w = round(base_size[0] * (x1 - x0))
-    img_h = round(base_size[1] * (y1 - y0))
-    final_image = big_image.crop((x2, y2, x2 + img_w, y2 + img_h))
-    if final_image.mode == 'RGBA' and final_image.getextrema()[3] == (255, 255):
-        final_image = final_image.convert('RGB')
-    big_image.close()
-    xp0, yp0 = _from4326_to3857(lat0, lon0)
-    xp1, yp1 = _from4326_to3857(lat1, lon1)
-    p_width = abs(xp1 - xp0) / final_image.size[0]
-    p_height = abs(yp1 - yp0) / final_image.size[1]
-    matrix = min(xp0, xp1), p_width, 0, max(yp0, yp1), 0, -p_height
-    return final_image, matrix
+    app_logger.debug(f"download raster from source:{source} with bounding box w:{w}, s:{s}, e:{e}, n:{n}.")
+    downloaded_raster, bbox_raster = bounds2img(
+        w, s, e, n, zoom=zoom, source=source, ll=True, wait=wait, max_retries=max_retries, n_connections=n_connections,
+        use_cache=use_cache)
+    xp0, yp0 = _from4326_to3857(n, e)
+    xp1, yp1 = _from4326_to3857(s, w)
+    cropped_image_ndarray, cropped_transform = crop_raster(yp1, xp1, yp0, xp0, downloaded_raster, bbox_raster)
+    return cropped_image_ndarray, cropped_transform
 
 
-def _run_future_tile_download(
-        base_size, bbox, big_im, callback_interval, cancelled, done_num, futures, last_callback, last_done_num,
-        progress_callback, save_image, total_num
-):
-    while futures:
-        done, _ = concurrent.futures.wait(
-            futures.keys(), timeout=callback_interval,
-            return_when=concurrent.futures.FIRST_COMPLETED
-        )
-        for fut in done:
-            img_data = fut.result()
-            xy = futures[fut]
-            if save_image:
-                big_im = _paste_tile(big_im, base_size, img_data, xy, bbox)
-            del futures[fut]
-            done_num += 1
-        if time.monotonic() > last_callback + callback_interval:
-            try:
-                progress_callback(done_num, total_num, (done_num > last_done_num))
-            except TaskCancelled:
-                for fut in futures.keys():
-                    fut.cancel()
-                futures.clear()
-                cancelled = True
-                break
-            last_callback = time.monotonic()
-            last_done_num = done_num
-    return big_im, cancelled, done_num
+def crop_raster(w: float, s: float, e: float, n: float, raster: ndarray, raster_bbox: tuple_float,
+                crs: str = OUTPUT_CRS_STRING, driver: str = DRIVER_RASTERIO_GTIFF) -> tuple_ndarray_transform:
+    """
+    Crop a raster using given bounding box (w, s, e, n) values
+
+    Args:
+        w: cropping west edge
+        s: cropping south edge
+        e: cropping east edge
+        n: cropping north edge
+        raster: raster image to crop
+        raster_bbox: bounding box of raster to crop
+        crs: The coordinate reference system. Required in 'w' or 'w+' modes, it is ignored in 'r' or 'r+' modes.
+        driver: A short format driver name (e.g. "GTiff" or "JPEG") or a list of such names (see GDAL docs at
+            https://gdal.org/drivers/raster/index.html ). In 'w' or 'w+' modes a single name is required. In 'r' or 'r+'
+            modes the driver can usually be omitted. Registered drivers will be tried sequentially until a match is
+            found. When multiple drivers are available for a format such as JPEG2000, one of them can be selected by
+            using this keyword argument.
+
+    Returns:
+        cropped raster with its Affine transform
+    """
+    from rasterio.io import MemoryFile
+    from rasterio.plot import reshape_as_image
+    from rasterio.mask import mask as rio_mask
+    from shapely.geometry import Polygon
+    from geopandas import GeoSeries
+
+    app_logger.debug(f"raster: type {type(raster)}, raster_ext:{type(raster_bbox)}, {raster_bbox}.")
+    img_to_save, transform = get_transform_raster(raster, raster_bbox)
+    img_height, img_width, number_bands = img_to_save.shape
+    # https://rasterio.readthedocs.io/en/latest/topics/memory-files.html
+    with MemoryFile() as rio_mem_file:
+        app_logger.debug("writing raster in-memory to crop it with rasterio.mask.mask()")
+        with rio_mem_file.open(
+                driver=driver,
+                height=img_height,
+                width=img_width,
+                count=number_bands,
+                dtype=str(img_to_save.dtype.name),
+                crs=crs,
+                transform=transform,
+        ) as src_raster_rw:
+            for band in range(number_bands):
+                src_raster_rw.write(img_to_save[:, :, band], band + 1)
+        app_logger.debug("cropping raster in-memory with rasterio.mask.mask()")
+        with rio_mem_file.open() as src_raster_ro:
+            shapes_crop_polygon = Polygon([(n, e), (s, e), (s, w), (n, w), (n, e)])
+            shapes_crop = GeoSeries([shapes_crop_polygon])
+            app_logger.debug(f"cropping with polygon::{shapes_crop_polygon}.")
+            cropped_image, cropped_transform = rio_mask(src_raster_ro, shapes=shapes_crop, crop=True)
+            cropped_image_ndarray = reshape_as_image(cropped_image)
+    app_logger.info(f"cropped image::{cropped_image_ndarray.shape}.")
+    return cropped_image_ndarray, cropped_transform
 
 
-class TaskCancelled(RuntimeError):
-    pass
+def get_transform_raster(raster: ndarray, raster_bbox: tuple_float) -> tuple_ndarray_transform:
+    """
+    Convert the input raster image to RGB and extract the Affine 
+
+    Args:
+        raster: raster image to geo-reference
+        raster_bbox: bounding box of raster to crop
+
+    Returns:
+        rgb raster image and its Affine transform
+    """
+    from rasterio.transform import from_origin
+    from numpy import array as np_array, linspace as np_linspace, uint8 as np_uint8
+    from PIL.Image import fromarray
+
+    app_logger.debug(f"raster: type {type(raster)}, raster_ext:{type(raster_bbox)}, {raster_bbox}.")
+    rgb = fromarray(np_uint8(raster)).convert('RGB')
+    np_rgb = np_array(rgb)
+    img_height, img_width, _ = np_rgb.shape
+
+    min_x, max_x, min_y, max_y = raster_bbox
+    app_logger.debug(f"raster rgb shape:{np_rgb.shape}, raster rgb bbox {raster_bbox}.")
+    x = np_linspace(min_x, max_x, img_width)
+    y = np_linspace(min_y, max_y, img_height)
+    res_x = (x[-1] - x[0]) / img_width
+    res_y = (y[-1] - y[0]) / img_height
+    transform = from_origin(x[0] - res_x / 2, y[-1] + res_y / 2, res_x, res_y)
+    return np_rgb, transform
