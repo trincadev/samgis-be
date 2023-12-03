@@ -1,0 +1,62 @@
+{
+  "input": {
+  "version": "2.0",
+  "routeKey": "POST /lambda-ml-fastsam-api",
+  "rawPath": "/preview/lambda-ml-fastsam-api",
+  "rawQueryString": "",
+  "headers": {
+    "accept-encoding": "gzip",
+    "authorization": "Bearer aaa.bbb.ccc",
+    "cdn-loop": "cloudflare; loops=1; subreqs=1",
+    "cf-connecting-ip": "2a06:98c0:3600::103",
+    "cf-connecting-o2o": "1",
+    "cf-ew-via": "15",
+    "cf-ray": "82f7a58375170e5d-MXP",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "cf-worker": "example-domain.com",
+    "content-length": "257",
+    "content-type": "application/json",
+    "host": "example-domain-aws.execute-api.eu-west-1.amazonaws.com",
+    "x-amzn-trace-id": "Root=1-656bc9e7-3ea67446317bedcb13ac07e2",
+    "x-forwarded-for": "2a06:98c0:3600::103, 162.158.129.178",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "01234567890",
+    "apiId": "example-domain-aws",
+    "authorizer": {
+      "jwt": {
+        "claims": {
+          "aud": "[http://preview-ml-lambda/ https://xxx.eu.auth0.com/userinfo]",
+          "azp": "qYZNGiwEHeZe2QCVXljIDWENwSfKhd8T",
+          "exp": "1701649239",
+          "iat": "1701562839",
+          "iss": "https://xxx.eu.auth0.com/",
+          "scope": "openid profile email",
+          "sub": "auth0|sub-auth-xxxx"
+        },
+        "scopes": null
+      }
+    },
+    "domainName": "example-domain-aws.execute-api.eu-west-1.amazonaws.com",
+    "domainPrefix": "example-domain-aws",
+    "http": {
+      "method": "POST",
+      "path": "/preview/lambda-ml-fastsam-api",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "162.158.129.178",
+      "userAgent": ""
+    },
+    "requestId": "PVx8KhjijoEEJPw=",
+    "routeKey": "POST /lambda-ml-fastsam-api",
+    "stage": "preview",
+    "time": "03/Dec/2023:00:20:55 +0000",
+    "timeEpoch": 1701562855106
+  },
+  "body": "{\"bbox\":{\"ne\":{\"lat\":-1.4939713066293112,\"lng\":155.30273437500003},\"sw\":{\"lat\":-52.32191088594772,\"lng\":65.30273437500001}},\"prompt\":[{\"type\":\"point\",\"data\":{\"lat\":-42.488301979602255,\"lng\":146.77734375000003},\"label\":0}],\"zoom\":4,\"source_type\":\"Satellite\"}",
+  "isBase64Encoded": false
+},
+  "output": {}
+
+}
