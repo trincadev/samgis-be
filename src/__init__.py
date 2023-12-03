@@ -1,5 +1,7 @@
 """Get machine learning predictions from geodata raster images"""
 from aws_lambda_powertools import Logger
+# not used here but contextily_tile is imported in src.io.tms2geotiff
+from contextily import tile as contextily_tile
 from pathlib import Path
 
 from src.utilities.constants import SERVICE_NAME
