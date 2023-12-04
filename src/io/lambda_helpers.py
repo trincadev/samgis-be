@@ -62,7 +62,7 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     ne_latlng = [float(ne.lat), float(ne.lng)]
     sw_latlng = [float(sw.lat), float(sw.lng)]
     new_zoom = int(request_input.zoom)
-    new_prompt_list = get_parsed_prompt_list(ne, sw, new_zoom, request_input.prompt)
+    new_prompt_list = _get_parsed_prompt_list(ne, sw, new_zoom, request_input.prompt)
 
     app_logger.debug(f"bbox => {bbox}.")
     app_logger.debug(f'request_input-prompt updated => {new_prompt_list}.')
@@ -75,16 +75,16 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     }
 
 
-def get_parsed_prompt_list(bbox_ne, bbox_sw, zoom, prompt_list):
+def _get_parsed_prompt_list(bbox_ne, bbox_sw, zoom, prompt_list):
     new_prompt_list = []
     for prompt in prompt_list:
         app_logger.debug(f"current prompt: {type(prompt)}, value:{prompt}.")
         new_prompt = {"type": prompt.type.value}
         if prompt.type == "point":
-            new_prompt_data = get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom)
+            new_prompt_data = _get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom)
             new_prompt["label"] = prompt.label.value
         elif prompt.type == "rectangle":
-            new_prompt_data = get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom)
+            new_prompt_data = _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom)
         else:
             msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check RawRequestInput parsing/validation."
             raise TypeError(msg.format(prompt.type))
@@ -94,13 +94,13 @@ def get_parsed_prompt_list(bbox_ne, bbox_sw, zoom, prompt_list):
     return new_prompt_list
 
 
-def get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom):
+def _get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom):
     current_point = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data, zoom, prompt.type)
     app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}, label: {prompt.label}.")
     return [current_point['x'], current_point['y']]
 
 
-def get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
+def _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
     current_point_ne = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data.ne, zoom, prompt.type)
     app_logger.debug(
         f"rectangle:: current_point_ne prompt: {type(current_point_ne)}, value:{current_point_ne}.")
