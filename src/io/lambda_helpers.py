@@ -62,30 +62,7 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     ne_latlng = [float(ne.lat), float(ne.lng)]
     sw_latlng = [float(sw.lat), float(sw.lng)]
     new_zoom = int(request_input.zoom)
-    new_prompt_list = []
-    for prompt in request_input.prompt:
-        app_logger.debug(f"current prompt: {type(prompt)}, value:{prompt}.")
-        new_prompt = {"type": prompt.type.value}
-        if prompt.type == "point":
-            current_point = get_latlng_to_pixel_coordinates(ne, sw, prompt.data, new_zoom, prompt.type)
-            app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}, label: {prompt.label}.")
-            new_prompt_data = [current_point['x'], current_point['y']]
-            new_prompt["label"] = prompt.label.value
-        elif prompt.type == "rectangle":
-            current_point_ne = get_latlng_to_pixel_coordinates(ne, sw, prompt.data.ne, new_zoom, prompt.type)
-            app_logger.debug(f"rectangle:: current_point_ne prompt: {type(current_point_ne)}, value:{current_point_ne}.")
-            current_point_sw = get_latlng_to_pixel_coordinates(ne, sw, prompt.data.sw, new_zoom, prompt.type)
-            app_logger.debug(f"rectangle:: current_point_sw prompt: {type(current_point_sw)}, value:{current_point_sw}.")
-            new_prompt_data = [
-                current_point_ne["x"], current_point_ne["y"],
-                current_point_sw["x"], current_point_sw["y"]
-            ]
-        else:
-            msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check RawRequestInput parsing/validation."
-            raise TypeError(msg.format(prompt.type))
-        app_logger.debug(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
-        new_prompt["data"] = new_prompt_data
-        new_prompt_list.append(new_prompt)
+    new_prompt_list = get_parsed_prompt_list(ne, sw, new_zoom, request_input.prompt)
 
     app_logger.debug(f"bbox => {bbox}.")
     app_logger.debug(f'request_input-prompt updated => {new_prompt_list}.')
@@ -96,6 +73,44 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
         "prompt": new_prompt_list,
         "zoom": new_zoom
     }
+
+
+def get_parsed_prompt_list(bbox_ne, bbox_sw, zoom, prompt_list):
+    new_prompt_list = []
+    for prompt in prompt_list:
+        app_logger.debug(f"current prompt: {type(prompt)}, value:{prompt}.")
+        new_prompt = {"type": prompt.type.value}
+        if prompt.type == "point":
+            new_prompt_data = get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom)
+            new_prompt["label"] = prompt.label.value
+        elif prompt.type == "rectangle":
+            new_prompt_data = get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom)
+        else:
+            msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check RawRequestInput parsing/validation."
+            raise TypeError(msg.format(prompt.type))
+        app_logger.debug(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
+        new_prompt["data"] = new_prompt_data
+        new_prompt_list.append(new_prompt)
+    return new_prompt_list
+
+
+def get_new_prompt_data_point(bbox_ne, bbox_sw, prompt, zoom):
+    current_point = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data, zoom, prompt.type)
+    app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}, label: {prompt.label}.")
+    return [current_point['x'], current_point['y']]
+
+
+def get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
+    current_point_ne = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data.ne, zoom, prompt.type)
+    app_logger.debug(
+        f"rectangle:: current_point_ne prompt: {type(current_point_ne)}, value:{current_point_ne}.")
+    current_point_sw = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data.sw, zoom, prompt.type)
+    app_logger.debug(
+        f"rectangle:: current_point_sw prompt: {type(current_point_sw)}, value:{current_point_sw}.")
+    return [
+        current_point_ne["x"], current_point_ne["y"],
+        current_point_sw["x"], current_point_sw["y"]
+    ]
 
 
 def get_parsed_request_body(event: Dict) -> RawRequestInput:
