@@ -177,5 +177,31 @@ class TestAppFailures(unittest.TestCase):
             assert body_dict["message"] == "ok"
             assert body_dict["n_shapes_geojson"] == expected_response_body["n_shapes_geojson"]
             output_geojson = shapely.from_geojson(body_dict["geojson"])
-
             assert shapely.equals_exact(output_geojson, expected_output_geojson, tolerance=0.000006)
+
+    def test_lambda_handler_200_real_multipoint(self):
+        from src.app import lambda_handler
+        from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
+
+        name_fn = "lambda_handler"
+        invoke_id = "test_invoke_id"
+
+        with open(TEST_EVENTS_FOLDER / f"{name_fn}.json") as tst_json:
+            inputs_outputs = json.load(tst_json)
+            lambda_context = LambdaContext(
+                invoke_id=invoke_id,
+                client_context=None,
+                cognito_identity=None,
+                epoch_deadline_time_in_ms=time.time()
+            )
+            listen_port = 8000
+
+            with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
+                input_event = inputs_outputs["input"]
+                input_event_body = json.loads(input_event["body"])
+                input_event_body["url_tile"] = LOCAL_URL_TILE
+                input_event["body"] = json.dumps(input_event_body)
+                response = lambda_handler(event=input_event, context=lambda_context)
+
+            response_dict = json.loads(response)
+            assert response_dict["statusCode"] == 200

@@ -65,16 +65,26 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     new_prompt_list = []
     for prompt in request_input.prompt:
         app_logger.debug(f"current prompt: {type(prompt)}, value:{prompt}.")
-        current_point = get_latlng_to_pixel_coordinates(ne, sw, prompt.data, new_zoom, prompt.type)
-        app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}.")
-        new_prompt_data = [current_point['x'], current_point['y']]
+        new_prompt = {"type": prompt.type.value}
+        if prompt.type == "point":
+            current_point = get_latlng_to_pixel_coordinates(ne, sw, prompt.data, new_zoom, prompt.type)
+            app_logger.debug(f"current prompt: {type(current_point)}, value:{current_point}, label: {prompt.label}.")
+            new_prompt_data = [current_point['x'], current_point['y']]
+            new_prompt["label"] = prompt.label.value
+        elif prompt.type == "rectangle":
+            current_point_ne = get_latlng_to_pixel_coordinates(ne, sw, prompt.data.ne, new_zoom, prompt.type)
+            app_logger.debug(f"rectangle:: current_point_ne prompt: {type(current_point_ne)}, value:{current_point_ne}.")
+            current_point_sw = get_latlng_to_pixel_coordinates(ne, sw, prompt.data.sw, new_zoom, prompt.type)
+            app_logger.debug(f"rectangle:: current_point_sw prompt: {type(current_point_sw)}, value:{current_point_sw}.")
+            new_prompt_data = [
+                current_point_ne["x"], current_point_ne["y"],
+                current_point_sw["x"], current_point_sw["y"]
+            ]
+        else:
+            msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check RawRequestInput parsing/validation."
+            raise TypeError(msg.format(prompt.type))
         app_logger.debug(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
-        new_prompt = {
-            "type": prompt.type,
-            "data": new_prompt_data
-        }
-        if prompt.label is not None:
-            new_prompt["label"] = prompt.label
+        new_prompt["data"] = new_prompt_data
         new_prompt_list.append(new_prompt)
 
     app_logger.debug(f"bbox => {bbox}.")
