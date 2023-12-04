@@ -1,5 +1,5 @@
 """custom type hints"""
-from enum import Enum
+from enum import IntEnum, Enum
 from typing import TypedDict
 
 from PIL.Image import Image
@@ -31,10 +31,20 @@ class LatLngDict(BaseModel):
     lng: float
 
 
-class PromptType(str, Enum):
-    """Segment Anything enumeration prompt type"""
-    # rectangle = "rectangle"
+class PromptPointType(str, Enum):
+    """Segment Anything: validation point prompt type"""
     point = "point"
+
+
+class PromptRectangleType(str, Enum):
+    """Segment Anything: validation rectangle prompt type"""
+    rectangle = "rectangle"
+
+
+class PromptLabel(IntEnum):
+    """Valid prompt label type"""
+    EXCLUDE = 0
+    INCLUDE = 1
 
 
 class ImagePixelCoordinates(TypedDict):
@@ -44,22 +54,30 @@ class ImagePixelCoordinates(TypedDict):
 
 
 class RawBBox(BaseModel):
-    """Input lambda bbox request type (not parsed)"""
+    """Input lambda bbox request type (not yet parsed)"""
     ne: LatLngDict
     sw: LatLngDict
 
 
-class RawPrompt(BaseModel):
-    """Input lambda prompt request type (not parsed)"""
-    type: PromptType
+class RawPromptPoint(BaseModel):
+    """Input lambda prompt request of type 'PromptPointType' - point (not yet parsed)"""
+    type: PromptPointType
     data: LatLngDict
-    label: int = 0
+    label: PromptLabel
 
+
+class RawPromptRectangle(BaseModel):
+    """Input lambda prompt request of type 'PromptRectangleType' - rectangle (not yet parsed)"""
+    type: PromptRectangleType
+    data: RawBBox
+
+    def get_type_str(self):
+        return self.type
 
 class RawRequestInput(BaseModel):
-    """Input lambda request validator type (not parsed)"""
+    """Input lambda request validator type (not yet parsed)"""
     bbox: RawBBox
-    prompt: list[RawPrompt]
+    prompt: list[RawPromptPoint | RawPromptRectangle]
     zoom: int | float
     source_type: str = "Satellite"
     debug: bool = False
