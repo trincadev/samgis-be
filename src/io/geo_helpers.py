@@ -26,7 +26,9 @@ def load_affine_transformation_from_matrix(matrix_source_coefficients: list_floa
         center = tuple.__new__(Affine, [a, b, c, d, e, f, 0.0, 0.0, 1.0])
         return center * Affine.translation(-0.5, -0.5)
     except Exception as e:
-        app_logger.error(f"exception:{e}, check https://github.com/rasterio/affine project for updates")
+        app_logger.exception(f"exception:{e}, check updates on https://github.com/rasterio/affine",
+                             extra=e,
+                             stack_info=True, exc_info=True)
         raise e
 
 
@@ -79,5 +81,11 @@ def get_vectorized_raster_as_geojson(mask: np_ndarray, transform: tuple_float) -
             "n_shapes_geojson": len(shapes_list)
         }
     except Exception as e_shape_band:
-        app_logger.error(f"e_shape_band:{e_shape_band}.")
+        try:
+            app_logger.error(f"mask type:{type(mask)}.")
+            app_logger.error(f"transform type:{type(transform)}, {transform}.")
+            app_logger.error(f"mask shape:{mask.shape}, dtype:{mask.dtype}.")
+        except Exception as e_shape_dtype:
+            app_logger.exception(f"mask shape or dtype not found:{e_shape_dtype}.", exc_info=True)
+        app_logger.exception(f"e_shape_band:{e_shape_band}.", exc_info=True)
         raise e_shape_band
