@@ -107,9 +107,12 @@ def _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
     current_point_sw = get_latlng_to_pixel_coordinates(bbox_ne, bbox_sw, prompt.data.sw, zoom, prompt.type)
     app_logger.debug(
         f"rectangle:: current_point_sw prompt: {type(current_point_sw)}, value:{current_point_sw}.")
+    # correct order for rectangle prompt
     return [
-        current_point_ne["x"], current_point_ne["y"],
-        current_point_sw["x"], current_point_sw["y"]
+        current_point_sw["x"],
+        current_point_ne["y"],
+        current_point_ne["x"],
+        current_point_sw["y"]
     ]
 
 

@@ -74,8 +74,10 @@ class RawPromptRectangle(BaseModel):
     def get_type_str(self):
         return self.type
 
+
 class RawRequestInput(BaseModel):
     """Input lambda request validator type (not yet parsed)"""
+    id: str = ""
     bbox: RawBBox
     prompt: list[RawPromptPoint | RawPromptRectangle]
     zoom: int | float
