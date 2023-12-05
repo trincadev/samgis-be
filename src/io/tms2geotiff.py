@@ -125,7 +125,11 @@ def crop_raster(w: float, s: float, e: float, n: float, raster: ndarray, raster_
         app_logger.info(f"cropped image::{cropped_image_ndarray.shape}.")
         return cropped_image_ndarray, cropped_transform
     except Exception as e_crop_raster:
-        app_logger.exception(f"arguments raster: {type(raster)}, {raster}.")
+        try:
+            app_logger.error(f"raster type:{type(raster)}.")
+            app_logger.error(f"raster shape:{raster.shape}, dtype:{raster.dtype}.")
+        except Exception as e_shape_dtype:
+            app_logger.exception(f"raster shape or dtype not found:{e_shape_dtype}.", exc_info=True)
         app_logger.exception(f"e_crop_raster:{e_crop_raster}.", exc_info=True)
         raise e_crop_raster
 
@@ -160,9 +164,9 @@ def get_transform_raster(raster: ndarray, raster_bbox: tuple_float) -> tuple_nda
         transform = from_origin(x[0] - res_x / 2, y[-1] + res_y / 2, res_x, res_y)
         return np_rgb, transform
     except Exception as e_get_transform_raster:
-        app_logger.exception(f"arguments raster: {type(raster)}, {raster}.")
-        app_logger.exception(f"arguments raster_bbox: {type(raster_bbox)}, {raster_bbox}.")
-        app_logger.exception(f"e_get_transform_raster:{e_get_transform_raster}.")
+        app_logger.error(f"arguments raster: {type(raster)}, {raster}.")
+        app_logger.error(f"arguments raster_bbox: {type(raster_bbox)}, {raster_bbox}.")
+        app_logger.exception(f"e_get_transform_raster:{e_get_transform_raster}.", exc_info=True)
         raise e_get_transform_raster
 
 
@@ -172,6 +176,6 @@ def reshape_as_image(arr):
 
         return swapaxes(swapaxes(arr, 0, 2), 0, 1)
     except Exception as e_reshape_as_image:
-        app_logger.exception(f"arguments: {type(arr)}, {arr}.")
+        app_logger.error(f"arguments: {type(arr)}, {arr}.")
         app_logger.exception(f"e_reshape_as_image:{e_reshape_as_image}.", exc_info=True)
         raise e_reshape_as_image

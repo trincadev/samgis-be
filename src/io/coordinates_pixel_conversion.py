@@ -23,7 +23,8 @@ def _get_latlng2pixel_projection(latlng: LatLngDict) -> ImagePixelCoordinates:
 
         return {"x": x, "y": y}
     except Exception as e_get_latlng2pixel_projection:
-        app_logger.error(f'e_get_latlng2pixel_projection:{e_get_latlng2pixel_projection}.')
+        app_logger.error(f'args type:{type(latlng)}, {latlng}.')
+        app_logger.exception(f'e_get_latlng2pixel_projection:{e_get_latlng2pixel_projection}.', exc_info=True)
         raise e_get_latlng2pixel_projection
 
 
@@ -40,7 +41,10 @@ def _get_point_latlng_to_pixel_coordinates(latlng: LatLngDict, zoom: int | float
             y=floor(world_coordinate["y"] * scale)
         )
     except Exception as e_format_latlng_to_pixel_coordinates:
-        app_logger.error(f'format_latlng_to_pixel_coordinates:{e_format_latlng_to_pixel_coordinates}.')
+        app_logger.error(f'latlng type:{type(latlng)}, {latlng}.')
+        app_logger.error(f'zoom type:{type(zoom)}, {zoom}.')
+        app_logger.exception(f'e_format_latlng_to_pixel_coordinates:{e_format_latlng_to_pixel_coordinates}.',
+                             exc_info=True)
         raise e_format_latlng_to_pixel_coordinates
 
 

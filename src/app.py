@@ -43,13 +43,13 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
             app_logger.debug(f"output body_response:{body_response}.")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
         except Exception as ex2:
-            app_logger.error(f"exception2:{ex2}.")
+            app_logger.exception(f"exception2:{ex2}.", exc_info=True)
             response = get_response(HTTPStatus.INTERNAL_SERVER_ERROR.value, start_time, context.aws_request_id, {})
     except ValidationError as va1:
-        app_logger.error(f"ValidationError:{va1}.")
+        app_logger.exception(f"ValidationError:{va1}.", exc_info=True)
         response = get_response(HTTPStatus.UNPROCESSABLE_ENTITY.value, start_time, context.aws_request_id, {})
     except Exception as ex1:
-        app_logger.error(f"exception1:{ex1}.")
+        app_logger.exception(f"exception1:{ex1}.", exc_info=True)
         response = get_response(HTTPStatus.BAD_REQUEST.value, start_time, context.aws_request_id, {})
 
     app_logger.debug(f"response_dumped:{response}...")
