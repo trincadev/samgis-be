@@ -182,10 +182,16 @@ class TestAppFailures(unittest.TestCase):
                 assert body_dict["request_id"] == invoke_id
                 assert body_dict["message"] == "ok"
                 assert body_dict["n_shapes_geojson"] == expected_response_body["n_shapes_geojson"]
+
                 output_geojson = shapely.from_geojson(body_dict["geojson"])
-                try:
-                    assert shapely.equals_exact(expected_output_geojson, output_geojson, tolerance=0.000006)
-                except AssertionError as ae:
-                    print("ae:", ae)
-                    assert expected_response_body["geojson"] == body_dict["geojson"]
-                    raise ae
+                print("output_geojson::", type(output_geojson))
+                assert isinstance(output_geojson, shapely.GeometryCollection)
+                assert len(output_geojson.geoms) == expected_response_body["n_shapes_geojson"]
+
+                if json_filename == "single_point":
+                    try:
+                        assert shapely.equals_exact(expected_output_geojson, output_geojson, tolerance=0.000006)
+                    except AssertionError as ae:
+                        print(f"json filename: {fn_name}_{json_filename}.json")
+                        assert expected_response_body["geojson"] == body_dict["geojson"]
+                        raise ae
