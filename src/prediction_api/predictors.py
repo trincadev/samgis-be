@@ -46,9 +46,8 @@ def samexporter_predict(
     app_logger.debug(f"using a {model_name} instance model...")
     models_instance = models_dict[model_name]["instance"]
 
-    app_logger.info(f'tile_source: {url_tile}!')
     pt0, pt1 = bbox
-    app_logger.info(f"downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
+    app_logger.info(f"tile_source: {url_tile}: downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
     img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=url_tile)
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
