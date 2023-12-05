@@ -146,10 +146,15 @@ class TestAppFailures(unittest.TestCase):
         from src.app import lambda_handler
         from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
+        fn_name = "lambda_handler"
         invoke_id = "test_invoke_id"
 
-        for json_filename in ["lambda_handler_single_point.json", "lambda_handler_multipoint.json"]:
-            with open(TEST_EVENTS_FOLDER / json_filename) as tst_json:
+        for json_filename in [
+                "single_point",
+                "multi_prompt",
+                "single_rectangle"
+            ]:
+            with open(TEST_EVENTS_FOLDER / f"{fn_name}_{json_filename}.json") as tst_json:
                 inputs_outputs = json.load(tst_json)
                 lambda_context = LambdaContext(
                     invoke_id=invoke_id,
@@ -178,4 +183,9 @@ class TestAppFailures(unittest.TestCase):
                 assert body_dict["message"] == "ok"
                 assert body_dict["n_shapes_geojson"] == expected_response_body["n_shapes_geojson"]
                 output_geojson = shapely.from_geojson(body_dict["geojson"])
-                assert shapely.equals_exact(expected_output_geojson, output_geojson, tolerance=0.000006)
+                try:
+                    assert shapely.equals_exact(expected_output_geojson, output_geojson, tolerance=0.000006)
+                except AssertionError as ae:
+                    print("ae:", ae)
+                    assert expected_response_body["geojson"] == body_dict["geojson"]
+                    raise ae
