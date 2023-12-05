@@ -116,7 +116,7 @@ def _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
     ]
 
 
-def get_parsed_request_body(event: Dict) -> RawRequestInput:
+def get_parsed_request_body(event: Dict or str) -> RawRequestInput:
     """
     Validator for the raw input request lambda event
 
