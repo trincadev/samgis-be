@@ -38,13 +38,22 @@ def test_get_response(time_mocked):
 
 
 def test_get_parsed_bbox_points():
-    with open(TEST_EVENTS_FOLDER / "get_parsed_bbox_points.json") as tst_json:
+    with open(TEST_EVENTS_FOLDER / "get_parsed_bbox_prompts_single_point.json") as tst_json:
         inputs_outputs = json.load(tst_json)
         for k, input_output in inputs_outputs.items():
             print(f"k:{k}.")
             raw_body = get_parsed_request_body(**input_output["input"])
             output = get_parsed_bbox_points(raw_body)
             assert output == input_output["output"]
+
+
+def test_get_parsed_bbox_other_inputs():
+    for json_filename in ["single_rectangle", "multi_prompt"]:
+        with open(TEST_EVENTS_FOLDER / f"get_parsed_bbox_prompts_{json_filename}.json") as tst_json:
+            inputs_outputs = json.load(tst_json)
+            parsed_input = RawRequestInput.model_validate(inputs_outputs["input"])
+            output = get_parsed_bbox_points(parsed_input)
+            assert output == inputs_outputs["output"]
 
 
 def test_get_parsed_request_body():
