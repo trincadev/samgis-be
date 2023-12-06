@@ -38,7 +38,9 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
         app_logger.info(f"body_request => {type(body_request)}, {body_request}.")
 
         try:
-            body_response = samexporter_predict(body_request["bbox"], body_request["prompt"], body_request["zoom"])
+            body_response = samexporter_predict(
+                body_request["bbox"], body_request["prompt"], body_request["zoom"], url_tile=body_request["source_type"]
+            )
             app_logger.info(f"output body_response length:{len(body_response)}.")
             app_logger.debug(f"output body_response:{body_response}.")
             response = get_response(HTTPStatus.OK.value, start_time, context.aws_request_id, body_response)
