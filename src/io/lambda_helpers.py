@@ -1,6 +1,7 @@
 """lambda helper functions"""
 from typing import Dict
 from aws_lambda_powertools.event_handler import content_types
+from xyzservices import providers
 
 from src import app_logger
 from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
@@ -72,7 +73,7 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
         "bbox": [ne_latlng, sw_latlng],
         "prompt": new_prompt_list,
         "zoom": new_zoom,
-        "source_type": request_input.source_type
+        "url_tile": get_url_tile(request_input.source_type)
     }
 
 
@@ -149,3 +150,12 @@ def get_parsed_request_body(event: Dict or str) -> RawRequestInput:
     app_logger.warning(f"set log level to {getLevelName(app_logger.log_level)}.")
 
     return parsed_body
+
+
+def get_url_tile(source_type: str):
+    from src.utilities.constants import DEFAULT_TMS_NAME, DEFAULT_TMS
+
+    if source_type.lower() == DEFAULT_TMS_NAME:
+        return DEFAULT_TMS
+    providers_type = providers.query_name(source_type)
+    return providers_type.url
