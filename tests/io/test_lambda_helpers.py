@@ -85,3 +85,11 @@ def test_get_parsed_request_body():
     event = {"body": utilities.base64_encode(input_event_str).decode("utf-8")}
     output = get_parsed_request_body(event)
     assert output == RawRequestInput.model_validate(expected_output_dict)
+
+
+def test_get_url_tile():
+    from src.io.lambda_helpers import get_url_tile
+    from src.utilities.constants import DEFAULT_TMS
+
+    assert get_url_tile("OpenStreetMap") == DEFAULT_TMS
+    assert get_url_tile("OpenStreetMap.HOT") == 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'

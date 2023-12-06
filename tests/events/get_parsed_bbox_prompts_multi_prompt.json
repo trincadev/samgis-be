@@ -54,8 +54,7 @@
       }
     ],
     "zoom": 12,
-    "source_type": "Satellite",
-    "url_tile": "http://localhost:8000/lambda_handler/{z}/{x}/{y}.png"
+    "source_type": "OpenStreetMap"
   },
   "output": {
     "bbox": [
@@ -103,6 +102,7 @@
         ]
       }
     ],
+    "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     "zoom": 12
   }
 }
