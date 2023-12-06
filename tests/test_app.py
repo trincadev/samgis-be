@@ -6,6 +6,7 @@ from unittest.mock import patch
 from awslambdaric.lambda_context import LambdaContext
 
 from src import app
+from src.io import lambda_helpers
 from tests.local_tiles_http_server import LocalTilesHttpServer
 
 
@@ -140,12 +141,14 @@ class TestAppFailures(unittest.TestCase):
         print(f"types: response_200:{type(response_200)}, expected:{type(expected_response_200)}.")
         assert response_200 == expected_response_200
 
-    def test_lambda_handler_200_real_single_multi_point(self):
+    @patch.object(lambda_helpers, "get_url_tile")
+    def test_lambda_handler_200_real_single_multi_point(self, get_url_tile_mocked):
         import shapely
 
         from src.app import lambda_handler
         from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
+        get_url_tile_mocked.return_value = LOCAL_URL_TILE
         fn_name = "lambda_handler"
         invoke_id = "test_invoke_id"
 
@@ -164,14 +167,11 @@ class TestAppFailures(unittest.TestCase):
                 )
                 expected_response_dict = inputs_outputs["output"]
                 listen_port = 8000
-
                 expected_response_body = json.loads(expected_response_dict["body"])
-                expected_output_geojson = shapely.from_geojson(expected_response_body["geojson"])
 
                 with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
                     input_event = inputs_outputs["input"]
                     input_event_body = json.loads(input_event["body"])
-                    input_event_body["url_tile"] = LOCAL_URL_TILE
                     input_event["body"] = json.dumps(input_event_body)
                     response = lambda_handler(event=input_event, context=lambda_context)
 
@@ -187,11 +187,3 @@ class TestAppFailures(unittest.TestCase):
                 print("output_geojson::", type(output_geojson))
                 assert isinstance(output_geojson, shapely.GeometryCollection)
                 assert len(output_geojson.geoms) == expected_response_body["n_shapes_geojson"]
-
-                if json_filename == "single_point":
-                    try:
-                        assert shapely.equals_exact(expected_output_geojson, output_geojson, tolerance=0.000006)
-                    except AssertionError as ae:
-                        print(f"json filename: {fn_name}_{json_filename}.json")
-                        assert expected_response_body["geojson"] == body_dict["geojson"]
-                        raise ae

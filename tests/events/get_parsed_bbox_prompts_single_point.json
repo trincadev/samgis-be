@@ -23,7 +23,7 @@
           }
         ],
         "zoom": 10,
-        "source_type": "Satellite",
+        "source_type": "OpenStreetMap",
         "debug": true
       }
     },
@@ -48,6 +48,7 @@
           "label": 0
         }
       ],
+      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       "zoom": 10
     }
   },
@@ -75,7 +76,7 @@
           }
         ],
         "zoom": 7,
-        "source_type": "Satellite"
+        "source_type": "OpenStreetMap.HOT"
       }
     },
     "output": {
@@ -99,6 +100,7 @@
           "label": 0
         }
       ],
+      "url_tile": "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
       "zoom": 7
     }
   },
@@ -126,7 +128,7 @@
           }
         ],
         "zoom": 4,
-        "source_type": "Satellite"
+        "source_type": "OpenStreetMap"
       }
     },
     "output": {
@@ -150,6 +152,7 @@
           "label": 0
         }
       ],
+      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       "zoom": 4
     }
   },
@@ -177,7 +180,7 @@
           }
         ],
         "zoom": 7,
-        "source_type": "Satellite"
+        "source_type": "OpenStreetMap"
       }
     },
     "output": {
@@ -201,6 +204,7 @@
           "label": 0
         }
       ],
+      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       "zoom": 7
     }
   }
