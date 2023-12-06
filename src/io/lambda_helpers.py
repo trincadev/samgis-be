@@ -71,7 +71,8 @@ def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
     return {
         "bbox": [ne_latlng, sw_latlng],
         "prompt": new_prompt_list,
-        "zoom": new_zoom
+        "zoom": new_zoom,
+        "source_type": request_input.source_type
     }
 
 
