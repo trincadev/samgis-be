@@ -39,7 +39,7 @@ def lambda_handler(event: Dict, context: LambdaContext) -> str:
 
         try:
             body_response = samexporter_predict(
-                body_request["bbox"], body_request["prompt"], body_request["zoom"], url_tile=body_request["source_type"]
+                body_request["bbox"], body_request["prompt"], body_request["zoom"], url_tile=body_request["url_tile"]
             )
             app_logger.info(f"output body_response length:{len(body_response)}.")
             app_logger.debug(f"output body_response:{body_response}.")
