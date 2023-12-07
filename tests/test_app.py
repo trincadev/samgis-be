@@ -108,18 +108,18 @@ class TestAppFailures(unittest.TestCase):
             get_response_io = json.load(tst_json_get_response)
 
         input_200 = {
-          "bbox": {
-            "ne": {"lat": 38.03932961278458, "lng": 15.36808069832851},
-            "sw": {"lat": 37.455509218936974, "lng":  14.632807441554068}
-          },
-          "prompt": [{
-            "type": "point",
-            "data": {"lat": 37.0, "lng": 15.0},
-            "label": 0
-          }],
-          "zoom": 10,
-          "source_type": "Satellite",
-          "debug": True
+            "bbox": {
+                "ne": {"lat": 38.03932961278458, "lng": 15.36808069832851},
+                "sw": {"lat": 37.455509218936974, "lng": 14.632807441554068}
+            },
+            "prompt": [{
+                "type": "point",
+                "data": {"lat": 37.0, "lng": 15.0},
+                "label": 0
+            }],
+            "zoom": 10,
+            "source_type": "OpenStreetMap.Mapnik",
+            "debug": True
         }
 
         samexporter_predict_output = get_response_io[response_type]["input"]
@@ -143,20 +143,22 @@ class TestAppFailures(unittest.TestCase):
 
     @patch.object(lambda_helpers, "get_url_tile")
     def test_lambda_handler_200_real_single_multi_point(self, get_url_tile_mocked):
+        import xyzservices
         import shapely
 
         from src.app import lambda_handler
         from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
-        get_url_tile_mocked.return_value = LOCAL_URL_TILE
+        local_tile_provider = xyzservices.TileProvider(name="local_tile_provider", url=LOCAL_URL_TILE, attribution="")
+        get_url_tile_mocked.return_value = local_tile_provider
         fn_name = "lambda_handler"
         invoke_id = "test_invoke_id"
 
         for json_filename in [
-                "single_point",
-                "multi_prompt",
-                "single_rectangle"
-            ]:
+            "single_point",
+            "multi_prompt",
+            "single_rectangle"
+        ]:
             with open(TEST_EVENTS_FOLDER / f"{fn_name}_{json_filename}.json") as tst_json:
                 inputs_outputs = json.load(tst_json)
                 lambda_context = LambdaContext(
@@ -187,3 +189,24 @@ class TestAppFailures(unittest.TestCase):
                 print("output_geojson::", type(output_geojson))
                 assert isinstance(output_geojson, shapely.GeometryCollection)
                 assert len(output_geojson.geoms) == expected_response_body["n_shapes_geojson"]
+
+    def test_debug(self):
+        from src.app import lambda_handler
+
+        input_event = {
+            'bbox': {
+                'ne': {'lat': 46.302592089330524, 'lng': 9.49493408203125},
+                'sw': {'lat': 46.14011755129237, 'lng': 9.143371582031252}},
+            'prompt': [
+                {'id': 166, 'type': 'point', 'data': {'lat': 46.18244521829928, 'lng': 9.418544769287111}, 'label': 1}
+            ],
+            'zoom': 12, 'source_type': 'OpenStreetMap'
+        }
+        lambda_context = LambdaContext(
+            invoke_id="test_invoke_id",
+            client_context=None,
+            cognito_identity=None,
+            epoch_deadline_time_in_ms=time.time()
+        )
+        response = lambda_handler(event=input_event, context=lambda_context)
+        print(response)
