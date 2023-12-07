@@ -81,9 +81,8 @@ class ApiRequestBody(BaseModel):
     bbox: RawBBox
     prompt: list[RawPromptPoint | RawPromptRectangle]
     zoom: int | float
-    source_type: str = "Satellite"
+    source_type: str = "OpenStreetMap.Mapnik"
     debug: bool = False
-    url_tile: str = DEFAULT_TMS
 
 
 class ApiResponseBodyFailure(BaseModel):

@@ -1,7 +1,7 @@
 """lambda helper functions"""
 from typing import Dict
-from aws_lambda_powertools.event_handler import content_types
 from xyzservices import providers
+from aws_lambda_powertools.event_handler import content_types
 
 from src import app_logger
 from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
@@ -52,6 +52,7 @@ def get_parsed_bbox_points(request_input: ApiRequestBody) -> Dict:
     Returns:
         dict with bounding box, prompt and zoom
     """
+
     app_logger.info(f"try to parsing input request {request_input}...")
 
     bbox = request_input.bbox
@@ -73,7 +74,7 @@ def get_parsed_bbox_points(request_input: ApiRequestBody) -> Dict:
         "bbox": [ne_latlng, sw_latlng],
         "prompt": new_prompt_list,
         "zoom": new_zoom,
-        "url_tile": get_url_tile(request_input.source_type)
+        "source": get_url_tile(request_input.source_type)
     }
 
 
@@ -153,9 +154,8 @@ def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
 
 
 def get_url_tile(source_type: str):
-    from src.utilities.constants import DEFAULT_TMS_NAME, DEFAULT_TMS
+    from src.utilities.constants import DEFAULT_TMS_NAME, DEFAULT_TMS_NAME_SHORT
 
-    if source_type.lower() == DEFAULT_TMS_NAME:
-        return DEFAULT_TMS
-    providers_type = providers.query_name(source_type)
-    return providers_type.url
+    if source_type.lower() == DEFAULT_TMS_NAME_SHORT:
+        return providers.query_name(DEFAULT_TMS_NAME)
+    return providers.query_name(source_type)

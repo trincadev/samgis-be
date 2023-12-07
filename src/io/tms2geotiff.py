@@ -1,11 +1,11 @@
 import os
 from numpy import ndarray
+from xyzservices import TileProvider
 
 from src import app_logger
 from src.utilities.constants import (OUTPUT_CRS_STRING, DRIVER_RASTERIO_GTIFF, N_MAX_RETRIES, N_CONNECTION, N_WAIT,
                                      ZOOM_AUTO, BOOL_USE_CACHE)
 from src.utilities.type_hints import tuple_ndarray_transform, tuple_float
-
 
 bool_use_cache = int(os.getenv("BOOL_USE_CACHE", BOOL_USE_CACHE))
 n_connection = int(os.getenv("N_CONNECTION", N_CONNECTION))
@@ -14,7 +14,8 @@ n_wait = int(os.getenv("N_WAIT", N_WAIT))
 zoom_auto_string = os.getenv("ZOOM_AUTO", ZOOM_AUTO)
 
 
-def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = zoom_auto_string, source: str = None,
+def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = zoom_auto_string,
+                    source: TileProvider or str = None,
                     wait: int = n_wait, max_retries: int = n_max_retries, n_connections: int = n_connection,
                     use_cache: bool = bool_use_cache) -> tuple_ndarray_transform:
     """
@@ -26,15 +27,11 @@ def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = z
         e: East edge
         n: North edge
         zoom: Level of detail
-        source: xyzservices.TileProvider object or str
-            [Optional. Default: OpenStreetMap Humanitarian web tiles]
-            The tile source: web tile provider or path to local file. The web tile
-            provider can be in the form of a :class:`xyzservices.TileProvider` object or a
-            URL. The placeholders for the XYZ in the URL need to be `{x}`, `{y}`,
-            `{z}`, respectively. For local file paths, the file is read with
-            `rasterio` and all bands are loaded into the basemap.
-            IMPORTANT: tiles are assumed to be in the Spherical Mercator
-            projection (EPSG:3857), unless the `crs` keyword is specified.
+        source: The tile source: web tile provider or path to local file. The web tile provider can be in the form of
+            a :class:`xyzservices.TileProvider` object or a URL. The placeholders for the XYZ in the URL need to be
+            `{x}`, `{y}`, `{z}`, respectively. For local file paths, the file is read with `rasterio` and all bands are
+            loaded into the basemap. IMPORTANT: tiles are assumed to be in the Spherical Mercator projection
+            (EPSG:3857), unless the `crs` keyword is specified.
         wait: if the tile API is rate-limited, the number of seconds to wait
             between a failed request and the next try
         max_retries: total number of rejected requests allowed before contextily will stop trying to fetch more tiles
@@ -59,8 +56,8 @@ def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = z
         app_logger.debug(f"download raster from source:{source} with bounding box w:{w}, s:{s}, e:{e}, n:{n}.")
         app_logger.debug(f"types w:{type(w)}, s:{type(s)}, e:{type(e)}, n:{type(n)}.")
         downloaded_raster, bbox_raster = contextily_tile.bounds2img(
-            w, s, e, n, zoom=zoom, source=source, ll=True, wait=wait, max_retries=max_retries, n_connections=n_connections,
-            use_cache=use_cache)
+            w, s, e, n, zoom=zoom, source=source, ll=True, wait=wait, max_retries=max_retries,
+            n_connections=n_connections, use_cache=use_cache)
         xp0, yp0 = _from4326_to3857(n, e)
         xp1, yp1 = _from4326_to3857(s, w)
         cropped_image_ndarray, cropped_transform = crop_raster(yp1, xp1, yp0, xp0, downloaded_raster, bbox_raster)
