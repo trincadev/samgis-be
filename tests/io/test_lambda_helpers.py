@@ -3,7 +3,7 @@ import time
 from http import HTTPStatus
 from unittest.mock import patch
 from src.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body, get_response
-from src.utilities.type_hints import RawRequestInput
+from src.utilities.type_hints import ApiRequestBody
 from src.utilities import utilities
 from tests import TEST_EVENTS_FOLDER
 
@@ -51,7 +51,7 @@ def test_get_parsed_bbox_other_inputs():
     for json_filename in ["single_rectangle", "multi_prompt"]:
         with open(TEST_EVENTS_FOLDER / f"get_parsed_bbox_prompts_{json_filename}.json") as tst_json:
             inputs_outputs = json.load(tst_json)
-            parsed_input = RawRequestInput.model_validate(inputs_outputs["input"])
+            parsed_input = ApiRequestBody.model_validate(inputs_outputs["input"])
             output = get_parsed_bbox_points(parsed_input)
             assert output == inputs_outputs["output"]
 
@@ -76,15 +76,15 @@ def test_get_parsed_request_body():
         "zoom": 10, "source_type": "Satellite", "debug": True
     }
     output = get_parsed_request_body(input_event["event"])
-    assert output == RawRequestInput.model_validate(input_event["event"])
+    assert output == ApiRequestBody.model_validate(input_event["event"])
 
     input_event_str = json.dumps(input_event["event"])
     output = get_parsed_request_body(input_event_str)
-    assert output == RawRequestInput.model_validate(expected_output_dict)
+    assert output == ApiRequestBody.model_validate(expected_output_dict)
 
     event = {"body": utilities.base64_encode(input_event_str).decode("utf-8")}
     output = get_parsed_request_body(event)
-    assert output == RawRequestInput.model_validate(expected_output_dict)
+    assert output == ApiRequestBody.model_validate(expected_output_dict)
 
 
 def test_get_url_tile():
