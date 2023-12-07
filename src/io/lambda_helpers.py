@@ -6,7 +6,7 @@ from xyzservices import providers
 from src import app_logger
 from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
 from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES
-from src.utilities.type_hints import RawRequestInput
+from src.utilities.type_hints import ApiRequestBody
 from src.utilities.utilities import base64_decode
 
 
@@ -42,7 +42,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
     return dumps(response)
 
 
-def get_parsed_bbox_points(request_input: RawRequestInput) -> Dict:
+def get_parsed_bbox_points(request_input: ApiRequestBody) -> Dict:
     """
     Parse the raw input request into bbox, prompt and zoom
 
@@ -88,7 +88,7 @@ def _get_parsed_prompt_list(bbox_ne, bbox_sw, zoom, prompt_list):
         elif prompt.type == "rectangle":
             new_prompt_data = _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom)
         else:
-            msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check RawRequestInput parsing/validation."
+            msg = "Valid prompt type: 'point' or 'rectangle', not '{}'. Check ApiRequestBody parsing/validation."
             raise TypeError(msg.format(prompt.type))
         app_logger.debug(f"new_prompt_data: {type(new_prompt_data)}, value:{new_prompt_data}.")
         new_prompt["data"] = new_prompt_data
@@ -118,7 +118,7 @@ def _get_new_prompt_data_rectangle(bbox_ne, bbox_sw, prompt, zoom):
     ]
 
 
-def get_parsed_request_body(event: Dict or str) -> RawRequestInput:
+def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
     """
     Validator for the raw input request lambda event
 
@@ -144,7 +144,7 @@ def get_parsed_request_body(event: Dict or str) -> RawRequestInput:
         raw_body = loads(body_decoded_str)
     app_logger.info(f"body, #2: {type(raw_body)}, {raw_body}...")
 
-    parsed_body = RawRequestInput.model_validate(raw_body)
+    parsed_body = ApiRequestBody.model_validate(raw_body)
     log_level = "DEBUG" if parsed_body.debug else "INFO"
     app_logger.setLevel(log_level)
     app_logger.warning(f"set log level to {getLevelName(app_logger.log_level)}.")
