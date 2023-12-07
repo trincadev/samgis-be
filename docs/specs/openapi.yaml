@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Swagger SamGIS - OpenAPI 3.0
+  description: |-
+    Segment Anything applied to GIS.
+    Some useful links:
+    - [SamGIS online demo](https://ml-trinca.tornidor.com)
+    - [SamGIS documentation](https://docs.ml-trinca.tornidor.com)
+    - [My blog](https://trinca.tornidor.com)
+  contact:
+    url: https://www.linkedin.com/in/trincatornidor/en
+  license:
+    name: MIT License
+  version: "1.0.0"
+servers:
+  - url: https://localhost:8000/
+tags:
+  - name: samgis
+    description: segment anything applied to gis
+    externalDocs:
+      url: http://segment-anything.com
+  - name: segment-anything
+    description: segment anything machine learning model
+    externalDocs:
+      url: http://segment-anything.com
+  - name: gis
+    externalDocs:
+      url: https://it.wikipedia.org/wiki/Geographic_information_system
+paths:
+  /lambda-ml-fastsam-api:
+    post:
+      tags:
+        - samgis
+      summary: Make GIS ML predictions
+      requestBody:
+        description: input request for GIS ML predictions
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiRequestBody'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseBodySuccess'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseBodyFailure'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseBodyFailure'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseBodyFailure'
+components:
+  schemas:
+    ApiRequestBody:
+      required:
+        - bbox
+        - prompt
+        - zoom
+      type: object
+      properties:
+        bbox:
+          type: object
+          properties:
+            ne:
+              type: object
+              properties:
+                lat:
+                  type: number
+                  example: 46.180194387028855
+                lng:
+                  type: number
+                  example: 9.426848938165525
+            sw:
+              type: object
+              properties:
+                lat:
+                  type: number
+                  example: 46.17511301243843
+                lng:
+                  type: number
+                  example: 9.415862610040527
+        prompt:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int32
+                example: 448
+              type:
+                type: string
+                example: point
+              data:
+                type: object
+                properties:
+                  lat:
+                    type: number
+                    example: 46.176256754439535
+                  lng:
+                    type: number
+                    example: 9.421805260519237
+              label:
+                type: integer
+                format: int32
+                example: 1
+        zoom:
+          type: integer
+          format: int32
+          example: 17
+        source_type:
+          type: string
+          example: OpenStreetMap
+    ApiResponseBodyFailure:
+      type: object
+      properties:
+        duration_run:
+          type: number
+          example: 0.063
+        message:
+          type: string
+          example: Bad Request
+        request_id:
+          type: string
+          example: test_invoke_id
+    ApiResponseBodySuccess:
+      type: object
+      properties:
+        n_predictions:
+          type: integer
+          format: int32
+          example: 1
+        geojson:
+          type: string
+          example: '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"raster_val":255.0},"geometry":{"type":"Polygon","coordinates":[[[9.415857195854185,46.17510931936532],[9.426854252815245,46.17510931936532],[9.426854252815245,46.18019812286394],[9.415857195854185,46.18019812286394],[9.415857195854185,46.17510931936532]]]},"id":0},{"type":"Feature","properties":{"raster_val":0.0},"geometry":{"type":"Polygon","coordinates":[[[9.143199920654297,46.30271068141335],[9.495105743408203,46.30271068141335],[9.495105743408203,46.13999860748669],[9.143199920654297,46.13999860748669],[9.143199920654297,46.30271068141335]],[[9.426854252815245,46.17510931936532],[9.426854252815245,46.18019812286394],[9.415857195854185,46.18019812286394],[9.415857195854185,46.17510931936532],[9.426854252815245,46.17510931936532]]]},"id":1}]}'
+        n_shapes_geojson:
+          type: integer
+          format: int32
+          example: 5
+        duration_run:
+          type: number
+          example: 6.703
+        message:
+          type: string
+          example: ok
+        request_id:
+          type: string
+          example: test_invoke_id
+  securitySchemes:
+    samgis_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://example.auth0.com/oauth/authorize
+          scopes:
+            write:lambda-ml-fastsam-api: Make GIS ML predictions
