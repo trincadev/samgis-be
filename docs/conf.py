@@ -22,23 +22,12 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
-    'myst_parser'
+    'sphinxcontrib.openapi',
+    'myst_parser',
     # 'sphinx_autodoc_defaultargs'
 ]
 # Napoleon settings
 napoleon_google_docstring = True
-# napoleon_include_init_with_doc = False
-# napoleon_include_private_with_doc = False
-# napoleon_include_special_with_doc = True
-# napoleon_use_admonition_for_examples = False
-# napoleon_use_admonition_for_notes = False
-# napoleon_use_admonition_for_references = False
-# napoleon_use_ivar = False
-# napoleon_use_param = True
-# napoleon_use_rtype = True
-# napoleon_preprocess_types = False
-# napoleon_type_aliases = None
-# napoleon_attr_annotations = True
 
 #
 typehints_defaults = "comma"
@@ -77,6 +66,7 @@ html_sidebars = {
 html_static_path = ['_static']
 html_theme_options = {
     "description": "Segment Anything applied to geodata",
-    "fixed_sidebar": "true",
-    "sidebar_collapse": "false"
+    "fixed_sidebar": True,
+    "sidebar_collapse": False,
+    'globaltoc_collapse': False
 }

@@ -14,12 +14,7 @@ Welcome to SamGIS's documentation!
    :hidden:
 
    modules
-
-   src.io
-   src.prediction_api
-   src.utilities
-
-   external_links
+   other_resources
 
 
 Indices and tables documentation
