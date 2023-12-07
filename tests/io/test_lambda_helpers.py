@@ -2,6 +2,8 @@ import json
 import time
 from http import HTTPStatus
 from unittest.mock import patch
+
+from src.io import lambda_helpers
 from src.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body, get_response
 from src.utilities.type_hints import ApiRequestBody
 from src.utilities import utilities
@@ -13,7 +15,7 @@ def test_get_response(time_mocked):
     time_diff = 108
     end_run = 1000
     time_mocked.return_value = end_run
-    start_time = end_run-time_diff
+    start_time = end_run - time_diff
     aws_request_id = "test_invoke_id"
 
     with open(TEST_EVENTS_FOLDER / "get_response.json") as tst_json:
@@ -64,7 +66,7 @@ def test_get_parsed_request_body():
                 "sw": {"lat": 37.455509218936974, "lng": 14.632807441554068}
             },
             "prompt": [{"type": "point", "data": {"lat": 37.0, "lng": 15.0}, "label": 0}],
-            "zoom": 10, "source_type": "Satellite", "debug": True
+            "zoom": 10, "source_type": "OpenStreetMap.Mapnik", "debug": True
         }
     }
     expected_output_dict = {
@@ -73,7 +75,7 @@ def test_get_parsed_request_body():
             "sw": {"lat": 37.455509218936974, "lng": 14.632807441554068}
         },
         "prompt": [{"type": "point", "data": {"lat": 37.0, "lng": 15.0}, "label": 0}],
-        "zoom": 10, "source_type": "Satellite", "debug": True
+        "zoom": 10, "source_type": "OpenStreetMap.Mapnik", "debug": True
     }
     output = get_parsed_request_body(input_event["event"])
     assert output == ApiRequestBody.model_validate(input_event["event"])
@@ -87,9 +89,45 @@ def test_get_parsed_request_body():
     assert output == ApiRequestBody.model_validate(expected_output_dict)
 
 
-def test_get_url_tile():
+@patch.object(lambda_helpers, "providers")
+def test_get_url_tile(providers_mocked):
+    import xyzservices
     from src.io.lambda_helpers import get_url_tile
-    from src.utilities.constants import DEFAULT_TMS
 
-    assert get_url_tile("OpenStreetMap") == DEFAULT_TMS
-    assert get_url_tile("OpenStreetMap.HOT") == 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
+    from tests import LOCAL_URL_TILE
+
+    local_tile_provider = xyzservices.TileProvider(name="local_tile_provider", url=LOCAL_URL_TILE, attribution="")
+    expected_output = {'name': 'local_tile_provider', 'url': LOCAL_URL_TILE, 'attribution': ''}
+    providers_mocked.query_name.return_value = local_tile_provider
+    assert get_url_tile("OpenStreetMap") == expected_output
+
+    local_url = 'http://localhost:8000/{parameter}/{z}/{x}/{y}.png'
+    local_tile_provider = xyzservices.TileProvider(
+        name="local_tile_provider_param", url=local_url, attribution="", parameter="lamda_handler"
+    )
+    providers_mocked.query_name.return_value = local_tile_provider
+    assert get_url_tile("OpenStreetMap.HOT") == {
+        "parameter": "lamda_handler", 'name': 'local_tile_provider_param', 'url': local_url, 'attribution': ''
+    }
+
+
+def test_get_url_tile_real():
+    from src.io.lambda_helpers import get_url_tile
+
+    assert get_url_tile("OpenStreetMap") == {
+        'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'max_zoom': 19,
+        'html_attribution': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        'attribution': '(C) OpenStreetMap contributors',
+        'name': 'OpenStreetMap.Mapnik'}
+
+    html_attribution_hot = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, '
+    html_attribution_hot += 'Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian '
+    html_attribution_hot += 'OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">'
+    html_attribution_hot += 'OpenStreetMap France</a>'
+    attribution_hot = '(C) OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by '
+    attribution_hot += 'OpenStreetMap France'
+    assert get_url_tile("OpenStreetMap.HOT") == {
+        'url': 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', 'max_zoom': 19,
+        'html_attribution': html_attribution_hot, 'attribution': attribution_hot, 'name': 'OpenStreetMap.HOT'
+    }
+

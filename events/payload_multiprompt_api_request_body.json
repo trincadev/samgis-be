@@ -44,5 +44,5 @@
         }
     ],
     "zoom": 17,
-    "source_type": "OpenStreetMap"
+    "source_type": "OpenStreetMap.Mapnik"
 }
