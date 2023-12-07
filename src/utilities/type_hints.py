@@ -75,7 +75,7 @@ class RawPromptRectangle(BaseModel):
         return self.type
 
 
-class RawRequestInput(BaseModel):
+class ApiRequestBody(BaseModel):
     """Input lambda request validator type (not yet parsed)"""
     id: str = ""
     bbox: RawBBox
@@ -84,3 +84,15 @@ class RawRequestInput(BaseModel):
     source_type: str = "Satellite"
     debug: bool = False
     url_tile: str = DEFAULT_TMS
+
+
+class ApiResponseBodyFailure(BaseModel):
+    duration_run: float
+    message: str
+    request_id: str
+
+
+class ApiResponseBodySuccess(ApiResponseBodyFailure):
+    n_predictions: int
+    geojson: str
+    n_shapes_geojson: int
