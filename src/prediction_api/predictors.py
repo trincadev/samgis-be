@@ -16,7 +16,7 @@ def samexporter_predict(
         prompt: list_dict,
         zoom: float,
         model_name: str = "fastsam",
-        url_tile: str = DEFAULT_TMS
+        source: str = DEFAULT_TMS
 ) -> dict_str_int:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
@@ -31,7 +31,7 @@ def samexporter_predict(
         prompt: machine learning input prompt
         zoom: Level of detail
         model_name: machine learning model name
-        url_tile: server url tile
+        source: xyz
 
     Returns:
         Affine transform
@@ -47,8 +47,8 @@ def samexporter_predict(
     models_instance = models_dict[model_name]["instance"]
 
     pt0, pt1 = bbox
-    app_logger.info(f"tile_source: {url_tile}: downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
-    img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=url_tile)
+    app_logger.info(f"tile_source: {source}: downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
+    img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=source)
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
 
