@@ -48,7 +48,13 @@
           "label": 0
         }
       ],
-      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "source": {
+        "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "max_zoom": 19,
+        "html_attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+        "attribution": "(C) OpenStreetMap contributors",
+        "name": "OpenStreetMap.Mapnik"
+      },
       "zoom": 10
     }
   },
@@ -100,7 +106,13 @@
           "label": 0
         }
       ],
-      "url_tile": "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+      "source": {
+        "url": "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        "max_zoom": 19,
+        "html_attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, Tiles style by <a href=\"https://www.hotosm.org/\" target=\"_blank\">Humanitarian OpenStreetMap Team</a> hosted by <a href=\"https://openstreetmap.fr/\" target=\"_blank\">OpenStreetMap France</a>",
+        "attribution": "(C) OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France",
+        "name": "OpenStreetMap.HOT"
+      },
       "zoom": 7
     }
   },
@@ -128,7 +140,7 @@
           }
         ],
         "zoom": 4,
-        "source_type": "OpenStreetMap"
+        "source_type": "OpenStreetMap.Mapnik"
       }
     },
     "output": {
@@ -152,7 +164,13 @@
           "label": 0
         }
       ],
-      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "source": {
+        "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "max_zoom": 19,
+        "html_attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+        "attribution": "(C) OpenStreetMap contributors",
+        "name": "OpenStreetMap.Mapnik"
+      },
       "zoom": 4
     }
   },
@@ -180,7 +198,7 @@
           }
         ],
         "zoom": 7,
-        "source_type": "OpenStreetMap"
+        "source_type": "OpenStreetMap.Mapnik"
       }
     },
     "output": {
@@ -204,7 +222,13 @@
           "label": 0
         }
       ],
-      "url_tile": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "source": {
+        "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "max_zoom": 19,
+        "html_attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+        "attribution": "(C) OpenStreetMap contributors",
+        "name": "OpenStreetMap.Mapnik"
+      },
       "zoom": 7
     }
   }
