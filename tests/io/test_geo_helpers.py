@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import shapely
 
-from src.io.geo_helpers import load_affine_transformation_from_matrix
+from samgis.io.geo_helpers import load_affine_transformation_from_matrix
 from tests import TEST_EVENTS_FOLDER
 
 
@@ -64,7 +64,7 @@ class TestGeoHelpers(unittest.TestCase):
 
     def test_get_vectorized_raster_as_geojson_ok(self):
         from rasterio.transform import Affine
-        from src.io.geo_helpers import get_vectorized_raster_as_geojson
+        from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
 
         name_fn = "samexporter_predict"
 
@@ -82,7 +82,7 @@ class TestGeoHelpers(unittest.TestCase):
                 assert shapely.equals_exact(output_geojson, expected_output_geojson, tolerance=0.000006)
 
     def test_get_vectorized_raster_as_geojson_fail(self):
-        from src.io.geo_helpers import get_vectorized_raster_as_geojson
+        from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
 
         name_fn = "samexporter_predict"
 

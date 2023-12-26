@@ -28,7 +28,7 @@ from numpy import array as np_array, concatenate, float32, linalg, matmul, ndarr
 from cv2 import INTER_LINEAR, warpAffine
 from onnxruntime import get_available_providers, InferenceSession
 
-from src import app_logger
+from samgis import app_logger
 
 
 class SegmentAnythingONNX:

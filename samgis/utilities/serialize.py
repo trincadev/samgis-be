@@ -1,8 +1,8 @@
 """Serialize objects"""
 from typing import Mapping
 
-from src import app_logger
-from src.utilities.type_hints import dict_str, dict_str_any
+from samgis import app_logger
+from samgis.utilities.type_hints import dict_str, dict_str_any
 
 
 def serialize(obj: any, include_none: bool = False):

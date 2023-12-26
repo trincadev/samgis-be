@@ -2,8 +2,8 @@
 from affine import Affine
 from numpy import ndarray as np_ndarray
 
-from src import app_logger
-from src.utilities.type_hints import list_float, tuple_float, dict_str_int
+from samgis import app_logger
+from samgis.utilities.type_hints import list_float, tuple_float, dict_str_int
 
 
 def load_affine_transformation_from_matrix(matrix_source_coefficients: list_float) -> Affine:

@@ -2,10 +2,10 @@ import os
 from numpy import ndarray
 from xyzservices import TileProvider
 
-from src import app_logger
-from src.utilities.constants import (OUTPUT_CRS_STRING, DRIVER_RASTERIO_GTIFF, N_MAX_RETRIES, N_CONNECTION, N_WAIT,
-                                     ZOOM_AUTO, BOOL_USE_CACHE)
-from src.utilities.type_hints import tuple_ndarray_transform, tuple_float
+from samgis import app_logger
+from samgis.utilities.constants import (OUTPUT_CRS_STRING, DRIVER_RASTERIO_GTIFF, N_MAX_RETRIES, N_CONNECTION, N_WAIT,
+                                        ZOOM_AUTO, BOOL_USE_CACHE)
+from samgis.utilities.type_hints import tuple_ndarray_transform, tuple_float
 
 bool_use_cache = int(os.getenv("BOOL_USE_CACHE", BOOL_USE_CACHE))
 n_connection = int(os.getenv("N_CONNECTION", N_CONNECTION))
@@ -48,8 +48,8 @@ def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = z
         parsed request input
     """
     try:
-        from src import contextily_tile
-        from src.io.coordinates_pixel_conversion import _from4326_to3857
+        from samgis import contextily_tile
+        from samgis.io.coordinates_pixel_conversion import _from4326_to3857
 
         app_logger.info(f"connection number:{n_connections}, type:{type(n_connections)}.")
         app_logger.info(f"zoom:{zoom}, type:{type(zoom)}.")

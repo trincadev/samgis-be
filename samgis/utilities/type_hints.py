@@ -7,7 +7,7 @@ from affine import Affine
 from numpy import ndarray
 from pydantic import BaseModel
 
-from src.utilities.constants import DEFAULT_TMS
+from samgis.utilities.constants import DEFAULT_TMS
 
 
 dict_str_int = dict[str, int]

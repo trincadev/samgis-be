@@ -6,7 +6,7 @@ ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-pa
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./src ${LAMBDA_TASK_ROOT}/src
+COPY ./samgis ${LAMBDA_TASK_ROOT}/samgis
 COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 
 RUN ls -l /usr/bin/which
@@ -28,7 +28,7 @@ RUN python -m pip list
 RUN python -m pip freeze
 RUN df -h
 RUN ls -l /lambda-entrypoint.sh
-RUN ls -l ${LAMBDA_TASK_ROOT}/src/
+RUN ls -l ${LAMBDA_TASK_ROOT}/samgis/
 
 # ENTRYPOINT  ["/lambda-entrypoint.sh"]
-CMD [ "src.io.lambda_wrapper.lambda_handler" ]
+CMD [ "samgis.io.lambda_wrapper.lambda_handler" ]

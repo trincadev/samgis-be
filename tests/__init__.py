@@ -1,4 +1,4 @@
-from src import PROJECT_ROOT_FOLDER
+from samgis import PROJECT_ROOT_FOLDER
 
 
 TEST_ROOT_FOLDER = PROJECT_ROOT_FOLDER / "tests"

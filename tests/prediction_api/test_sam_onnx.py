@@ -3,10 +3,10 @@ import unittest
 
 import numpy as np
 
-from src import MODEL_FOLDER
-from src.prediction_api.sam_onnx import SegmentAnythingONNX
-from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
-from src.utilities.utilities import hash_calculate
+from samgis import MODEL_FOLDER
+from samgis.prediction_api.sam_onnx import SegmentAnythingONNX
+from samgis.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
+from samgis.utilities.utilities import hash_calculate
 from tests import TEST_EVENTS_FOLDER
 
 
