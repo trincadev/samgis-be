@@ -31,4 +31,4 @@ RUN ls -l /lambda-entrypoint.sh
 RUN ls -l ${LAMBDA_TASK_ROOT}/src/
 
 # ENTRYPOINT  ["/lambda-entrypoint.sh"]
-CMD [ "src.app.lambda_handler" ]
+CMD [ "src.io.lambda_wrapper.lambda_handler" ]
