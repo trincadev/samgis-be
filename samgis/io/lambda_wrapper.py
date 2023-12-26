@@ -5,9 +5,9 @@ from typing import Dict
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import ValidationError
 
-from src import app_logger
-from src.io.lambda_helpers import get_parsed_request_body, get_parsed_bbox_points, get_response
-from src.prediction_api.predictors import samexporter_predict
+from samgis import app_logger
+from samgis.io.lambda_helpers import get_parsed_request_body, get_parsed_bbox_points, get_response
+from samgis.prediction_api.predictors import samexporter_predict
 
 
 def lambda_handler(event: Dict, context: LambdaContext) -> str:

@@ -1,6 +1,6 @@
 """Various utilities (logger, time benchmark, args dump, numerical and stats info)"""
-from src import app_logger
-from src.utilities.serialize import serialize
+from samgis import app_logger
+from samgis.utilities.serialize import serialize
 
 
 def _prepare_base64_input(sb):
