@@ -66,7 +66,7 @@ there is `Pipfile` (sphinx docs is hosted on Cloudflare Pages).
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
 
 ```bash
-python -m pytest --cov=src --cov-report=term-missing && coverage html
+python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 ```
 
 ## Update the static documentation with sphinx
@@ -81,7 +81,7 @@ Run the command from the project root:
 cd docs && sphinx-quickstart -p SamGIS -a "alessandro trinca tornidor" -r 1.0.0 -l python --master index
 
 # update docs folder (from project root)
-sphinx-apidoc -f -o docs src
+sphinx-apidoc -f -o docs samgis
 ```
 
 Then it's possible to generate the HTML pages 

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "samgis"
+version = "1.0.0"
+authors = [
+  { name="Alessandro Trinca Tornidor", email="alessandro@trinca.tornidor.com" },
+]
+description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/trincadev/samgis-be"
+Issues = "https://github.com/trincadev/samgis-be/issues"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements_dockerfile.txt"]
+
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+dev = ["requirements_dev.txt"]
+docs = ["requirements.txt"]

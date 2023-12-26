@@ -3,11 +3,11 @@ from typing import Dict
 from xyzservices import providers
 from aws_lambda_powertools.event_handler import content_types
 
-from src import app_logger
-from src.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
-from src.utilities.constants import CUSTOM_RESPONSE_MESSAGES
-from src.utilities.type_hints import ApiRequestBody
-from src.utilities.utilities import base64_decode
+from samgis import app_logger
+from samgis.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
+from samgis.utilities.constants import CUSTOM_RESPONSE_MESSAGES
+from samgis.utilities.type_hints import ApiRequestBody
+from samgis.utilities.utilities import base64_decode
 
 
 def get_response(status: int, start_time: float, request_id: str, response_body: Dict = None) -> str:
@@ -154,7 +154,7 @@ def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
 
 
 def get_url_tile(source_type: str):
-    from src.utilities.constants import DEFAULT_TMS_NAME, DEFAULT_TMS_NAME_SHORT
+    from samgis.utilities.constants import DEFAULT_TMS_NAME, DEFAULT_TMS_NAME_SHORT
 
     if source_type.lower() == DEFAULT_TMS_NAME_SHORT:
         return providers.query_name(DEFAULT_TMS_NAME)

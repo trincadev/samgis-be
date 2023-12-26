@@ -1,12 +1,12 @@
 """functions using machine learning instance model(s)"""
 from numpy import array as np_array, uint8, zeros, ndarray
 
-from src import app_logger, MODEL_FOLDER
-from src.io.geo_helpers import get_vectorized_raster_as_geojson
-from src.io.tms2geotiff import download_extent
-from src.prediction_api.sam_onnx import SegmentAnythingONNX
-from src.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
-from src.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
+from samgis import app_logger, MODEL_FOLDER
+from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
+from samgis.io.tms2geotiff import download_extent
+from samgis.prediction_api.sam_onnx import SegmentAnythingONNX
+from samgis.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
+from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
 
 models_dict = {"fastsam": {"instance": None}}
 
