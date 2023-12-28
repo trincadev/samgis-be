@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from src.utilities.serialize import serialize
+from samgis.utilities.serialize import serialize
 
 test_dict_list_dict = {
     "type": "FeatureCollection",

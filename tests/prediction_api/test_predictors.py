@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import numpy as np
 
-from src.prediction_api import predictors
-from src.prediction_api.predictors import get_raster_inference, samexporter_predict
+from samgis.prediction_api import predictors
+from samgis.prediction_api.predictors import get_raster_inference, samexporter_predict
 from tests import TEST_EVENTS_FOLDER
 
 

@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from src import app_logger
-from src.io.tms2geotiff import download_extent
-from src.utilities.utilities import hash_calculate
+from samgis import app_logger
+from samgis.io.tms2geotiff import download_extent
+from samgis.utilities.utilities import hash_calculate
 from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
 input_bbox = [[39.036252959636606, 15.040283203125002], [38.302869955150044, 13.634033203125002]]
