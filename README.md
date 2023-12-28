@@ -19,13 +19,13 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=fastapi --tag localhost/samgis-base-fastapi --progress=plain
 
 # build the image, use the tag "samgis-huggingface"
-docker build . --tag samgis-huggingface --progress=plain
+docker build . --tag localhost/samgis-huggingface --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name samgis-huggingface -p 7860:7860 samgis-huggingface; docker logs -f samgis-huggingface
+docker run  -d --name samgis-huggingface -p 7860:7860 localhost/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
 Test it with curl:
@@ -58,7 +58,7 @@ docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag localhost/lamb
 Run the container (keep it on background) and show logs
 
 ```bash
-docker tag localhost/lambda-fastsam-api:latest localhost/lambda-fastsam-api;docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
+docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
 ```
 
 Test it with curl:

@@ -9,7 +9,7 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY ./samgis ${LAMBDA_TASK_ROOT}/samgis
-COPY ./src ${LAMBDA_TASK_ROOT}/src
+COPY ./wrappers ${LAMBDA_TASK_ROOT}/wrappers
 COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 
 RUN ls -l /usr/bin/which
@@ -30,7 +30,7 @@ RUN python -c "import rasterio"
 RUN df -h
 RUN ls -l /lambda-entrypoint.sh
 RUN ls -l ${LAMBDA_TASK_ROOT}/samgis/
-RUN ls -l ${LAMBDA_TASK_ROOT}/src/
+RUN ls -l ${LAMBDA_TASK_ROOT}/wrappers/
 
 ENTRYPOINT  ["/lambda-entrypoint.sh"]
-CMD [ "src.lambda_wrapper.lambda_handler" ]
+CMD [ "wrappers.lambda_wrapper.lambda_handler" ]

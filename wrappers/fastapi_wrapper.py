@@ -42,10 +42,10 @@ async def post_test(request_input: ApiRequestBody) -> JSONResponse:
     )
 
 
-@app.get("/hello")
-async def hello() -> JSONResponse:
+@app.get("/health")
+async def health() -> JSONResponse:
     app_logger.info(f"hello")
-    return JSONResponse(status_code=200, content={"msg": "hello"})
+    return JSONResponse(status_code=200, content={"msg": "still alive..."})
 
 
 @app.post("/infer_samgis")
@@ -113,7 +113,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 # important: the index() function and the app.mount MUST be at the end
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory="static/dist", html=True), name="static")
 
 
 @app.get("/")
