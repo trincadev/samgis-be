@@ -6,7 +6,7 @@ from unittest.mock import patch
 from awslambdaric.lambda_context import LambdaContext
 
 from samgis.io import lambda_helpers
-from src import lambda_wrapper
+from wrappers import lambda_wrapper
 from tests.local_tiles_http_server import LocalTilesHttpServer
 
 
@@ -22,7 +22,7 @@ class TestAppFailures(unittest.TestCase):
             samexporter_predict_mocked,
             time_mocked
     ):
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         get_parsed_request_body_mocked.value = {}
@@ -45,7 +45,7 @@ class TestAppFailures(unittest.TestCase):
     @patch.object(time, "time")
     @patch.object(lambda_wrapper, "get_parsed_request_body")
     def test_lambda_handler_400(self, get_parsed_request_body_mocked, time_mocked):
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         get_parsed_request_body_mocked.return_value = {}
@@ -65,7 +65,7 @@ class TestAppFailures(unittest.TestCase):
 
     @patch.object(time, "time")
     def test_lambda_handler_422(self, time_mocked):
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         event = {"body": {}, "version": 1.0}
@@ -96,7 +96,7 @@ class TestAppFailures(unittest.TestCase):
             samexporter_predict_mocked,
             time_mocked
     ):
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
         from tests import TEST_EVENTS_FOLDER
 
         time_mocked.return_value = 0
@@ -146,7 +146,7 @@ class TestAppFailures(unittest.TestCase):
         import xyzservices
         import shapely
 
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
         from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
         local_tile_provider = xyzservices.TileProvider(name="local_tile_provider", url=LOCAL_URL_TILE, attribution="")
@@ -191,7 +191,7 @@ class TestAppFailures(unittest.TestCase):
                 assert len(output_geojson.geoms) == expected_response_body["n_shapes_geojson"]
 
     def test_debug(self):
-        from src.lambda_wrapper import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         input_event = {
             'bbox': {

@@ -1,0 +1,35 @@
+{
+  "name": "ml-trinca",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5173",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "type": "module",
+  "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.15.0",
+    "leaflet": "^1.9.4",
+    "leaflet-providers": "^2.0.0",
+    "vue": "^3.3.12"
+  },
+  "devDependencies": {
+    "@headlessui/vue": "^1.7.16",
+    "@heroicons/vue": "^2.0.18",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/leaflet": "^1.9.8",
+    "@types/node": "^20.10.5",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "@vue/tsconfig": "^0.5.1",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "postcss": "^8.4.32",
+    "postcss-import": "^15.1.0",
+    "prettier": "^3.1.1",
+    "tailwindcss": "^3.3.6",
+    "vite": "^5.0.10"
+  }
+}
