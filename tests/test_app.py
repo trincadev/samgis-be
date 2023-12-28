@@ -5,16 +5,16 @@ from unittest.mock import patch
 
 from awslambdaric.lambda_context import LambdaContext
 
-from src import app
-from src.io import lambda_helpers
+from samgis.io import lambda_helpers
+from wrappers import lambda_wrapper
 from tests.local_tiles_http_server import LocalTilesHttpServer
 
 
 class TestAppFailures(unittest.TestCase):
     @patch.object(time, "time")
-    @patch.object(app, "samexporter_predict")
-    @patch.object(app, "get_parsed_bbox_points")
-    @patch.object(app, "get_parsed_request_body")
+    @patch.object(lambda_wrapper, "samexporter_predict")
+    @patch.object(lambda_wrapper, "get_parsed_bbox_points")
+    @patch.object(lambda_wrapper, "get_parsed_request_body")
     def test_lambda_handler_500(
             self,
             get_parsed_request_body_mocked,
@@ -22,7 +22,7 @@ class TestAppFailures(unittest.TestCase):
             samexporter_predict_mocked,
             time_mocked
     ):
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         get_parsed_request_body_mocked.value = {}
@@ -43,9 +43,9 @@ class TestAppFailures(unittest.TestCase):
         assert lambda_handler(event, lambda_context) == expected_response_500
 
     @patch.object(time, "time")
-    @patch.object(app, "get_parsed_request_body")
+    @patch.object(lambda_wrapper, "get_parsed_request_body")
     def test_lambda_handler_400(self, get_parsed_request_body_mocked, time_mocked):
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         get_parsed_request_body_mocked.return_value = {}
@@ -65,7 +65,7 @@ class TestAppFailures(unittest.TestCase):
 
     @patch.object(time, "time")
     def test_lambda_handler_422(self, time_mocked):
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         time_mocked.return_value = 0
         event = {"body": {}, "version": 1.0}
@@ -84,10 +84,10 @@ class TestAppFailures(unittest.TestCase):
         assert response_422 == expected_response_422
 
     @patch.object(time, "time")
-    @patch.object(app, "samexporter_predict")
-    @patch.object(app, "get_response")
-    @patch.object(app, "get_parsed_bbox_points")
-    @patch.object(app, "get_parsed_request_body")
+    @patch.object(lambda_wrapper, "samexporter_predict")
+    @patch.object(lambda_wrapper, "get_response")
+    @patch.object(lambda_wrapper, "get_parsed_bbox_points")
+    @patch.object(lambda_wrapper, "get_parsed_request_body")
     def test_lambda_handler_200_mocked(
             self,
             get_parsed_request_body_mocked,
@@ -96,7 +96,7 @@ class TestAppFailures(unittest.TestCase):
             samexporter_predict_mocked,
             time_mocked
     ):
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
         from tests import TEST_EVENTS_FOLDER
 
         time_mocked.return_value = 0
@@ -146,7 +146,7 @@ class TestAppFailures(unittest.TestCase):
         import xyzservices
         import shapely
 
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
         from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
         local_tile_provider = xyzservices.TileProvider(name="local_tile_provider", url=LOCAL_URL_TILE, attribution="")
@@ -191,7 +191,7 @@ class TestAppFailures(unittest.TestCase):
                 assert len(output_geojson.geoms) == expected_response_body["n_shapes_geojson"]
 
     def test_debug(self):
-        from src.app import lambda_handler
+        from wrappers.lambda_wrapper import lambda_handler
 
         input_event = {
             'bbox': {

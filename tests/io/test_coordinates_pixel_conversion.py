@@ -1,8 +1,8 @@
 import json
 
-from src.io.coordinates_pixel_conversion import _get_latlng2pixel_projection, _get_point_latlng_to_pixel_coordinates, \
+from samgis.io.coordinates_pixel_conversion import _get_latlng2pixel_projection, _get_point_latlng_to_pixel_coordinates, \
     get_latlng_to_pixel_coordinates
-from src.utilities.type_hints import LatLngDict
+from samgis.utilities.type_hints import LatLngDict
 from tests import TEST_EVENTS_FOLDER
 
 
