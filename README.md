@@ -1,10 +1,11 @@
 ---
 title: SamGIS
-emoji: 📉
+emoji: 🗺️
 colorFrom: red
 colorTo: blue
 sdk: docker
 pinned: false
+license: mit
 ---
 
 ## SamGIS - HuggingFace version
