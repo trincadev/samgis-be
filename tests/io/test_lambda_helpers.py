@@ -3,10 +3,10 @@ import time
 from http import HTTPStatus
 from unittest.mock import patch
 
-from src.io import lambda_helpers
-from src.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body, get_response
-from src.utilities.type_hints import ApiRequestBody
-from src.utilities import utilities
+from samgis.io import lambda_helpers
+from samgis.io.lambda_helpers import get_parsed_bbox_points, get_parsed_request_body, get_response
+from samgis.utilities.type_hints import ApiRequestBody
+from samgis.utilities import utilities
 from tests import TEST_EVENTS_FOLDER
 
 
@@ -92,7 +92,7 @@ def test_get_parsed_request_body():
 @patch.object(lambda_helpers, "providers")
 def test_get_url_tile(providers_mocked):
     import xyzservices
-    from src.io.lambda_helpers import get_url_tile
+    from samgis.io.lambda_helpers import get_url_tile
 
     from tests import LOCAL_URL_TILE
 
@@ -112,7 +112,7 @@ def test_get_url_tile(providers_mocked):
 
 
 def test_get_url_tile_real():
-    from src.io.lambda_helpers import get_url_tile
+    from samgis.io.lambda_helpers import get_url_tile
 
     assert get_url_tile("OpenStreetMap") == {
         'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'max_zoom': 19,

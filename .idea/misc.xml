@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.11 (samgis)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (samgis)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (samgis)" project-jdk-type="Python SDK" />
 </project>

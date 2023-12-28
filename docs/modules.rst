@@ -1,7 +1,7 @@
-src
-===
+samgis
+======
 
 .. toctree::
    :maxdepth: 4
 
-   src
+   samgis
