@@ -9,6 +9,6 @@
     "label": 0
   }],
   "zoom": 6,
-  "source_type": "Satellite",
+  "source_type": "OpenStreetMap",
   "debug": true
 }

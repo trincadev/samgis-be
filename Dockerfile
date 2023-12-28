@@ -1,4 +1,4 @@
-FROM localhost/samgis-base-aws-lambda:latest
+FROM localhost/samgis-base-fastapi:latest
 
 # Include global arg in this stage of the build
 ARG LAMBDA_TASK_ROOT="/var/task"
@@ -10,6 +10,7 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY ./samgis ${LAMBDA_TASK_ROOT}/samgis
 COPY ./src ${LAMBDA_TASK_ROOT}/src
+COPY ./static ${LAMBDA_TASK_ROOT}/static
 COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 
 RUN ls -l /usr/bin/which
@@ -22,15 +23,16 @@ RUN ls -l ${LAMBDA_TASK_ROOT}
 RUN ls -ld ${LAMBDA_TASK_ROOT}
 RUN ls -l ${LAMBDA_TASK_ROOT}/machine_learning_models
 RUN python -c "import sys; print(sys.path)"
-RUN python -c "import awslambdaric"
 RUN python -c "import cv2"
+RUN python -c "import fastapi"
 RUN python -c "import geopandas"
+RUN python -c "import loguru"
 RUN python -c "import onnxruntime"
 RUN python -c "import rasterio"
+RUN python -c "import uvicorn"
 RUN df -h
-RUN ls -l /lambda-entrypoint.sh
 RUN ls -l ${LAMBDA_TASK_ROOT}/samgis/
 RUN ls -l ${LAMBDA_TASK_ROOT}/src/
+RUN ls -l ${LAMBDA_TASK_ROOT}/static/
 
-ENTRYPOINT  ["/lambda-entrypoint.sh"]
-CMD [ "src.lambda_wrapper.lambda_handler" ]
+CMD ["uvicorn", "src.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
