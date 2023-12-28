@@ -8,10 +8,11 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./samgis ${LAMBDA_TASK_ROOT}/samgis
-COPY ./src ${LAMBDA_TASK_ROOT}/src
-COPY ./static ${LAMBDA_TASK_ROOT}/static
-COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
+
+# don't copy here the "static" folder, is already present because of dist and node_modules folders
+COPY machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
+COPY samgis ${LAMBDA_TASK_ROOT}/samgis
+COPY wrappers ${LAMBDA_TASK_ROOT}/wrappers
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
@@ -32,7 +33,9 @@ RUN python -c "import rasterio"
 RUN python -c "import uvicorn"
 RUN df -h
 RUN ls -l ${LAMBDA_TASK_ROOT}/samgis/
-RUN ls -l ${LAMBDA_TASK_ROOT}/src/
+RUN ls -l ${LAMBDA_TASK_ROOT}/wrappers/
 RUN ls -l ${LAMBDA_TASK_ROOT}/static/
+RUN ls -l ${LAMBDA_TASK_ROOT}/static/dist
+RUN ls -l ${LAMBDA_TASK_ROOT}/static/node_modules
 
-CMD ["uvicorn", "src.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "wrappers.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]

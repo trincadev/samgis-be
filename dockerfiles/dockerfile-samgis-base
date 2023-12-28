@@ -1,6 +1,7 @@
-# Include global arg in this stage of the build
+# Include global ARGs at the dockerfile top
 ARG ARCH="x86_64"
 ARG LAMBDA_TASK_ROOT="/var/task"
+ARG FASTAPI_STATIC="${LAMBDA_TASK_ROOT}/static"
 ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ARG POETRY_NO_INTERACTION=1
 ARG POETRY_VIRTUALENVS_IN_PROJECT=1
@@ -9,7 +10,7 @@ ARG POETRY_CACHE_DIR=/tmp/poetry_cache
 ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"
 
 
-FROM python:3.11-bookworm as builder
+FROM python:3.11-bookworm as builder_global
 
 ARG ARCH
 ARG LAMBDA_TASK_ROOT
@@ -28,18 +29,16 @@ RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
 RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
 RUN test -n ${DEPENDENCY_GROUP:?}
 RUN echo "python DEPENDENCY_GROUP: ${DEPENDENCY_GROUP} ..."
+RUN echo "arg dep:"
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${LAMBDA_TASK_ROOT}/
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
-RUN apt update && apt install -y libgl1 curl python3-pip && apt clean
-RUN echo "check for libGL.so ..."
-RUN ls -ld /usr/lib/*-linux-gnu/libGL.so* || echo "libGL.so* not found/1..."
-RUN ls -ld /usr/lib/${ARCH}-linux-gnu/libGL.so* || echo "libGL.so* not found/2..."
-RUN which python
-RUN python --version
+# RUN apt update && apt install -y libgl1 curl python3-pip && apt clean
+RUN apt update && apt install -y libgl1 curl
+RUN apt update && apt install -y python3-pip && apt clean
 
 # poetry installation path is NOT within ${LAMBDA_TASK_ROOT}: not needed for runtime docker image
 RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_poetry.txt
@@ -51,11 +50,6 @@ RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 
 RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 
-RUN echo "check for libGL.so"
-RUN ls -ld /usr/lib/*-linux-gnu/libGL.so* || echo "libGL.so* not found..."
-RUN ls -ld ${LAMBDA_TASK_ROOT}/.venv
-RUN ls -l ${LAMBDA_TASK_ROOT}/.venv
-
 
 FROM python:3.11-slim-bookworm as runtime
 
@@ -65,17 +59,59 @@ ARG LAMBDA_TASK_ROOT
 ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
     PATH="${LAMBDA_TASK_ROOT}/.venv/bin:$PATH"
 
-RUN echo "COPY --from=builder /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
-COPY --from=builder /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
-COPY --from=builder ${LAMBDA_TASK_ROOT}/.venv ${LAMBDA_TASK_ROOT}/.venv
+RUN echo "COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
+COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
+COPY --from=builder_global ${LAMBDA_TASK_ROOT}/.venv ${LAMBDA_TASK_ROOT}/.venv
 
 RUN echo "new LAMBDA_TASK_ROOT after hidden venv copy => ${LAMBDA_TASK_ROOT}"
 RUN ls -ld ${LAMBDA_TASK_ROOT}/
 RUN ls -lA ${LAMBDA_TASK_ROOT}/
 
-# only used by AWS lambda docker image
-COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+COPY --from=builder_global /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 RUN chmod +x /usr/local/bin/aws-lambda-rie
 COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
 RUN chmod +x /lambda-entrypoint.sh
-RUN ls -l /lambda-entrypoint.sh
+
+
+### conditional section
+FROM node:20-slim AS node_fastapi
+
+ARG DEPENDENCY_GROUP
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+COPY ./static /appnode
+WORKDIR /appnode
+# RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then echo "pnpm store path:" && pnpm store path; fi
+
+
+FROM node_fastapi AS node_prod_deps
+
+ARG DEPENDENCY_GROUP
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
+    pnpm install --prod --frozen-lockfile; else \
+    echo "DEPENDENCY_GROUP 1: ${DEPENDENCY_GROUP} ..."; fi
+# here multiple conditions concatenated to avoid failing on check
+RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exit 1; fi; fi
+
+
+FROM node_fastapi AS node_build
+
+ARG DEPENDENCY_GROUP
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
+    pnpm install --frozen-lockfile; else \
+    echo "DEPENDENCY_GROUP 2: ${DEPENDENCY_GROUP} ..."; fi
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
+    pnpm build; fi
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
+    pnpm tailwindcss -i /appnode/src/input.css -o /appnode/dist/output.css; fi
+RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi; fi
+
+
+FROM runtime
+ARG FASTAPI_STATIC
+RUN mkdir ${FASTAPI_STATIC}
+
+COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
+COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
