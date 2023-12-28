@@ -19,12 +19,15 @@ ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
 ARG RIE
+ARG DEPENDENCY_GROUP
 
 RUN echo "ARCH: $ARCH ..."
 
 RUN echo "ARG RIE: $RIE ..."
 RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
 RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
+RUN test -n ${DEPENDENCY_GROUP:?}
+RUN echo "python DEPENDENCY_GROUP: ${DEPENDENCY_GROUP} ..."
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
@@ -44,7 +47,7 @@ RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_poetry.txt
 RUN which poetry && poetry --version && poetry config --list
 RUN poetry config virtualenvs.path ${LAMBDA_TASK_ROOT}
 RUN echo "# poetry config --list #" && poetry config --list
-RUN poetry install --with aws_lambda --no-root
+RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 
 RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 
@@ -62,7 +65,6 @@ ARG LAMBDA_TASK_ROOT
 ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
     PATH="${LAMBDA_TASK_ROOT}/.venv/bin:$PATH"
 
-COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 RUN echo "COPY --from=builder /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
 COPY --from=builder /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
 COPY --from=builder ${LAMBDA_TASK_ROOT}/.venv ${LAMBDA_TASK_ROOT}/.venv
@@ -71,10 +73,9 @@ RUN echo "new LAMBDA_TASK_ROOT after hidden venv copy => ${LAMBDA_TASK_ROOT}"
 RUN ls -ld ${LAMBDA_TASK_ROOT}/
 RUN ls -lA ${LAMBDA_TASK_ROOT}/
 
+# only used by AWS lambda docker image
+COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 RUN chmod +x /usr/local/bin/aws-lambda-rie
-
 COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
 RUN chmod +x /lambda-entrypoint.sh
 RUN ls -l /lambda-entrypoint.sh
-
-ENTRYPOINT  ["/lambda-entrypoint.sh"]

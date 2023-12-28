@@ -1,12 +1,11 @@
 """lambda helper functions"""
 from typing import Dict
 from xyzservices import providers
-from aws_lambda_powertools.event_handler import content_types
 
 from samgis import app_logger
 from samgis.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
 from samgis.utilities.constants import CUSTOM_RESPONSE_MESSAGES
-from samgis.utilities.type_hints import ApiRequestBody
+from samgis.utilities.type_hints import ApiRequestBody, ContentTypes
 from samgis.utilities.utilities import base64_decode
 
 
@@ -34,7 +33,7 @@ def get_response(status: int, start_time: float, request_id: str, response_body:
 
     response = {
         "statusCode": status,
-        "header": {"Content-Type": content_types.APPLICATION_JSON},
+        "header": {"Content-Type": ContentTypes.APPLICATION_JSON},
         "body": dumps(response_body),
         "isBase64Encoded": False
     }

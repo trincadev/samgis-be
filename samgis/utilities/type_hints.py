@@ -31,6 +31,13 @@ class LatLngDict(BaseModel):
     lng: float
 
 
+class ContentTypes(str, Enum):
+    """Segment Anything: validation point prompt type"""
+    APPLICATION_JSON = "application/json"
+    TEXT_PLAIN = "text/plain"
+    TEXT_HTML = "text/html"
+
+
 class PromptPointType(str, Enum):
     """Segment Anything: validation point prompt type"""
     point = "point"

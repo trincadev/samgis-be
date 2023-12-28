@@ -1,36 +1,64 @@
-# SamGIS
+---
+title: SamGIS
+emoji: 📉
+colorFrom: red
+colorTo: blue
+sdk: docker
+pinned: false
+---
 
-## todo
+## SamGIS - HuggingFace version
 
-1. export output to mask: OK local, OK aws lambda
-2. resolve model paths: OK local
-3. inference: 
-4. from mask to json (rasterio + geopandas, check for re-projection to EPSG_4326)
-5. check mandatory dependencies
-6. check for alternative python interpreters
+Build the docker image this way:
 
-## Build instructions
+```bash
+# clean any old active containers
+docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
-Build the docker image:
+# build the base docker image with the ARG DEPENDENCY_GROUP=fastapi used by poetry
+docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=fastapi --tag localhost/samgis-base-fastapi --progress=plain
+
+# build the image, use the tag "samgis-huggingface"
+docker build . --tag samgis-huggingface --progress=plain
+```
+
+Run the container (keep it on background) and show logs
+
+```bash
+docker run  -d --name samgis-huggingface -p 7860:7860 samgis-huggingface; docker logs -f samgis-huggingface
+```
+
+Test it with curl:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:7860/infer_samgeo' \
+  -H 'accept: application/json' \
+  -d '{}'
+```
+
+or better visiting the swagger page on http://localhost:7860/docs 
+
+
+## SamGIS - lambda AWS version
+
+Build the docker image this way:
 
 ```bash
 # clean any old active containers
 docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
 # build the base docker image with the docker aws repository tag
-docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner
-
-# OPTIONAL: to build the lambda-gdal-runner image on a x86 machine use the build arg `RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"`:
-docker build . -f dockerfiles/dockerfile-lambda-gdal-runner --build-arg RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie" --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner --progress=plain
+docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=aws_lambda --tag localhost/samgis-base-aws-lambda --progress=plain
 
 # build the final docker image
-docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api
+docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag localhost/lambda-fastsam-api --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker tag 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api:latest lambda-fastsam-api;docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
+docker tag localhost/lambda-fastsam-api:latest localhost/lambda-fastsam-api;docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
 ```
 
 Test it with curl:
@@ -43,25 +71,15 @@ curl -X 'POST' \
   -d '{}'
 ```
 
-## Publish the aws lambda
-1. Login on aws ECR with the correct aws profile (details on [ECR page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/private/686901913580/surferdtm-prediction-api?region=eu-west-1))
-    ```
-    aws --profile alessandrotrinca_hotmail_aws_console_ec2_lambda ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 686901913580.dkr.ecr.eu-west-1.amazonaws.com
-    ```
-2. Build and tag the docker images, then push them:
-    ```
-    docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-gdal-runner:latest
-    docker push 686901913580.dkr.ecr.eu-west-1.amazonaws.com/lambda-fastsam-api:latest
-    ```
-3. It's possible to publish a new aws lambda version from cmd or from lambda page
+### Publish the aws lambda docker image
+Login on aws ECR with the correct aws profile (change the example `localhost/` repository url with the one from
+the [ECR push command instructions page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/)).
 
+### Dependencies installation and local tests
+The docker build process needs only the base dependency group plus the `aws_lambda` or `fastapi` optional one.
+Install also the `test` and/or `docs` groups if needed.
 
-## Dependencies installation and local tests
-The docker build process needs only the classic requirements.txt (here renamed to `requirements_dockerfile.txt`), instead for local development and sphinx-docs build 
-there is `Pipfile` (sphinx docs is hosted on Cloudflare Pages).
-
-
-## Tests
+### Tests
 
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
 
@@ -69,7 +87,7 @@ Tests are defined in the `tests` folder in this project. Use PIP to install the 
 python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 ```
 
-## Update the static documentation with sphinx
+### How to update the static documentation with sphinx
 
 Run the sphinx-apidoc: it's a tool for automatic generation of Sphinx sources that, using the autodoc
 extension, document a whole package in the style of other automatic API documentation tools. See the 
@@ -78,7 +96,7 @@ Run the command from the project root:
 
 ```bash
 # missing docs folder (run from project root)
-cd docs && sphinx-quickstart -p SamGIS -a "alessandro trinca tornidor" -r 1.0.0 -l python --master index
+cd docs && sphinx-quickstart -p SamGIS -r 1.0.0 -l python --master index
 
 # update docs folder (from project root)
 sphinx-apidoc -f -o docs samgis
