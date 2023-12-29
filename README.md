@@ -14,6 +14,7 @@ from https://huggingface.co/aletrn/sam-quantized (copy them within the folder `/
 
 ## SamGIS - HuggingFace version
 
+The SamGIS HuggingSpace url is https://huggingface.co/spaces/aletrn/samgis.
 Build the docker image this way:
 
 ```bash
