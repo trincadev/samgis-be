@@ -1,10 +1,10 @@
 <template>
   <div class="h-auto">
 
-    <div class="grid grid-cols-1 2xl:grid-cols-5 lg:gap-1 lg:border-r">
+    <div class="grid grid-cols-1 2xl:grid-cols-5 lg:gap-1 lg:border-r ml-2 mt-2 md:ml-4 md:mr-4">
 
       <div class="lg:border-r lg:col-span-3">
-        <div id="id-map-cont" class="ml-2 mt-2 md:ml-4 md:mr-4">
+        <div id="id-map-cont" class="">
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1 lg:hidden portrait:xl:hidden">
             <ButtonMapSendRequest
