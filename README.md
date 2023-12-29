@@ -17,16 +17,17 @@ Build the docker image this way:
 docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
 # build the base docker image with the ARG DEPENDENCY_GROUP=fastapi used by poetry
-docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=fastapi --tag localhost/samgis-base-fastapi --progress=plain
+docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=fastapi \
+  --tag example-docker-namespace/samgis-base-fastapi --progress=plain
 
 # build the image, use the tag "samgis-huggingface"
-docker build . --tag localhost/samgis-huggingface --progress=plain
+docker build . --tag example-docker-namespace/samgis-huggingface --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name samgis-huggingface -p 7860:7860 localhost/samgis-huggingface; docker logs -f samgis-huggingface
+docker run  -d --name samgis-huggingface -p 7860:7860 example-docker-namespace/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
 Test it with curl:
@@ -50,10 +51,11 @@ Build the docker image this way:
 docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
 # build the base docker image with the docker aws repository tag
-docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=aws_lambda --tag localhost/samgis-base-aws-lambda --progress=plain
+docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=aws_lambda \
+  --tag example-docker-namespace/samgis-base-aws-lambda --progress=plain
 
 # build the final docker image
-docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag localhost/lambda-fastsam-api --progress=plain
+docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag example-docker-namespace/lambda-fastsam-api --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
@@ -66,14 +68,11 @@ Test it with curl:
 
 ```bash
 URL=http://localhost:8080/2015-03-31/functions/function/invocations
-curl -X 'POST' \
-  ${URL} \
-  -H 'accept: application/json' \
-  -d '{}'
+curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
 ```
 
 ### Publish the aws lambda docker image
-Login on aws ECR with the correct aws profile (change the example `localhost/` repository url with the one from
+Login on aws ECR with the correct aws profile (change the example `example-docker-namespace/` repository url with the one from
 the [ECR push command instructions page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/)).
 
 ### Dependencies installation and local tests
