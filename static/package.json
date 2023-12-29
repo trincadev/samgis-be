@@ -13,7 +13,7 @@
     "@geoman-io/leaflet-geoman-free": "^2.15.0",
     "leaflet": "^1.9.4",
     "leaflet-providers": "^2.0.0",
-    "vue": "^3.3.12"
+    "vue": "^3.4.0"
   },
   "devDependencies": {
     "@headlessui/vue": "^1.7.16",
@@ -21,7 +21,7 @@
     "@tsconfig/node20": "^20.1.2",
     "@types/leaflet": "^1.9.8",
     "@types/node": "^20.10.5",
-    "@vitejs/plugin-vue": "^4.5.2",
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.56.0",
