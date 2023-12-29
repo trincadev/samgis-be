@@ -8,6 +8,10 @@ pinned: false
 license: mit
 ---
 
+## Segment Anything models
+It's possible to prepare the model files using https://github.com/vietanhdev/samexporter/ or using the ones 
+from https://huggingface.co/aletrn/sam-quantized (copy them within the folder `/machine_learning_models`).
+
 ## SamGIS - HuggingFace version
 
 Build the docker image this way:
