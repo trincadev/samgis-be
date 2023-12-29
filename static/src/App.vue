@@ -1,5 +1,5 @@
 <template>
-  <PageLayout page-title="Inference map page">
+  <PageLayout pageTitle="SamGIS - Inference map page">
     <div>
       <div id="map-container-md">
         <PredictionMap
