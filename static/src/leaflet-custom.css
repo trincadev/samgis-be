@@ -28,15 +28,28 @@ a.leaflet-control-layers-toggle {
         width: 65%;
     }
 }
+/* surface pro 7 landscape */
 @media only screen and (max-width: 1370px) and (max-height: 920px) and (orientation: landscape) {
+    .map-predictions {
+        width: 90%;
+    }
+}
+/* ipad mini landscape */
+@media only screen and (max-width: 1030px) and (max-height: 770px) and (orientation: landscape) {
     .map-predictions {
         width: 95%;
     }
 }
+/* iphone 12 mini landscape */
 @media only screen and (max-width: 810px) and (max-height: 370px) and (orientation: landscape) {
     .map-predictions {
         height: 70%;
         max-height: 70%;
-        /*float: right;*/
+    }
+}
+/* surface pro 7 portrait */
+@media only screen and (max-width: 920px) and (max-height: 1370px) and (orientation: portrait) {
+    .map-predictions {
+        width: 95%;
     }
 }
