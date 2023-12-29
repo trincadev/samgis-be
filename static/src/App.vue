@@ -1,5 +1,5 @@
 <template>
-  <PageLayout page-title="Prediction map page">
+  <PageLayout page-title="Inference map page">
     <div>
       <div id="map-container-md">
         <PredictionMap
@@ -11,7 +11,7 @@
                     "lat": 46.1351347810282,
                     "lng": 9.32121276855469
               }]'
-            description="This page displays predictions made with a remote machine learning model living within an AWS Lambda..."
+            :description=description
         />
       </div>
     </div>
@@ -19,10 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import PredictionMap from '@/components/PagePredictionMap.vue'
 import PageLayout from '@/components/PageLayout.vue'
 
 const mapName = ref('prediction-map')
+const description = ref("This page displays predictions made with a machine learning model")
+
+onMounted(() => {
+  console.log("descr:", description.value, import.meta.env.VITE_MAP_DESCRIPTION)
+  description.value = import.meta.env.VITE_MAP_DESCRIPTION ? import.meta.env.VITE_MAP_DESCRIPTION : description.value
+})
 </script>
