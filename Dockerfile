@@ -9,8 +9,6 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-# don't copy here the "static" folder, is already present because of dist and node_modules folders
-COPY machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 COPY samgis ${LAMBDA_TASK_ROOT}/samgis
 COPY wrappers ${LAMBDA_TASK_ROOT}/wrappers
 
