@@ -1,4 +1,4 @@
-FROM localhost/samgis-base-fastapi:latest
+FROM registry.gitlab.com/aletrn/gis-prediction:latest
 
 # Include global arg in this stage of the build
 ARG LAMBDA_TASK_ROOT="/var/task"

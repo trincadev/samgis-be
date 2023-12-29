@@ -10,7 +10,6 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY ./samgis ${LAMBDA_TASK_ROOT}/samgis
 COPY ./wrappers ${LAMBDA_TASK_ROOT}/wrappers
-COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
