@@ -28,14 +28,6 @@ samgis.io.lambda\_helpers module
    :undoc-members:
    :show-inheritance:
 
-samgis.io.lambda\_wrapper module
---------------------------------
-
-.. automodule:: samgis.io.lambda_wrapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 samgis.io.tms2geotiff module
 ----------------------------
 
