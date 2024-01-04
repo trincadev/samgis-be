@@ -35,13 +35,11 @@ Run the container (keep it on background) and show logs
 docker run  -d --name samgis-huggingface -p 7860:7860 example-docker-namespace/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
-Test it with curl:
+Test it with curl using a json payload:
 
 ```bash
-curl -X 'POST' \
-  'http://localhost:7860/infer_samgeo' \
-  -H 'accept: application/json' \
-  -d '{}'
+URL=http://localhost:7860/infer_samgis
+curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
 ```
 
 or better visiting the swagger page on http://localhost:7860/docs 
@@ -69,7 +67,7 @@ Run the container (keep it on background) and show logs
 docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
 ```
 
-Test it with curl:
+Test it with curl using a json payload:
 
 ```bash
 URL=http://localhost:8080/2015-03-31/functions/function/invocations
@@ -94,13 +92,13 @@ python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 
 ### How to update the static documentation with sphinx
 
-Run the sphinx-apidoc: it's a tool for automatic generation of Sphinx sources that, using the autodoc
+This project documentation uses sphinx-apidoc: it's a tool for automatic generation of Sphinx sources that, using the autodoc
 extension, document a whole package in the style of other automatic API documentation tools. See the 
 [documentation page](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html) for details.
 Run the command from the project root:
 
 ```bash
-# missing docs folder (run from project root)
+# missing docs folder (run from project root) initialize this way
 cd docs && sphinx-quickstart -p SamGIS -r 1.0.0 -l python --master index
 
 # update docs folder (from project root)
