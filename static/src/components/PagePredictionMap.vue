@@ -5,9 +5,9 @@
 
       <div class="lg:border-r lg:col-span-3">
         <div id="id-map-cont" class="">
-          v-if="currentPathnameRef.startsWith(pathnameCheckRef)"
           <p
             class="block lg:hidden"
+            v-if="currentPathnameRef.startsWith(pathnameCheckRef)"
           >Trouble on page scrolling? Use the <a :href="embeddedSpaceRef">embedded space</a>.</p>
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1 lg:hidden portrait:xl:hidden">
