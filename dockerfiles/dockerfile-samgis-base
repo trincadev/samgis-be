@@ -99,11 +99,17 @@ RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/node_modul
 FROM node_fastapi AS node_build
 
 ARG DEPENDENCY_GROUP
+ARG VITE__MAP_DESCRIPTION
+ARG VITE__PATHNAME_CHECK
+ARG VITE__SAMGIS_SPACE
+RUN echo "VITE__MAP_DESCRIPTION:" ${VITE__MAP_DESCRIPTION}
+RUN echo "VITE__PATHNAME_CHECK:" ${VITE__PATHNAME_CHECK}
+RUN echo "VITE__SAMGIS_SPACE:" ${VITE__SAMGIS_SPACE}
+
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
     pnpm install --frozen-lockfile; else \
     echo "DEPENDENCY_GROUP 2: ${DEPENDENCY_GROUP} ..."; fi
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
-    pnpm build; fi
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then pnpm build; fi
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
     pnpm tailwindcss -i /appnode/src/input.css -o /appnode/dist/output.css; fi
 RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi; fi

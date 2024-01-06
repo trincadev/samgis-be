@@ -28,7 +28,7 @@ const mapName = ref('prediction-map')
 const description = ref("This page displays predictions made with a machine learning model")
 
 onMounted(() => {
-  console.log("descr:", description.value, import.meta.env.VITE_MAP_DESCRIPTION)
-  description.value = import.meta.env.VITE_MAP_DESCRIPTION ? import.meta.env.VITE_MAP_DESCRIPTION : description.value
+  console.log("descr:", description.value, import.meta.env.VITE__MAP_DESCRIPTION)
+  description.value = import.meta.env.VITE__MAP_DESCRIPTION ? import.meta.env.VITE__MAP_DESCRIPTION : description.value
 })
 </script>

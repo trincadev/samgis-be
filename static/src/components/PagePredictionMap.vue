@@ -5,6 +5,10 @@
 
       <div class="lg:border-r lg:col-span-3">
         <div id="id-map-cont" class="">
+          v-if="currentPathnameRef.startsWith(pathnameCheckRef)"
+          <p
+            class="block lg:hidden"
+          >Trouble on page scrolling? Use the <a :href="embeddedSpaceRef">embedded space</a>.</p>
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1 lg:hidden portrait:xl:hidden">
             <ButtonMapSendRequest
@@ -123,6 +127,9 @@ const currentBaseMapNameRef = ref("")
 const currentMapBBoxRef = ref()
 const currentZoomRef = ref()
 const promptsArrayRef: Ref<Array<IPointPrompt | IRectanglePrompt>> = ref([])
+const pathnameCheckRef = ref(import.meta.env.VITE__PATHNAME_CHECK || "")
+const currentPathnameRef = ref("current-pathname-placeholder")
+const embeddedSpaceRef = ref(import.meta.env.VITE__SAMGIS_SPACE || "")
 let map: LMap
 type ServiceTiles = {
   [key: SourceTileType]: LTileLayer;
@@ -188,6 +195,7 @@ const getCurrentBasemap = (url: string, providersArray: ServiceTiles) => {
 }
 
 onMounted(async () => {
+  currentPathnameRef.value = window.location.pathname || ""
   const osmTile = tileLayer.provider(OpenStreetMap)
   let localVarSatellite: SourceTileType = import.meta.env.VITE_SATELLITE_NAME ? String(import.meta.env.VITE_SATELLITE_NAME) : Satellite
   const satelliteTile = tileLayer.provider(localVarSatellite)
