@@ -65,10 +65,13 @@ const getCustomIconMarker = (
 }
 
 /** get an  the leaflet editor geoman.io toolbar with the custom actions to draw/edit/move point and rectangle layers */
-const getCustomGeomanActionsObject = (actionName: string, descriptionAction: string, arrayActions: Array<object>) => {
+const getCustomGeomanActionsObject = (
+  actionName: string, descriptionAction: string, arrayActions: Array<object>, customClassName: string
+) => {
   return {
     name: actionName,
     block: 'custom',
+    className: customClassName,
     title: descriptionAction,
     actions: arrayActions
   }
@@ -92,22 +95,33 @@ export function setGeomanControls(localMap: LMap) {
       name: 'actionName'
   }]
   const includeMarkerControl = localMap.pm.Toolbar.copyDrawControl('Marker',
-    getCustomGeomanActionsObject('IncludeMarkerPrompt', 'Marker that add recognition regions from SAM prompt requests', actionArray)
+    getCustomGeomanActionsObject(
+      'IncludeMarkerPrompt',
+      'Marker point that add recognition regions from SAM prompt requests',
+      actionArray,
+      'control-icon leaflet-pm-icon-marker-include'
+    )
   )
+  // custom marker icon on map
   includeMarkerControl.drawInstance.setOptions({
     markerStyle: { icon: getCustomIconMarker('/marker-icon-include') }
   })
   const excludeMarkerControl = localMap.pm.Toolbar.copyDrawControl('Marker',
-    getCustomGeomanActionsObject('ExcludeMarkerPrompt', 'Marker that remove recognition regions from SAM prompt requests', actionArray)
+    getCustomGeomanActionsObject(
+      'ExcludeMarkerPrompt',
+      'Marker point that remove recognition regions from SAM prompt requests',
+      actionArray,
+      'control-icon leaflet-pm-icon-marker-exclude'
+    )
   )
   excludeMarkerControl.drawInstance.setOptions({
     markerStyle: { icon: getCustomIconMarker('/marker-icon-exclude') }
   })
   localMap.pm.Toolbar.copyDrawControl('Rectangle', {
-    name: 'RectanglePrompt',
+    actions: actionArray,
     block: 'custom',
-    title: 'Rectangular recognition regions for SAM prompt requests',
-    actions: actionArray
+    name: 'RectanglePrompt',
+    title: 'Rectangular recognition regions for SAM prompt requests'
   })
   localMap.pm.setPathOptions({
     color: "green",
@@ -157,10 +171,10 @@ export const getGeoJSONRequest = async (
         const { geojson, n_predictions, n_shapes_geojson } = parsed.output
 
         const parsedGeojson = JSON.parse(geojson)
-        durationRef.value = parsed.duration_run
+      durationRef.value = parsed.duration_run
         numberOfPolygonsRef.value = n_shapes_geojson
         numberOfPredictedMasksRef.value = n_predictions
-        responseMessageRef.value = ''
+      responseMessageRef.value = ''
         return parsedGeojson
       } catch (errParseOutput1) {
         console.error("errParseOutput1::", errParseOutput1)
