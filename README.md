@@ -114,7 +114,8 @@ cd docs && sphinx-quickstart -p SamGIS -r 1.0.0 -l python --master index
 sphinx-apidoc -f -o docs samgis
 ```
 
-Then it's possible to generate the HTML pages 
+Then it's possible to generate the HTML pages
+
 ```bash
 cd docs && make html && ../
 
