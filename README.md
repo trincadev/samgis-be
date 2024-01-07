@@ -23,14 +23,13 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
 # build the base docker image from the repository root folder using ARGs:
 # - DEPENDENCY_GROUP=fastapi used by poetry
-# VITE__MAP_DESCRIPTION, VITE__PATHNAME_CHECK, VITE__SAMGIS_SPACE used by 'docker build'
+# VITE__MAP_DESCRIPTION, VITE__SAMGIS_SPACE used by 'docker build'
 (
   set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport;
   env|grep VITE__;
   docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
   --build-arg DEPENDENCY_GROUP=fastapi \
   --build-arg VITE__MAP_DESCRIPTION=${VITE__MAP_DESCRIPTION} \
-  --build-arg VITE__PATHNAME_CHECK=${VITE__PATHNAME_CHECK} \
   --build-arg VITE__SAMGIS_SPACE=${VITE__SAMGIS_SPACE} \
   --tag registry.gitlab.com/aletrn/gis-prediction
 )
