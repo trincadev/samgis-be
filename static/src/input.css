@@ -1,6 +1,8 @@
 @import "leaflet/dist/leaflet.css";
 @import "leaflet-custom.css";
 @import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+@import "../node_modules/driver.js/src/driver.css";
+
 @tailwind base;
 
 @layer base {
