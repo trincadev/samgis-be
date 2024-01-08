@@ -11,6 +11,7 @@
   "type": "module",
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.15.0",
+    "driver.js": "github:trincadev/driver.js",
     "leaflet": "^1.9.4",
     "leaflet-providers": "^2.0.0",
     "vue": "^3.4.0"

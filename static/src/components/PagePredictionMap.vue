@@ -1,17 +1,14 @@
 <template>
-  <div class="h-auto">
+  <div class="h-auto" id="id-prediction-map-container">
 
     <div class="grid grid-cols-1 2xl:grid-cols-5 lg:gap-1 lg:border-r ml-2 mt-2 md:ml-4 md:mr-4">
 
       <div class="lg:border-r lg:col-span-3">
         <div id="id-map-cont" class="">
-          <p
-            class="block lg:hidden"
-            v-if="currentPathnameRef.startsWith(pathnameCheckRef)"
-          >Trouble on page scrolling? Use the <a :href="embeddedSpaceRef">embedded space</a>.</p>
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1 lg:hidden portrait:xl:hidden">
             <ButtonMapSendRequest
+              id="id-button-submit"
               class="h-8 text-sm font-extralight min-w-[180px] max-w-[180px]"
               :current-base-map-name="currentBaseMapNameRef"
               :map="map"
@@ -25,6 +22,7 @@
           <ButtonMapSendRequest
             class="h-8 min-w-[240px] max-w-[240px] mt-2 mb-2 hidden sd:h-14 lg:block portrait:xl:block"
             :current-base-map-name="currentBaseMapNameRef"
+            id="id-button-submit"
             :map="map"
             :prompts-array="promptsArrayRef"
             :response-message="responseMessageRef"
@@ -36,7 +34,7 @@
       </div>
 
       <div class="lg:col-span-2">
-        <div class="lg:pl-2 lg:pr-2 lg:border-l lg:border-3">
+        <div class="lg:pl-2 lg:pr-2 lg:border-l lg:border-3" id="id-map-info">
 
           <h1>Map Info</h1>
           <div class="grid grid-cols-1 md:grid-cols-3">
@@ -60,7 +58,7 @@
           </div>
         </div>
 
-        <h1>ML request prompt</h1>
+        <h1 id="id-ml-request-prompt">ML request prompt</h1>
         <div v-if="promptsArrayRef.filter(el => {return el.type === 'point'}).length > 0">
           <TableGenericComponent
             :header="['id', 'data', 'label']"
@@ -99,6 +97,7 @@ import {
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
 import { onMounted, ref, type Ref } from 'vue'
+import { driver } from "../../node_modules/driver.js/src/driver"
 
 import {
   durationRef,
@@ -109,7 +108,7 @@ import {
   responseMessageRef,
   Satellite,
   waitingString
-} from '@/components/constants'
+} from './constants'
 import {
   applyFnToObjectWithinArray,
   getExtentCurrentViewMapBBox,
@@ -123,13 +122,25 @@ import StatsGrid from '@/components/StatsGrid.vue';
 import TableGenericComponent from '@/components/TableGenericComponent.vue';
 import ButtonMapSendRequest from '@/components/buttons/ButtonMapSendRequest.vue';
 
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    { element: 'id-prediction-map-container', popover: { title: 'SamGIS', description: 'A quick tour about SamGIS functionality' } },
+    { element: '#map', popover: { title: 'Webmap for ML prompt', description: 'Add here your machine learning prompt' } },
+    { element: '.leaflet-pm-icon-marker-include', popover: { title: '"Include" point prompt', description: 'add "include" points prompt for machine learning request' } },
+    { element: '.leaflet-pm-icon-marker-exclude', popover: { title: '"Exclude" point prompt', description: 'add "exclude" points prompt for machine learning request' } },
+    { element: '.leaflet-pm-icon-rectangle', popover: { title: '"Include" rectangle prompt', description: 'add "include" rectangles prompt for machine learning request' } },
+    { element: "#id-button-submit", popover: { title: 'ML submit button', description: 'Machine learning submit button' } },
+    { element: '.leaflet-control-layers-toggle', popover: { title: 'Map provider selector', description: 'select a different map provider' } },
+    { element: '#id-map-info', popover: { title: 'map info', description: 'Section about various map info' } },
+    { element: '#id-ml-request-prompt', popover: { title: 'ML prompt quest', description: 'Empty at beginning, this table will contain the machine learning prompt (points and rectangles) section' } }
+  ]
+});
+
 const currentBaseMapNameRef = ref("")
 const currentMapBBoxRef = ref()
 const currentZoomRef = ref()
 const promptsArrayRef: Ref<Array<IPointPrompt | IRectanglePrompt>> = ref([])
-const pathnameCheckRef = ref(import.meta.env.VITE__PATHNAME_CHECK || "")
-const currentPathnameRef = ref("current-pathname-placeholder")
-const embeddedSpaceRef = ref(import.meta.env.VITE__SAMGIS_SPACE || "")
 let map: LMap
 type ServiceTiles = {
   [key: SourceTileType]: LTileLayer;
@@ -195,7 +206,6 @@ const getCurrentBasemap = (url: string, providersArray: ServiceTiles) => {
 }
 
 onMounted(async () => {
-  currentPathnameRef.value = window.location.pathname || ""
   const osmTile = tileLayer.provider(OpenStreetMap)
   let localVarSatellite: SourceTileType = import.meta.env.VITE_SATELLITE_NAME ? String(import.meta.env.VITE_SATELLITE_NAME) : Satellite
   const satelliteTile = tileLayer.provider(localVarSatellite)
@@ -227,6 +237,8 @@ onMounted(async () => {
   map.on('baselayerchange', (e: LEvented) => {
     currentBaseMapNameRef.value = getCurrentBasemap(e.layer._url, baseMaps)
   })
+
+  driverObj.drive();
 })
 </script>
 
