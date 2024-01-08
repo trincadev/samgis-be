@@ -1,13 +1,12 @@
 <template>
   <!-- style 'z-index: 1001' here is needed to avoid override from leafletjs css -->
-  <footer class="fixed bottom-0 w-full bg-gray-200 pl-4 font-light text-xs" style="z-index: 9999;" v-if="showFooterRef">
-    <div class="relative flex">
+  <footer class="fixed bottom-0 w-full bg-gray-200 pl-4 pr-2 font-light text-xs" style="z-index: 9999;" v-if="showFooterRef">
+    <div class="relative flex items-center h-4">
       <div class="w-full">
-        <p class="">Trouble on scrolling this page? Open the
-          <PageFooterHyperlink path="https://aletrn-samgis.hf.space">direct URL space</PageFooterHyperlink>
-          as a new tab.
-        </p>
         <p class="">
+          <span>Trouble on scrolling this page? Open the
+          <PageFooterHyperlink path="https://aletrn-samgis.hf.space">direct URL space</PageFooterHyperlink>
+          as a new tab. </span>
           <span><PageFooterHyperlink path="/">SamGIS</PageFooterHyperlink>: An inference machine learning POC applied to GIS thanks to
             <PageFooterHyperlink path="https://github.com/vietanhdev/samexporter/">SAM Exporter</PageFooterHyperlink>
             and inspired by
@@ -15,12 +14,12 @@
           </span>
         </p>
       </div>
-      <div>
+      <div class="p-10">
         <button
           aria-label="Close"
-          class="shrink-0 rounded-lg bg-black/10 p-2 transition hover:bg-black/20"
+          class="shrink-0 rounded-lg bg-black/10 p-1 transition hover:bg-black/20"
           @click="showFooterRef = !showFooterRef"
-        >x</button>
+        >Close</button>
       </div>
     </div>
   </footer>
