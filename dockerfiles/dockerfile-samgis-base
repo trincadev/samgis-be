@@ -21,6 +21,7 @@ ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
 ARG RIE
 ARG DEPENDENCY_GROUP
+ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg-3+b1_amd64.deb"
 
 RUN echo "ARCH: $ARCH ..."
 
@@ -36,9 +37,15 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${LAMBDA_TASK_ROOT}/
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
-# RUN apt update && apt install -y libgl1 curl python3-pip && apt clean
-RUN apt update && apt install -y libgl1 curl
-RUN apt update && apt install -y python3-pip && apt clean
+RUN echo "BUILDER: check libz.s* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
+RUN apt update && apt install -y libgl1 curl python3-pip && apt clean
+COPY ./dockerfiles/apt_preferences /etc/apt/preferences
+COPY ./dockerfiles/debian.sources /etc/apt/sources.list.d/debian.sources
+RUN apt update && apt install -t trixie zlib1g -y && apt clean
+RUN echo "BUILDER: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
+
+RUN ls -l /etc/apt/sources* /etc/apt/preferences*
+RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 
 # poetry installation path is NOT within ${LAMBDA_TASK_ROOT}: not needed for runtime docker image
 RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_poetry.txt
@@ -47,8 +54,6 @@ RUN which poetry && poetry --version && poetry config --list
 RUN poetry config virtualenvs.path ${LAMBDA_TASK_ROOT}
 RUN echo "# poetry config --list #" && poetry config --list
 RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
-
-RUN curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}
 
 
 FROM python:3.11-slim-bookworm as runtime
@@ -61,6 +66,10 @@ ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
 
 RUN echo "COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
+RUN echo "RUNTIME: check libz.s* before upgrade" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
+RUN echo "RUNTIME: remove libz.s* to force upgrade" && rm /usr/lib/${ARCH}-linux-gnu/libz.so*
+COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libz.so* /usr/lib/${ARCH}-linux-gnu/
+RUN echo "RUNTIME: check libz.s* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
 COPY --from=builder_global ${LAMBDA_TASK_ROOT}/.venv ${LAMBDA_TASK_ROOT}/.venv
 
 RUN echo "new LAMBDA_TASK_ROOT after hidden venv copy => ${LAMBDA_TASK_ROOT}"
