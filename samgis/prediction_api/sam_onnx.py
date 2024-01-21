@@ -29,14 +29,15 @@ from cv2 import INTER_LINEAR, warpAffine
 from onnxruntime import get_available_providers, InferenceSession
 
 from samgis import app_logger
+from samgis.utilities.constants import DEFAULT_INPUT_SHAPE
 
 
 class SegmentAnythingONNX:
     """Segmentation model using SegmentAnything"""
 
     def __init__(self, encoder_model_path, decoder_model_path) -> None:
-        self.target_size = 1024
-        self.input_size = (684, 1024)
+        self.target_size = DEFAULT_INPUT_SHAPE[1]
+        self.input_size = DEFAULT_INPUT_SHAPE
 
         # Load models
         providers = get_available_providers()

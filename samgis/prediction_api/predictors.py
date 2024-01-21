@@ -3,10 +3,14 @@ from numpy import array as np_array, uint8, zeros, ndarray
 
 from samgis import app_logger, MODEL_FOLDER
 from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
+from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_prediction_image
 from samgis.io.tms2geotiff import download_extent
+from samgis.io.wrappers_helpers import check_source_type_is_terrain
 from samgis.prediction_api.sam_onnx import SegmentAnythingONNX
-from samgis.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_TMS
-from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
+from samgis.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_URL_TILES, SLOPE_CELLSIZE, \
+    DEFAULT_INPUT_SHAPE
+from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image, \
+    TmsTerrainProvidersNames
 
 models_dict = {"fastsam": {"instance": None}}
 
@@ -16,7 +20,7 @@ def samexporter_predict(
         prompt: list_dict,
         zoom: float,
         model_name: str = "fastsam",
-        source: str = DEFAULT_TMS
+        source: str = DEFAULT_URL_TILES
 ) -> dict_str_int:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
@@ -49,6 +53,14 @@ def samexporter_predict(
     pt0, pt1 = bbox
     app_logger.info(f"tile_source: {source}: downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
     img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=source)
+    if check_source_type_is_terrain(source):
+        app_logger.info(f"terrain-rgb like raster: transforms it into a DEM")
+        dem = get_raster_terrain_rgb_like(img, source.name)
+        # set a slope cell size proportional to the image width
+        slope_cellsize = int(img.shape[1] * SLOPE_CELLSIZE / DEFAULT_INPUT_SHAPE[1])
+        app_logger.info(f"terrain-rgb like raster: compute slope, curvature using {slope_cellsize} as cell size.")
+        img = get_rgb_prediction_image(dem, slope_cellsize)
+
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
 
