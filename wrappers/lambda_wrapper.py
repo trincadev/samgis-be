@@ -6,7 +6,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import ValidationError
 
 from samgis import app_logger
-from samgis.io.lambda_helpers import get_parsed_request_body, get_parsed_bbox_points, get_response
+from samgis.io.wrappers_helpers import get_parsed_request_body, get_parsed_bbox_points, get_response
 from samgis.prediction_api.predictors import samexporter_predict
 
 

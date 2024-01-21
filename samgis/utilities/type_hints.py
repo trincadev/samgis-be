@@ -1,13 +1,11 @@
 """custom type hints"""
-from enum import IntEnum, Enum
+from enum import IntEnum, Enum, StrEnum
 from typing import TypedDict
 
 from PIL.Image import Image
 from affine import Affine
 from numpy import ndarray
 from pydantic import BaseModel
-
-from samgis.utilities.constants import DEFAULT_TMS
 
 
 dict_str_int = dict[str, int]
@@ -23,6 +21,18 @@ tuple_float = tuple[float]
 tuple_float_any = tuple[float, any]
 PIL_Image = Image
 tuple_ndarray_transform = tuple[ndarray, Affine]
+
+
+class TmsDefaultProvidersNames(StrEnum):
+    """Default xyz provider names"""
+    DEFAULT_TILES_NAME_SHORT = "openstreetmap"
+    DEFAULT_TILES_NAME = "openstreetmap.mapnik"
+
+
+class TmsTerrainProvidersNames(StrEnum):
+    """Custom xyz provider names for digital elevation models"""
+    MAPBOX_TERRAIN_TILES_NAME = "mapbox.terrain-rgb"
+    NEXTZEN_TERRAIN_TILES_NAME = "nextzen.terrarium"
 
 
 class LatLngDict(BaseModel):
