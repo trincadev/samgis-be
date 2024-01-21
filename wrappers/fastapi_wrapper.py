@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from samgis import app_logger
-from samgis.io.lambda_helpers import get_parsed_bbox_points
+from samgis.io.wrappers_helpers import get_parsed_bbox_points
 from samgis.utilities.type_hints import ApiRequestBody
 
 app = FastAPI()

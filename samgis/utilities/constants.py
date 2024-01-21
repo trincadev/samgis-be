@@ -13,9 +13,6 @@ MODEL_ENCODER_NAME = "mobile_sam.encoder.onnx"
 MODEL_DECODER_NAME = "sam_vit_h_4b8939.decoder.onnx"
 TILE_SIZE = 256
 EARTH_EQUATORIAL_RADIUS = 6378137.0
-DEFAULT_TMS_NAME_SHORT = "openstreetmap"
-DEFAULT_TMS_NAME = "OpenStreetMap.Mapnik"
-DEFAULT_TMS = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 WKT_3857 = 'PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,'
 WKT_3857 += 'AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],'
 WKT_3857 += 'UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],'
@@ -33,3 +30,14 @@ N_WAIT = 0
 N_MAX_RETRIES = 2
 N_CONNECTION = 2
 ZOOM_AUTO = "auto"
+DEFAULT_URL_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+DOMAIN_URL_TILES_MAPBOX = "api.mapbox.com"
+RELATIVE_URL_TILES_MAPBOX = "v/mapbox.terrain-rgb/{zoom}/{x}/{y}{@2x}.pngraw?access_token={TOKEN}"
+COMPLETE_URL_TILES_MAPBOX = f"https://{DOMAIN_URL_TILES_MAPBOX}/{RELATIVE_URL_TILES_MAPBOX}"
+# https://s3.amazonaws.com/elevation-tiles-prod/terrarium/13/1308/3167.png
+DOMAIN_URL_TILES_NEXTZEN = "s3.amazonaws.com"
+RELATIVE_URL_TILES_NEXTZEN = "elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"  # "terrarium/{z}/{x}/{y}.png"
+COMPLETE_URL_TILES_NEXTZEN = f"https://{DOMAIN_URL_TILES_NEXTZEN}/{RELATIVE_URL_TILES_NEXTZEN}"
+CHANNEL_EXAGGERATIONS_LIST = [2.5, 1.1, 2.0]
+DEFAULT_INPUT_SHAPE = 684, 1024
+SLOPE_CELLSIZE = 61
