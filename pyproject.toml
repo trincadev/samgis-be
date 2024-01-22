@@ -36,6 +36,7 @@ optional = true
 pytest = "^7.4.3"
 pytest-cov = "^4.1.0"
 python-dotenv = "^1.0.0"
+httpx = "^0.26.0"
 
 [tool.poetry.group.docs]
 optional = true
