@@ -165,16 +165,22 @@ nextzen_terrain_rgb = TileProvider(
 
 
 def get_url_tile(source_type: str):
-    match source_type.lower():
-        case TmsDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT:
-            return providers.query_name(TmsDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT)
-        case TmsTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME:
-            return mapbox_terrain_rgb
-        case TmsTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME:
-            app_logger.info("nextzen_terrain_rgb:", nextzen_terrain_rgb)
-            return nextzen_terrain_rgb
+    try:
+        match source_type.lower():
+            case TmsDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT:
+                return providers.query_name(TmsDefaultProvidersNames.DEFAULT_TILES_NAME)
+            case TmsTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME:
+                return mapbox_terrain_rgb
+            case TmsTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME:
+                app_logger.info("nextzen_terrain_rgb:", nextzen_terrain_rgb)
+                return nextzen_terrain_rgb
 
-    return providers.query_name(source_type)
+        return providers.query_name(source_type)
+    except ValueError as ve:
+        from pydantic_core import ValidationError
+
+        app_logger.error("ve:", str(ve))
+        raise ValidationError(ve)
 
 
 def check_source_type_is_terrain(source: str | TileProvider):

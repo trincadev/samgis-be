@@ -3,14 +3,19 @@ import time
 import unittest
 from unittest.mock import patch
 
-from awslambdaric.lambda_context import LambdaContext
+try:
+    from awslambdaric.lambda_context import LambdaContext
+except ImportError:
+    import pip
+    pip.main(['install', 'awslambdaric'])
 
-from samgis.io import lambda_helpers
+
+from samgis.io import wrappers_helpers
 from wrappers import lambda_wrapper
 from tests.local_tiles_http_server import LocalTilesHttpServer
 
 
-class TestAppFailures(unittest.TestCase):
+class TestLambdaApp(unittest.TestCase):
     @patch.object(time, "time")
     @patch.object(lambda_wrapper, "samexporter_predict")
     @patch.object(lambda_wrapper, "get_parsed_bbox_points")
@@ -141,7 +146,7 @@ class TestAppFailures(unittest.TestCase):
         print(f"types: response_200:{type(response_200)}, expected:{type(expected_response_200)}.")
         assert response_200 == expected_response_200
 
-    @patch.object(lambda_helpers, "get_url_tile")
+    @patch.object(wrappers_helpers, "get_url_tile")
     def test_lambda_handler_200_real_single_multi_point(self, get_url_tile_mocked):
         import xyzservices
         import shapely
