@@ -7,10 +7,9 @@ from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_predic
 from samgis.io.tms2geotiff import download_extent
 from samgis.io.wrappers_helpers import check_source_type_is_terrain
 from samgis.prediction_api.sam_onnx import SegmentAnythingONNX
-from samgis.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_URL_TILES, SLOPE_CELLSIZE, \
-    DEFAULT_INPUT_SHAPE
-from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image, \
-    TmsTerrainProvidersNames
+from samgis.utilities.constants import (
+    MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_URL_TILES, SLOPE_CELLSIZE, DEFAULT_INPUT_SHAPE)
+from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
 
 models_dict = {"fastsam": {"instance": None}}
 

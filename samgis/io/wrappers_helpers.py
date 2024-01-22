@@ -5,7 +5,7 @@ from xyzservices import providers, TileProvider
 from samgis import app_logger
 from samgis.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
 from samgis.utilities.constants import COMPLETE_URL_TILES_MAPBOX, COMPLETE_URL_TILES_NEXTZEN, CUSTOM_RESPONSE_MESSAGES
-from samgis.utilities.type_hints import ApiRequestBody, ContentTypes, TmsTerrainProvidersNames, TmsDefaultProvidersNames
+from samgis.utilities.type_hints import ApiRequestBody, ContentTypes, XYZTerrainProvidersNames, XYZDefaultProvidersNames
 from samgis.utilities.utilities import base64_decode
 
 
@@ -153,12 +153,12 @@ def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
 
 
 mapbox_terrain_rgb = TileProvider(
-    name=TmsTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME,
+    name=XYZTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME,
     url=COMPLETE_URL_TILES_MAPBOX,
     attribution=""
 )
 nextzen_terrain_rgb = TileProvider(
-    name=TmsTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME,
+    name=XYZTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME,
     url=COMPLETE_URL_TILES_NEXTZEN,
     attribution=""
 )
@@ -167,11 +167,11 @@ nextzen_terrain_rgb = TileProvider(
 def get_url_tile(source_type: str):
     try:
         match source_type.lower():
-            case TmsDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT:
-                return providers.query_name(TmsDefaultProvidersNames.DEFAULT_TILES_NAME)
-            case TmsTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME:
+            case XYZDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT:
+                return providers.query_name(XYZDefaultProvidersNames.DEFAULT_TILES_NAME)
+            case XYZTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME:
                 return mapbox_terrain_rgb
-            case TmsTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME:
+            case XYZTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME:
                 app_logger.info("nextzen_terrain_rgb:", nextzen_terrain_rgb)
                 return nextzen_terrain_rgb
 
@@ -184,4 +184,4 @@ def get_url_tile(source_type: str):
 
 
 def check_source_type_is_terrain(source: str | TileProvider):
-    return isinstance(source, TileProvider) and source.name in list(TmsTerrainProvidersNames)
+    return isinstance(source, TileProvider) and source.name in list(XYZTerrainProvidersNames)
