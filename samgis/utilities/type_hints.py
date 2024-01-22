@@ -23,13 +23,13 @@ PIL_Image = Image
 tuple_ndarray_transform = tuple[ndarray, Affine]
 
 
-class TmsDefaultProvidersNames(StrEnum):
+class XYZDefaultProvidersNames(StrEnum):
     """Default xyz provider names"""
     DEFAULT_TILES_NAME_SHORT = "openstreetmap"
     DEFAULT_TILES_NAME = "openstreetmap.mapnik"
 
 
-class TmsTerrainProvidersNames(StrEnum):
+class XYZTerrainProvidersNames(StrEnum):
     """Custom xyz provider names for digital elevation models"""
     MAPBOX_TERRAIN_TILES_NAME = "mapbox.terrain-rgb"
     NEXTZEN_TERRAIN_TILES_NAME = "nextzen.terrarium"
