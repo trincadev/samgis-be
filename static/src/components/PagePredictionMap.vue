@@ -209,10 +209,20 @@ const getCurrentBasemap = (url: string, providersArray: ServiceTiles) => {
 onMounted(async () => {
   const osmTile = tileLayer.provider(OpenStreetMap)
   let localVarSatellite: SourceTileType = import.meta.env.VITE_SATELLITE_NAME ? String(import.meta.env.VITE_SATELLITE_NAME) : Satellite
+  let localVarTerrain: SourceTileType = "nextzen.terrarium"
   const satelliteTile = tileLayer.provider(localVarSatellite)
+  const terrainTile = new LTileLayer(
+      "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png", {
+        id: localVarTerrain,
+        attribution: "<a href='https://nextzen.org'>nextzen</a>," +
+            "<a href='https://registry.opendata.aws/terrain-tiles/'>Mapzen Terrain Tiles - AWS opendata registry</a>," +
+            "<a href='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'>Mapzen Source Attributions</a>."
+      }
+  )
 
   let baseMaps: ServiceTiles = { OpenStreetMap: osmTile }
   baseMaps[localVarSatellite] = satelliteTile
+  baseMaps[localVarTerrain] = terrainTile
   currentBaseMapNameRef.value = OpenStreetMap
 
   map = LeafletMap('map', {
