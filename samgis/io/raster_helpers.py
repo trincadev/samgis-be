@@ -1,9 +1,9 @@
 """helpers for computer vision duties"""
 import numpy as np
-from numpy import ndarray
+from numpy import ndarray, bitwise_not
 
 from samgis import app_logger
-from samgis.utilities.type_hints import TmsTerrainProvidersNames
+from samgis.utilities.type_hints import XYZTerrainProvidersNames
 
 
 def get_nextzen_terrain_rgb_formula(red: ndarray, green: ndarray, blue: ndarray) -> ndarray:
@@ -34,8 +34,8 @@ def get_mapbox__terrain_rgb_formula(red: ndarray, green: ndarray, blue: ndarray)
 
 
 providers_terrain_rgb_formulas = {
-    TmsTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME: get_mapbox__terrain_rgb_formula,
-    TmsTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME: get_nextzen_terrain_rgb_formula
+    XYZTerrainProvidersNames.MAPBOX_TERRAIN_TILES_NAME: get_mapbox__terrain_rgb_formula,
+    XYZTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME: get_nextzen_terrain_rgb_formula
 }
 
 
@@ -84,6 +84,7 @@ def get_rgb_prediction_image(raster_cropped: ndarray, slope_cellsize: int, inver
 
     try:
         slope, curvature = get_slope_curvature(raster_cropped, slope_cellsize=slope_cellsize)
+
         channel0 = raster_cropped
         channel1 = normalize_array_list(
             [raster_cropped, slope, curvature], CHANNEL_EXAGGERATIONS_LIST, title=f"channel1_normlist")
@@ -126,7 +127,8 @@ def get_rgb_image(arr_channel0: ndarray, arr_channel1: ndarray, arr_channel2: nd
         data_rgb[:, :, 2] = normalize_array(
             arr_channel2.astype(float), high=1, norm_type="float", title=f"RGB:channel2") * 192
         if invert_image:
-            data_rgb = np.bitwise_not(data_rgb)
+            app_logger.debug(f"data_rgb:{type(data_rgb)}, {data_rgb.dtype}.")
+            data_rgb = bitwise_not(data_rgb)
         return data_rgb
     except ValueError as ve_get_rgb_image:
         msg = f"ve_get_rgb_image:{ve_get_rgb_image}."
@@ -208,6 +210,7 @@ def normalize_array(arr: ndarray, high: int = 255, norm_type: str = "float", inv
         ndarray: normalized numpy array
 
     """
+    np.seterr("raise")
 
     h_min_arr = np.nanmin(arr)
     h_arr_max = np.nanmax(arr)
@@ -217,7 +220,7 @@ def normalize_array(arr: ndarray, high: int = 255, norm_type: str = "float", inv
             f"normalize_array:: '{title}',h_min_arr:{h_min_arr},h_arr_max:{h_arr_max},h_diff:{h_diff}, dtype:{arr.dtype}.")
     except Exception as e_h_diff:
         app_logger.error(f"e_h_diff:{e_h_diff}.")
-        raise e_h_diff
+        raise ValueError(e_h_diff)
 
     if check_empty_array(arr, high) or check_empty_array(arr, h_diff):
         msg_ve = f"normalize_array::empty array '{title}',h_min_arr:{h_min_arr},h_arr_max:{h_arr_max},h_diff:{h_diff}, dtype:{arr.dtype}."
