@@ -14,23 +14,21 @@
     "driver.js": "github:trincadev/driver.js",
     "leaflet": "^1.9.4",
     "leaflet-providers": "^2.0.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.15"
   },
   "devDependencies": {
-    "@headlessui/vue": "^1.7.16",
-    "@heroicons/vue": "^2.0.18",
     "@tsconfig/node20": "^20.1.2",
     "@types/leaflet": "^1.9.8",
-    "@types/node": "^20.10.5",
-    "@vitejs/plugin-vue": "^5.0.0",
+    "@types/node": "^20.11.5",
+    "@vitejs/plugin-vue": "^5.0.3",
     "@vue/tsconfig": "^0.5.1",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.19.2",
-    "postcss": "^8.4.32",
-    "postcss-import": "^15.1.0",
-    "prettier": "^3.1.1",
-    "tailwindcss": "^3.3.6",
-    "vite": "^5.0.10"
+    "eslint-plugin-vue": "^9.20.1",
+    "postcss": "^8.4.33",
+    "postcss-import": "^16.0.0",
+    "prettier": "^3.2.4",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.0.12"
   }
 }
