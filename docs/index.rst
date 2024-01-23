@@ -8,6 +8,8 @@ Welcome to SamGIS's documentation!
 
 .. include:: brief_project_presentation.md
    :parser: myst_parser.sphinx_
+.. include:: Changelog.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
    :maxdepth: 2
