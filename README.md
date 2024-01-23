@@ -124,3 +124,7 @@ cd docs && make clean html && cd ../
 ```
 
 The static documentation it's now ready at the path `docs/_build/html/index.html`.
+ 
+To create a work in progress openapi json or yaml file use
+- `extract-openapi-fastapi.py`
+- `extract-openapi-lambda.py` (useful to export the json schema request and response from lambda app api)

@@ -12,7 +12,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: "1.0.2"
+  version: "1.1.0"
 servers:
   - url: https://localhost:8000/
 tags:
