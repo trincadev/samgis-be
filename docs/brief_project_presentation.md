@@ -10,7 +10,8 @@ Check about implementation details on my [blog](https://trinca.tornidor.com/proj
 # Self-hosted demo
 
 You can visit my self-hosted demo [here](https://ml-trinca.tornidor.com).
-Since this demo uses a backend hosted on my AWS account I keep it under authentication to prevent abuses.
+Since this demo uses a python container backend hosted on my AWS account I keep it under authentication to prevent abuses.
+[Here](https://docs.ml-trinca.tornidor.com/openapi) the OpenAPI swagger documentation.
 
 # HuggingFace Space demo
 

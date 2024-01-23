@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Swagger SamGIS - OpenAPI 3.0
   description: |-
@@ -11,14 +11,19 @@ info:
     url: https://www.linkedin.com/in/trincatornidor/en
   license:
     name: MIT License
-  version: "1.0.0"
+    url: https://opensource.org/license/mit/
+  version: "1.0.2"
 servers:
   - url: https://localhost:8000/
 tags:
-  - name: samgis
-    description: segment anything applied to gis
+  - name: samgis-aws
+    description: segment anything applied to gis (self-hosted demo)
     externalDocs:
-      url: http://segment-anything.com
+      url: https://ml-trinca.tornidor.com/
+  - name: samgis-huggingface
+    description: segment anything applied to gis (huggingface demo)
+    externalDocs:
+      url: https://huggingface.co/spaces/aletrn/samgis
   - name: segment-anything
     description: segment anything machine learning model
     externalDocs:
