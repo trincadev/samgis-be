@@ -12,6 +12,14 @@ samgis.utilities.constants module
    :undoc-members:
    :show-inheritance:
 
+samgis.utilities.fastapi\_logger module
+---------------------------------------
+
+.. automodule:: samgis.utilities.fastapi_logger
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 samgis.utilities.serialize module
 ---------------------------------
 
