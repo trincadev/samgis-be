@@ -6,7 +6,9 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from samgis import PROJECT_ROOT_FOLDER
+from samgis.io import wrappers_helpers
 from tests import TEST_EVENTS_FOLDER
+from tests.local_tiles_http_server import LocalTilesHttpServer
 from wrappers import fastapi_wrapper
 from wrappers.fastapi_wrapper import app
 
@@ -125,14 +127,22 @@ class TestFastapiApp(unittest.TestCase):
         print("response.body:", body)
         assert body == {'msg': 'Error - Internal Server Error'}
 
+    @patch.object(wrappers_helpers, "get_url_tile")
     @patch.object(time, "time")
-    def test_infer_samgis_real_200(self, time_mocked):
+    def test_infer_samgis_real_200(self, time_mocked, get_url_tile_mocked):
         import shapely
+        import xyzservices
+        from tests import LOCAL_URL_TILE, TEST_EVENTS_FOLDER
 
         time_mocked.return_value = 0
+        listen_port = 8000
 
-        response = client.post("/infer_samgis", json=event)
-        print("response.status_code:", response.status_code)
+        local_tile_provider = xyzservices.TileProvider(name="local_tile_provider", url=LOCAL_URL_TILE, attribution="")
+        get_url_tile_mocked.return_value = local_tile_provider
+
+        with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
+            response = client.post("/infer_samgis", json=event)
+            print("response.status_code:", response.status_code)
         assert response.status_code == 200
         body_string = response.json()["body"]
         body_loaded = json.loads(body_string)
