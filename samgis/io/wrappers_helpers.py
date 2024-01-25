@@ -174,8 +174,8 @@ def get_url_tile(source_type: str):
             case XYZTerrainProvidersNames.NEXTZEN_TERRAIN_TILES_NAME:
                 app_logger.info("nextzen_terrain_rgb:", nextzen_terrain_rgb)
                 return nextzen_terrain_rgb
-
-        return providers.query_name(source_type)
+            case _:
+                return providers.query_name(source_type)
     except ValueError as ve:
         from pydantic_core import ValidationError
 
