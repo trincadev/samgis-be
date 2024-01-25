@@ -17,7 +17,8 @@ def _is_base64(sb: str or bytes):
 
     try:
         sb_bytes = _prepare_base64_input(sb)
-        return base64.b64encode(base64.b64decode(sb_bytes, validate=True)) == sb_bytes
+        decoded = base64.b64decode(sb_bytes, validate=True)
+        return base64.b64encode(decoded).decode("utf-8") == sb_bytes.decode("utf-8")
     except ValueError:
         return False
 

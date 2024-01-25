@@ -3,14 +3,15 @@ import argparse
 import json
 import logging
 import sys
+
 import yaml
 from uvicorn.importer import import_from_string
 
+from samgis import PROJECT_ROOT_FOLDER
 
 parser = argparse.ArgumentParser(prog="extract-openapi-fastapi.py")
 parser.add_argument("app",       help='App import string. Eg. "main:app"', default="main:app")
 parser.add_argument("--app-dir", help="Directory containing the app", default=None)
-parser.add_argument("--out",     help="Output file ending in .json or .yaml", default="openapi.yaml")
 
 
 if __name__ == "__main__":
@@ -26,11 +27,11 @@ if __name__ == "__main__":
     openapi = app.openapi()
     version = openapi.get("openapi", "unknown version")
 
-    logging.info(f"writing openapi spec v{version}")
-    with open(args.out, "w") as f:
-        if args.out.endswith(".json"):
-            json.dump(openapi, f, indent=2)
-        else:
-            yaml.dump(openapi, f, sort_keys=False)
+    logging.info(f"writing openapi spec v{version}...")
+    output_dir_path = PROJECT_ROOT_FOLDER / "docs" / "specs"
+    with open(output_dir_path / "output.json", "w") as f:
+        json.dump(openapi, f)
+    with open(output_dir_path / "output.yaml", "w") as f:
+        yaml.dump(openapi, f, sort_keys=False)
 
     logging.info(f"spec written to {args.out} #")
