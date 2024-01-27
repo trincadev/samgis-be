@@ -1,9 +1,9 @@
-import numpy as np
 import unittest
 from unittest.mock import patch
+import numpy as np
 
+from samgis_core.utilities.utilities import hash_calculate
 from samgis.io import raster_helpers
-from samgis.utilities.utilities import hash_calculate
 
 
 def get_three_channels(size=5, param1=1000, param2=3, param3=-88):

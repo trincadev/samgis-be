@@ -1,11 +1,14 @@
 import os
+
 from numpy import ndarray
+from samgis_core.utilities.type_hints import tuple_float
 from xyzservices import TileProvider
 
 from samgis import app_logger
 from samgis.utilities.constants import (OUTPUT_CRS_STRING, DRIVER_RASTERIO_GTIFF, N_MAX_RETRIES, N_CONNECTION, N_WAIT,
                                         ZOOM_AUTO, BOOL_USE_CACHE)
-from samgis.utilities.type_hints import tuple_ndarray_transform, tuple_float
+from samgis.utilities.type_hints import tuple_ndarray_transform
+
 
 bool_use_cache = int(os.getenv("BOOL_USE_CACHE", BOOL_USE_CACHE))
 n_connection = int(os.getenv("N_CONNECTION", N_CONNECTION))

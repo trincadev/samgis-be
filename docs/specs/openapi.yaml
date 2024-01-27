@@ -8,11 +8,12 @@ info:
     - [SamGIS documentation](https://docs.ml-trinca.tornidor.com)
     - [My blog](https://trinca.tornidor.com)
   contact:
-    url: https://www.linkedin.com/in/trincatornidor/en
+    name: alessandro's website
+    url: https://trinca.tornidor.com
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: "1.1.0"
+  version: "1.2.0"
 servers:
   - url: https://localhost:8000/
 tags:

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.2.0
+- code refactor to separate core functionality (instance segmentation) from other code
+- updated test coverage
+
 ## Version 1.1.0
 - Added this changelog
 - specific backend branch code uses terrain providers like nextzen and MapBox Terrain-RGB v1
