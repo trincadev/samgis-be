@@ -12,6 +12,6 @@ try:
 
     app_logger = Logger(service=SERVICE_NAME)
 except ModuleNotFoundError:
-    from samgis.utilities.fastapi_logger import setup_logging
+    from samgis_core.utilities.fastapi_logger import setup_logging
 
     app_logger = setup_logging(debug=True)

@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from samgis import PROJECT_ROOT_FOLDER
 from samgis.io.wrappers_helpers import get_parsed_bbox_points
 from samgis.utilities.type_hints import ApiRequestBody
-from samgis.utilities.fastapi_logger import setup_logging
+from samgis_core.utilities.fastapi_logger import setup_logging
 from samgis.prediction_api.predictors import samexporter_predict
 
 
@@ -33,8 +33,9 @@ async def request_middleware(request, call_next):
 
         finally:
             response.headers["X-Request-ID"] = request_id
-            app_logger.info(f"Request ended")
-            return response
+            app_logger.info("Request ended")
+
+        return response
 
 
 @app.post("/post_test")
@@ -49,7 +50,10 @@ async def post_test(request_input: ApiRequestBody) -> JSONResponse:
 
 @app.get("/health")
 async def health() -> JSONResponse:
-    app_logger.info(f"hello")
+    from samgis.__version__ import __version__ as version
+    from samgis_core.__version__ import __version__ as version_core
+
+    app_logger.info(f"still alive, version:{version}, version_core:{version_core}.")
     return JSONResponse(status_code=200, content={"msg": "still alive..."})
 
 

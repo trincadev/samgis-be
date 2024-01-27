@@ -87,7 +87,7 @@ def get_rgb_prediction_image(raster_cropped: ndarray, slope_cellsize: int, inver
 
         channel0 = raster_cropped
         channel1 = normalize_array_list(
-            [raster_cropped, slope, curvature], CHANNEL_EXAGGERATIONS_LIST, title=f"channel1_normlist")
+            [raster_cropped, slope, curvature], CHANNEL_EXAGGERATIONS_LIST, title="channel1_normlist")
         channel2 = curvature
 
         return get_rgb_image(channel0, channel1, channel2, invert_image=invert_image)
@@ -121,11 +121,11 @@ def get_rgb_image(arr_channel0: ndarray, arr_channel1: ndarray, arr_channel2: nd
         data_rgb = np.zeros((arr_channel0.shape[0], arr_channel0.shape[1], 3), dtype=np.uint8)
         app_logger.debug(f"arr_container data_rgb, type:{type(data_rgb)}, arr_shape:{data_rgb.shape}.")
         data_rgb[:, :, 0] = normalize_array(
-            arr_channel0.astype(float), high=1, norm_type="float", title=f"RGB:channel0") * 64
+            arr_channel0.astype(float), high=1, norm_type="float", title="RGB:channel0") * 64
         data_rgb[:, :, 1] = normalize_array(
-            arr_channel1.astype(float), high=1, norm_type="float", title=f"RGB:channel1") * 128
+            arr_channel1.astype(float), high=1, norm_type="float", title="RGB:channel1") * 128
         data_rgb[:, :, 2] = normalize_array(
-            arr_channel2.astype(float), high=1, norm_type="float", title=f"RGB:channel2") * 192
+            arr_channel2.astype(float), high=1, norm_type="float", title="RGB:channel2") * 192
         if invert_image:
             app_logger.debug(f"data_rgb:{type(data_rgb)}, {data_rgb.dtype}.")
             data_rgb = bitwise_not(data_rgb)

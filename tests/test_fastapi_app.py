@@ -12,6 +12,10 @@ from tests.local_tiles_http_server import LocalTilesHttpServer
 from wrappers import fastapi_wrapper
 from wrappers.fastapi_wrapper import app
 
+
+infer_samgis = "/infer_samgis"
+response_status_code = "response.status_code:{}."
+response_body_loaded = "response.body_loaded:{}."
 client = TestClient(app)
 source = {
     'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'max_zoom': 19,
@@ -95,11 +99,11 @@ class TestFastapiApp(unittest.TestCase):
         assert response.status_code == 404
 
     def test_infer_samgis_422(self):
-        response = client.post("/infer_samgis", json={})
-        print("response.status_code:", response.status_code)
+        response = client.post(infer_samgis, json={})
+        print(response_status_code.format(response.status_code))
         assert response.status_code == 422
         body_loaded = response.json()
-        print("response.body_loaded:", body_loaded)
+        print(response_body_loaded.format(body_loaded))
         assert body_loaded == {"msg": "Error - Unprocessable Entity"}
 
     def test_infer_samgis_middleware_500(self):
@@ -107,11 +111,11 @@ class TestFastapiApp(unittest.TestCase):
         local_event = deepcopy(event)
 
         local_event["source_type"] = "source_fake"
-        response = client.post("/infer_samgis", json=local_event)
-        print("response.status_code:", response.status_code)
+        response = client.post(infer_samgis, json=local_event)
+        print(response_status_code.format(response.status_code))
         assert response.status_code == 500
         body_loaded = response.json()
-        print("response.body_loaded:", body_loaded)
+        print(response_body_loaded.format(body_loaded))
         assert body_loaded == {'success': False}
 
     @patch.object(time, "time")
@@ -120,11 +124,11 @@ class TestFastapiApp(unittest.TestCase):
         time_mocked.return_value = 0
         samexporter_predict_mocked.side_effect = ValueError("I raise a value error!")
 
-        response = client.post("/infer_samgis", json=event)
-        print("response.status_code:", response.status_code)
+        response = client.post(infer_samgis, json=event)
+        print(response_status_code.format(response.status_code))
         assert response.status_code == 500
         body = response.json()
-        print("response.body:", body)
+        print(response_body_loaded.format(body))
         assert body == {'msg': 'Error - Internal Server Error'}
 
     @patch.object(wrappers_helpers, "get_url_tile")
@@ -141,19 +145,19 @@ class TestFastapiApp(unittest.TestCase):
         get_url_tile_mocked.return_value = local_tile_provider
 
         with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
-            response = client.post("/infer_samgis", json=event)
-            print("response.status_code:", response.status_code)
+            response = client.post(infer_samgis, json=event)
+            print(response_status_code.format(response.status_code))
         assert response.status_code == 200
         body_string = response.json()["body"]
         body_loaded = json.loads(body_string)
-        print("response.body_loaded:", body_loaded)
+        print(response_body_loaded.format(body_loaded))
         assert "duration_run" in body_loaded
         output = body_loaded["output"]
         assert 'n_predictions' in output
         assert "n_shapes_geojson" in output
         geojson = output["geojson"]
         output_geojson = shapely.from_geojson(geojson)
-        print("output_geojson::", type(output_geojson))
+        print("output_geojson::{}.".format(output_geojson))
         assert isinstance(output_geojson, shapely.GeometryCollection)
         assert len(output_geojson.geoms) == 3
 
@@ -173,10 +177,10 @@ class TestFastapiApp(unittest.TestCase):
         }
         samexporter_predict_mocked.return_value = samexporter_output
 
-        response = client.post("/infer_samgis", json=event)
-        print("response.status_code:", response.status_code)
+        response = client.post(infer_samgis, json=event)
+        print(response_status_code.format(response.status_code))
         assert response.status_code == 200
         response_json = response.json()
         body_loaded = json.loads(response_json["body"])
-        print("response.body_loaded:", body_loaded)
+        print(response_body_loaded.format(body_loaded))
         self.assertDictEqual(body_loaded, {'duration_run': 0, 'output': samexporter_output})
