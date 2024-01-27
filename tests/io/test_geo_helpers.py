@@ -1,6 +1,5 @@
 import json
 import unittest
-
 import numpy as np
 import shapely
 

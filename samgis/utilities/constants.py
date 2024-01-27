@@ -9,8 +9,6 @@ CUSTOM_RESPONSE_MESSAGES = {
     422: "Missing required parameter",
     500: "Internal server error"
 }
-MODEL_ENCODER_NAME = "mobile_sam.encoder.onnx"
-MODEL_DECODER_NAME = "sam_vit_h_4b8939.decoder.onnx"
 TILE_SIZE = 256
 EARTH_EQUATORIAL_RADIUS = 6378137.0
 WKT_3857 = 'PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,'
@@ -39,5 +37,4 @@ DOMAIN_URL_TILES_NEXTZEN = "s3.amazonaws.com"
 RELATIVE_URL_TILES_NEXTZEN = "elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"  # "terrarium/{z}/{x}/{y}.png"
 COMPLETE_URL_TILES_NEXTZEN = f"https://{DOMAIN_URL_TILES_NEXTZEN}/{RELATIVE_URL_TILES_NEXTZEN}"
 CHANNEL_EXAGGERATIONS_LIST = [2.5, 1.1, 2.0]
-DEFAULT_INPUT_SHAPE = 684, 1024
 SLOPE_CELLSIZE = 61

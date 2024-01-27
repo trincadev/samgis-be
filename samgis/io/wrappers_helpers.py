@@ -6,7 +6,7 @@ from samgis import app_logger
 from samgis.io.coordinates_pixel_conversion import get_latlng_to_pixel_coordinates
 from samgis.utilities.constants import COMPLETE_URL_TILES_MAPBOX, COMPLETE_URL_TILES_NEXTZEN, CUSTOM_RESPONSE_MESSAGES
 from samgis.utilities.type_hints import ApiRequestBody, ContentTypes, XYZTerrainProvidersNames, XYZDefaultProvidersNames
-from samgis.utilities.utilities import base64_decode
+from samgis_core.utilities.utilities import base64_decode
 
 
 def get_response(status: int, start_time: float, request_id: str, response_body: Dict = None) -> str:

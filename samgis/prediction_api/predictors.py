@@ -1,15 +1,15 @@
 """functions using machine learning instance model(s)"""
-from numpy import array as np_array, uint8, zeros, ndarray
-
 from samgis import app_logger, MODEL_FOLDER
 from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
 from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_prediction_image
 from samgis.io.tms2geotiff import download_extent
 from samgis.io.wrappers_helpers import check_source_type_is_terrain
-from samgis.prediction_api.sam_onnx import SegmentAnythingONNX
-from samgis.utilities.constants import (
-    MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_URL_TILES, SLOPE_CELLSIZE, DEFAULT_INPUT_SHAPE)
-from samgis.utilities.type_hints import llist_float, dict_str_int, list_dict, tuple_ndarr_int, PIL_Image
+from samgis.utilities.constants import DEFAULT_URL_TILES, SLOPE_CELLSIZE
+from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX
+from samgis_core.prediction_api.sam_onnx import get_raster_inference
+from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_INPUT_SHAPE
+from samgis_core.utilities.type_hints import llist_float, dict_str_int, list_dict
+
 
 models_dict = {"fastsam": {"instance": None}}
 
@@ -53,7 +53,7 @@ def samexporter_predict(
     app_logger.info(f"tile_source: {source}: downloading geo-referenced raster with bbox {bbox}, zoom {zoom}.")
     img, transform = download_extent(w=pt1[1], s=pt1[0], e=pt0[1], n=pt0[0], zoom=zoom, source=source)
     if check_source_type_is_terrain(source):
-        app_logger.info(f"terrain-rgb like raster: transforms it into a DEM")
+        app_logger.info("terrain-rgb like raster: transforms it into a DEM")
         dem = get_raster_terrain_rgb_like(img, source.name)
         # set a slope cell size proportional to the image width
         slope_cellsize = int(img.shape[1] * SLOPE_CELLSIZE / DEFAULT_INPUT_SHAPE[1])
@@ -69,41 +69,3 @@ def samexporter_predict(
         "n_predictions": n_predictions,
         **get_vectorized_raster_as_geojson(mask, transform)
     }
-
-
-def get_raster_inference(
-        img: PIL_Image or ndarray, prompt: list_dict, models_instance: SegmentAnythingONNX, model_name: str
-     ) -> tuple_ndarr_int:
-    """
-    Wrapper for rasterio Affine from_gdal method
-
-    Args:
-        img: input PIL Image
-        prompt: list of prompt dict
-        models_instance: SegmentAnythingONNX instance model
-        model_name: model name string
-
-    Returns:
-        raster prediction mask, prediction number
-    """
-    np_img = np_array(img)
-    app_logger.info(f"img type {type(np_img)}, prompt:{prompt}.")
-    app_logger.debug(f"onnxruntime input shape/size (shape if PIL) {np_img.size}.")
-    try:
-        app_logger.debug(f"onnxruntime input shape (NUMPY) {np_img.shape}.")
-    except Exception as e_shape:
-        app_logger.error(f"e_shape:{e_shape}.")
-    app_logger.info(f"instantiated model {model_name}, ENCODER {MODEL_ENCODER_NAME}, "
-                    f"DECODER {MODEL_DECODER_NAME} from {MODEL_FOLDER}: Creating embedding...")
-    embedding = models_instance.encode(np_img)
-    app_logger.debug(f"embedding created, running predict_masks with prompt {prompt}...")
-    inference_out = models_instance.predict_masks(embedding, prompt)
-    len_inference_out = len(inference_out[0, :, :, :])
-    app_logger.info(f"Created {len_inference_out} prediction_masks,"
-                    f"shape:{inference_out.shape}, dtype:{inference_out.dtype}.")
-    mask = zeros((inference_out.shape[2], inference_out.shape[3]), dtype=uint8)
-    for n, m in enumerate(inference_out[0, :, :, :]):
-        app_logger.debug(f"{n}th of prediction_masks shape {inference_out.shape}"
-                         f" => mask shape:{mask.shape}, {mask.dtype}.")
-        mask[m > 0.0] = 255
-    return mask, len_inference_out

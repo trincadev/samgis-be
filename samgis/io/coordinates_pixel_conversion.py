@@ -1,7 +1,9 @@
 """functions useful to convert to/from latitude-longitude coordinates to pixel image coordinates"""
+from samgis_core.utilities.type_hints import tuple_float, tuple_float_any
+
 from samgis import app_logger
 from samgis.utilities.constants import TILE_SIZE, EARTH_EQUATORIAL_RADIUS
-from samgis.utilities.type_hints import ImagePixelCoordinates, tuple_float, tuple_float_any
+from samgis.utilities.type_hints import ImagePixelCoordinates
 from samgis.utilities.type_hints import LatLngDict
 
 
