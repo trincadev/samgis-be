@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "samgis"
-version = "1.2.0"
+version = "1.2.1"
 description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
 authors = ["alessandro trinca tornidor <alessandro@trinca.tornidor.com>"]
 license = "MIT license"
@@ -12,7 +12,7 @@ contextily = "^1.5.0"
 geopandas = "^0.14.2"
 loguru = "^0.7.2"
 numpy = "^1.26.2"
-onnxruntime = "^1.16.3"
+onnxruntime = "1.16.3"
 opencv-python-headless = "^4.8.1.78"
 pillow = "^10.2.0"
 python = "^3.11"
@@ -52,7 +52,7 @@ myst-parser = "^2.0.0"
 optional = true
 
 [tool.poetry.group.fastapi.dependencies]
-fastapi = "^0.108.0"
+fastapi = "^0.109.2"
 loguru = "^0.7.2"
 pydantic = "^2.5.3"
 uvicorn = "^0.25.0"
