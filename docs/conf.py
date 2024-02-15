@@ -11,7 +11,7 @@ import sys
 project = 'SamGIS'
 copyright = '2023-now, alessandro trinca tornidor'
 author = 'alessandro trinca tornidor'
-release = '1.2.0'
+release = '1.2.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
