@@ -133,4 +133,3 @@ class WrappersHelpersTest(unittest.TestCase):
             'url': 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', 'max_zoom': 19,
             'html_attribution': html_attribution_hot, 'attribution': attribution_hot, 'name': 'OpenStreetMap.HOT'
         }
-
