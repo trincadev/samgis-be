@@ -1,5 +1,9 @@
 """lambda helper functions"""
+import logging
+from sys import stdout
 from typing import Dict
+
+import loguru
 from xyzservices import providers, TileProvider
 
 from samgis import app_logger
@@ -131,6 +135,12 @@ def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
     from json import dumps, loads
     from logging import getLevelName
 
+    def _get_current_log_level(logger: loguru.logger) -> [str, loguru._logger.Level]:
+        levels = logger._core.levels
+        current_log_level = logger._core.min_level
+        level_filt = [l for l in levels.items() if l[1].no == current_log_level]
+        return level_filt[0]
+
     app_logger.info(f"event:{dumps(event)}...")
     try:
         raw_body = event["body"]
@@ -146,8 +156,13 @@ def get_parsed_request_body(event: Dict or str) -> ApiRequestBody:
 
     parsed_body = ApiRequestBody.model_validate(raw_body)
     log_level = "DEBUG" if parsed_body.debug else "INFO"
-    app_logger.setLevel(log_level)
-    app_logger.warning(f"set log level to {getLevelName(app_logger.log_level)}.")
+    app_logger.remove()
+    app_logger.add(stdout, level=log_level)
+    try:
+        current_log_level_name, _ = _get_current_log_level(app_logger)
+        app_logger.warning(f"set log level to {getLevelName(current_log_level_name)}.")
+    except Exception as ex:
+        print("failing setting parsing bbox, logger is ok? ex:", ex, "#")
 
     return parsed_body
 
