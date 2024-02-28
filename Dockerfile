@@ -5,6 +5,7 @@ ARG LAMBDA_TASK_ROOT="/var/task"
 ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
     PATH="${LAMBDA_TASK_ROOT}/.venv/bin:$PATH"
+ENV IS_AWS_LAMBDA=""
 
 # Set working directory to function root directory
 WORKDIR ${LAMBDA_TASK_ROOT}
