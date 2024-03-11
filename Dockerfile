@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:v2
+FROM registry.gitlab.com/aletrn/gis-prediction:v1.2.2
 
 # Include global arg in this stage of the build
 ARG LAMBDA_TASK_ROOT="/var/task"
