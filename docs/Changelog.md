@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.2.2
+- update dependencies version
+
+## Version 1.2.1
+- update dependencies version
+
 ## Version 1.2.0
 - code refactor to separate core functionality (instance segmentation) from other code
 - updated test coverage

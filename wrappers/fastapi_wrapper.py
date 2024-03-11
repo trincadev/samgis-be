@@ -58,7 +58,7 @@ async def health() -> JSONResponse:
 
 
 @app.post("/infer_samgis")
-def infer_samgis(request_input: ApiRequestBody):
+def infer_samgis(request_input: ApiRequestBody) -> JSONResponse:
     app_logger.info("starting inference request...")
 
     try:
