@@ -1,10 +1,12 @@
 """custom type hints"""
-from enum import IntEnum, Enum, StrEnum
+from enum import IntEnum, Enum
 from typing import TypedDict
 
 from affine import Affine
 from numpy import ndarray
 from pydantic import BaseModel
+
+from samgis_core.utilities.type_hints import StrEnum
 
 
 tuple_ndarray_transform = tuple[ndarray, Affine]
