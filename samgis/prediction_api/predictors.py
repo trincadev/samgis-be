@@ -8,7 +8,7 @@ from samgis.utilities.constants import DEFAULT_URL_TILES, SLOPE_CELLSIZE
 from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX
 from samgis_core.prediction_api.sam_onnx import get_raster_inference, get_raster_inference_with_embedding_from_dict
 from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_INPUT_SHAPE
-from samgis_core.utilities.type_hints import llist_float, dict_str_int, list_dict
+from samgis_core.utilities.type_hints import LlistFloat, DictStrInt, ListDict
 
 
 models_dict = {"fastsam": {"instance": None}}
@@ -16,13 +16,13 @@ embedding_dict = {}
 
 
 def samexporter_predict(
-        bbox: llist_float,
-        prompt: list_dict,
+        bbox: LlistFloat,
+        prompt: ListDict,
         zoom: float,
         model_name: str = "fastsam",
         source: str = DEFAULT_URL_TILES,
         source_name: str = None
-) -> dict_str_int:
+) -> DictStrInt:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
 
