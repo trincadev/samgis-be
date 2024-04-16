@@ -17,6 +17,13 @@
               :send-m-l-request="sendMLRequest"
               :waiting-string="waitingString"
             />
+            <span class="ml-2 lg:hidden">
+              <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" />
+              <span class="ml-2">
+                  <label class="text-red-600" for="checkboxMapNavigationLocked" v-if="mapNavigationLocked">locked map navigation!</label>
+                  <label class="text-blue-600" for="checkboxMapNavigationLocked" v-else>map navigation unlocked</label>
+              </span>
+            </span>
           </div>
           <div id="map" class="map-predictions" />
           <ButtonMapSendRequest
@@ -29,7 +36,13 @@
             :send-m-l-request="sendMLRequest"
             :waiting-string="waitingString"
           />
-
+          <span class="hidden lg:block lg:ml-2">
+              <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" />
+              <span class="ml-2">
+                  <label class="text-red-600" for="checkboxMapNavigationLocked" v-if="mapNavigationLocked">locked map navigation!</label>
+                  <label class="text-blue-600" for="checkboxMapNavigationLocked" v-else>map navigation unlocked</label>
+              </span>
+            </span>
         </div>
       </div>
 
@@ -44,7 +57,6 @@
               {statName: 'prompt: points/rectangles number', statValue: promptsArrayRef.length},
             ]" />
           </div>
-
           <div v-if="responseMessageRef === waitingString" />
           <h2 v-else-if="responseMessageRef || responseMessageRef == '-'" class="text-lg text-red-600">{{ responseMessageRef }}</h2>
           <div v-else>
@@ -97,11 +109,13 @@ import {
 } from 'leaflet'
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
-import { onMounted, ref, type Ref } from 'vue'
+import { onMounted, onUpdated, ref, type Ref } from 'vue'
 import { driver } from "../../node_modules/driver.js/src/driver"
 
 import {
   durationRef,
+  maxZoom,
+  minZoom,
   numberOfPolygonsRef,
   numberOfPredictedMasksRef,
   OpenStreetMap,
@@ -114,6 +128,7 @@ import {
   applyFnToObjectWithinArray,
   getExtentCurrentViewMapBBox,
   getGeoJSONRequest,
+  getQueryParams,
   getSelectedPointCoordinate,
   setGeomanControls,
   updateMapData
@@ -142,6 +157,8 @@ const currentBaseMapNameRef = ref("")
 const currentMapBBoxRef = ref()
 const currentZoomRef = ref()
 const promptsArrayRef: Ref<Array<IPointPrompt | IRectanglePrompt>> = ref([])
+const mapNavigationLocked = ref(false)
+const mapOptionsDefaultRef = ref()
 let map: LMap
 type ServiceTiles = {
   [key: SourceTileType]: LTileLayer;
@@ -175,6 +192,7 @@ const sendMLRequest = async (leafletMap: LMap, promptRequest: Array<IPointPrompt
   if (map.pm.globalEditModeEnabled()) {
     map.pm.disableGlobalEditMode()
   }
+  mapNavigationLocked.value = true
   const bodyRequest: IBodyLatLngPoints = {
     bbox: getExtentCurrentViewMapBBox(leafletMap),
     prompt: promptRequest,
@@ -208,9 +226,11 @@ const getCurrentBasemap = (url: string, providersArray: ServiceTiles) => {
 
 onMounted(async () => {
   const osmTile = tileLayer.provider(OpenStreetMap)
-  let localVarSatellite: SourceTileType = import.meta.env.VITE_SATELLITE_NAME ? String(import.meta.env.VITE_SATELLITE_NAME) : Satellite
+  const params = getQueryParams()
+  let localVarSatellite: SourceTileType = params.source ? params.source : Satellite
+  let localVarSatelliteOptions = params.options ? params.options : {}
+  const satelliteTile = tileLayer.provider(localVarSatellite, localVarSatelliteOptions)
   let localVarTerrain: SourceTileType = "nextzen.terrarium"
-  const satelliteTile = tileLayer.provider(localVarSatellite)
   const terrainTile = new LTileLayer(
       "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png", {
         id: localVarTerrain,
@@ -219,14 +239,15 @@ onMounted(async () => {
             "<a href='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'>Mapzen Source Attributions</a>."
       }
   )
-
   let baseMaps: ServiceTiles = { OpenStreetMap: osmTile }
   baseMaps[localVarSatellite] = satelliteTile
   baseMaps[localVarTerrain] = terrainTile
   currentBaseMapNameRef.value = OpenStreetMap
 
   map = LeafletMap('map', {
-    layers: [osmTile]
+    layers: [osmTile],
+    minZoom: minZoom,
+    maxZoom: maxZoom
   })
   map.fitBounds(props.mapBounds)
   map.attributionControl.setPrefix(prefix)
@@ -235,6 +256,7 @@ onMounted(async () => {
   LeafletControl.layers(baseMaps).addTo(map)
   setGeomanControls(map)
   updateZoomBboxMap(map)
+  mapOptionsDefaultRef.value = {...map.options}
 
   map.on('zoomend', (e: LEvented) => {
     updateZoomBboxMap(map)
@@ -250,6 +272,24 @@ onMounted(async () => {
   })
 
   driverObj.drive();
+})
+
+onUpdated(() => {
+  if (mapNavigationLocked.value) {
+    map.setMaxZoom(currentZoomRef.value)
+    map.setMinZoom(currentZoomRef.value)
+    map.options.maxBoundsViscosity = 1.0
+    map.setMaxBounds(map.getBounds())
+  }
+  if (!mapNavigationLocked.value) {
+    map.setMaxZoom(maxZoom)
+    map.setMinZoom(minZoom)
+    map.options.maxBoundsViscosity = 0.0
+    map.setMaxBounds([
+      [90, 180],
+      [-90, -180]
+    ])
+  }
 })
 </script>
 

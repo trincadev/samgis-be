@@ -17,6 +17,12 @@ import {
 } from './types.d'
 import type { Ref } from 'vue'
 
+export const getQueryParams = () => {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  const {source,...options} = params
+  return {source, options}
+}
 
 export const applyFnToObjectWithinArray = (array: Array<IPointPrompt | IRectanglePrompt>): Array<IPointTable | IRectangleTable> => {
   let newArray = []
