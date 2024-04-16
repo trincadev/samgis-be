@@ -200,3 +200,25 @@ def get_url_tile(source_type: str):
 
 def check_source_type_is_terrain(source: str | TileProvider):
     return isinstance(source, TileProvider) and source.name in list(XYZTerrainProvidersNames)
+
+
+def get_source_name(source: str | TileProvider) -> str | bool:
+    try:
+        match source.lower():
+            case XYZDefaultProvidersNames.DEFAULT_TILES_NAME_SHORT:
+                source_output = providers.query_name(XYZDefaultProvidersNames.DEFAULT_TILES_NAME)
+            case _:
+                source_output = providers.query_name(source)
+        if isinstance(source_output, str):
+            return source_output
+        try:
+            source_dict = dict(source_output)
+            app_logger.info(f"source_dict:{type(source_dict)}, {'name' in source_dict}, source_dict:{source_dict}.")
+            return source_dict["name"]
+        except KeyError as ke:
+            app_logger.error(f"ke:{ke}.")
+    except ValueError as ve:
+        app_logger.info(f"source name::{source}, ve:{ve}.")
+    app_logger.info(f"source name::{source}.")
+
+    return False
