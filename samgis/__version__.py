@@ -1,1 +1,4 @@
-__version__ = "1.2.2"
+import importlib.metadata
+
+
+__version__ = importlib.metadata.version(__package__ or __name__)

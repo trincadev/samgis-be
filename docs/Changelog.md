@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.3.0
+- take advantage of re-usable image embeddings in SAM model using samgis_core@1.1.1
+- add map navigation locking (unlockable!) on ML request to take advantage of image embedding re-use
+- add a metadata section within the pyproject.toml file
+
 ## Version 1.2.2
 - update dependencies version
 
