@@ -1,5 +1,5 @@
 """functions useful to convert to/from latitude-longitude coordinates to pixel image coordinates"""
-from samgis_core.utilities.type_hints import tuple_float, tuple_float_any
+from samgis_core.utilities.type_hints import TupleFloat, TupleFloatAny
 
 from samgis import app_logger
 from samgis.utilities.constants import TILE_SIZE, EARTH_EQUATORIAL_RADIUS
@@ -82,7 +82,7 @@ def get_latlng_to_pixel_coordinates(
     return point
 
 
-def _from4326_to3857(lat: float, lon: float) -> tuple_float or tuple_float_any:
+def _from4326_to3857(lat: float, lon: float) -> TupleFloat or TupleFloatAny:
     from math import radians, log, tan
 
     x_tile: float = radians(lon) * EARTH_EQUATORIAL_RADIUS

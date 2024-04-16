@@ -2,11 +2,11 @@
 from affine import Affine
 from numpy import ndarray as np_ndarray
 
-from samgis_core.utilities.type_hints import list_float, tuple_float, dict_str_int
+from samgis_core.utilities.type_hints import ListFloat, DictStrInt, TupleFloat
 from samgis import app_logger
 
 
-def load_affine_transformation_from_matrix(matrix_source_coefficients: list_float) -> Affine:
+def load_affine_transformation_from_matrix(matrix_source_coefficients: ListFloat) -> Affine:
     """
     Wrapper for rasterio.Affine.from_gdal() method
 
@@ -32,7 +32,7 @@ def load_affine_transformation_from_matrix(matrix_source_coefficients: list_floa
         raise e
 
 
-def get_affine_transform_from_gdal(matrix_source_coefficients: list_float or tuple_float) -> Affine:
+def get_affine_transform_from_gdal(matrix_source_coefficients: ListFloat or TupleFloat) -> Affine:
     """wrapper for rasterio Affine from_gdal method
 
     Args:
@@ -44,7 +44,7 @@ def get_affine_transform_from_gdal(matrix_source_coefficients: list_float or tup
     return Affine.from_gdal(*matrix_source_coefficients)
 
 
-def get_vectorized_raster_as_geojson(mask: np_ndarray, transform: tuple_float) -> dict_str_int:
+def get_vectorized_raster_as_geojson(mask: np_ndarray, transform: TupleFloat) -> DictStrInt:
     """
         Get shapes and values of connected regions in a dataset or array
 

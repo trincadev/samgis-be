@@ -1,7 +1,7 @@
 import os
 
 from numpy import ndarray
-from samgis_core.utilities.type_hints import tuple_float
+from samgis_core.utilities.type_hints import TupleFloat
 from xyzservices import TileProvider
 
 from samgis import app_logger
@@ -70,7 +70,7 @@ def download_extent(w: float, s: float, e: float, n: float, zoom: int or str = z
         raise e_download_extent
 
 
-def crop_raster(w: float, s: float, e: float, n: float, raster: ndarray, raster_bbox: tuple_float,
+def crop_raster(w: float, s: float, e: float, n: float, raster: ndarray, raster_bbox: TupleFloat,
                 crs: str = OUTPUT_CRS_STRING, driver: str = DRIVER_RASTERIO_GTIFF) -> tuple_ndarray_transform:
     """
     Crop a raster using given bounding box (w, s, e, n) values
@@ -134,7 +134,7 @@ def crop_raster(w: float, s: float, e: float, n: float, raster: ndarray, raster_
         raise e_crop_raster
 
 
-def get_transform_raster(raster: ndarray, raster_bbox: tuple_float) -> tuple_ndarray_transform:
+def get_transform_raster(raster: ndarray, raster_bbox: TupleFloat) -> tuple_ndarray_transform:
     """
     Convert the input raster image to RGB and extract the Affine 
 
