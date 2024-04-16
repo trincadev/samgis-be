@@ -10,7 +10,7 @@ ARG POETRY_CACHE_DIR=/tmp/poetry_cache
 ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"
 
 
-FROM python:3.11-bookworm as builder_global
+FROM python:3.10-bookworm as builder_global
 
 ARG ARCH
 ARG LAMBDA_TASK_ROOT
@@ -56,7 +56,7 @@ RUN echo "# poetry config --list #" && poetry config --list
 RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 
 
-FROM python:3.11-slim-bookworm as runtime
+FROM python:3.10-slim-bookworm as runtime
 
 ARG ARCH
 ARG LAMBDA_TASK_ROOT
