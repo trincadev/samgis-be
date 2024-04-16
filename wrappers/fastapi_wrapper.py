@@ -8,13 +8,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from samgis import PROJECT_ROOT_FOLDER
-from samgis.io.wrappers_helpers import get_parsed_bbox_points
+from samgis.io.wrappers_helpers import get_parsed_bbox_points, get_source_name
 from samgis.utilities.type_hints import ApiRequestBody
 from samgis_core.utilities.fastapi_logger import setup_logging
 from samgis.prediction_api.predictors import samexporter_predict
 
 
 app_logger = setup_logging(debug=True)
+app_logger.info(f"PROJECT_ROOT_FOLDER:{PROJECT_ROOT_FOLDER}.")
 app = FastAPI()
 
 
@@ -68,9 +69,11 @@ def infer_samgis(request_input: ApiRequestBody) -> JSONResponse:
         body_request = get_parsed_bbox_points(request_input)
         app_logger.info(f"body_request:{body_request}.")
         try:
+            source_name = get_source_name(request_input.source_type)
+            app_logger.info(f"source_name = {source_name}.")
             output = samexporter_predict(
                 bbox=body_request["bbox"], prompt=body_request["prompt"], zoom=body_request["zoom"],
-                source=body_request["source"]
+                source=body_request["source"], source_name=source_name
             )
             duration_run = time.time() - time_start_run
             app_logger.info(f"duration_run:{duration_run}.")

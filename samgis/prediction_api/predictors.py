@@ -6,12 +6,13 @@ from samgis.io.tms2geotiff import download_extent
 from samgis.io.wrappers_helpers import check_source_type_is_terrain
 from samgis.utilities.constants import DEFAULT_URL_TILES, SLOPE_CELLSIZE
 from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX
-from samgis_core.prediction_api.sam_onnx import get_raster_inference
+from samgis_core.prediction_api.sam_onnx import get_raster_inference, get_raster_inference_with_embedding_from_dict
 from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_INPUT_SHAPE
 from samgis_core.utilities.type_hints import llist_float, dict_str_int, list_dict
 
 
 models_dict = {"fastsam": {"instance": None}}
+embedding_dict = {}
 
 
 def samexporter_predict(
@@ -19,7 +20,8 @@ def samexporter_predict(
         prompt: list_dict,
         zoom: float,
         model_name: str = "fastsam",
-        source: str = DEFAULT_URL_TILES
+        source: str = DEFAULT_URL_TILES,
+        source_name: str = None
 ) -> dict_str_int:
     """
     Return predictions as a geojson from a geo-referenced image using the given input prompt.
@@ -34,7 +36,8 @@ def samexporter_predict(
         prompt: machine learning input prompt
         zoom: Level of detail
         model_name: machine learning model name
-        source: xyz
+        source: xyz tile provider object
+        source_name: name of tile provider
 
     Returns:
         Affine transform
@@ -62,9 +65,12 @@ def samexporter_predict(
 
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
-
-    mask, n_predictions = get_raster_inference(img, prompt, models_instance, model_name)
-    app_logger.info(f"created {n_predictions} masks, preparing conversion to geojson...")
+    app_logger.info(f"source_name:{source_name}, source_name type:{type(source_name)}.")
+    embedding_key = f"{source_name}_z{zoom}_w{pt1[1]},s{pt1[0]},e{pt0[1]},n{pt0[0]}"
+    mask, n_predictions = get_raster_inference_with_embedding_from_dict(
+        img, prompt, models_instance, model_name, embedding_key, embedding_dict)
+    app_logger.info(f"created {n_predictions} masks, type {type(mask)}, size {mask.size}: preparing geojson conversion")
+    app_logger.info(f"mask shape:{mask.shape}.")
     return {
         "n_predictions": n_predictions,
         **get_vectorized_raster_as_geojson(mask, transform)
