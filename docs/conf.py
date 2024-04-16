@@ -11,7 +11,7 @@ import sys
 project = 'SamGIS'
 copyright = '2023-now, alessandro trinca tornidor'
 author = 'alessandro trinca tornidor'
-release = '1.2.2'
+release = '1.3.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -28,8 +28,6 @@ extensions = [
 ]
 # Napoleon settings
 napoleon_google_docstring = True
-
-#
 typehints_defaults = "comma"
 
 templates_path = ['_templates']
@@ -42,13 +40,6 @@ source_suffix = {
     '.txt': 'restructuredtext',
     '.md': 'markdown',
 }
-
-# default args values
-rst_prolog = """
-.. |default| raw:: html
-
-    <div class="default-value-section">""" + \
-    ' <span class="default-value-label">Default:</span>'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

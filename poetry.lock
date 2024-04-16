@@ -2130,22 +2130,24 @@ files = [
 
 [[package]]
 name = "samgis-core"
-version = "1.1.1"
+version = "1.1.2"
 description = "SamGIS CORE"
 optional = false
-python-versions = "<3.11,>=3.10"
-files = [
-    {file = "samgis_core-1.1.1-py3-none-any.whl", hash = "sha256:720849ac4c43ad17e52db0702ff8c1bafa6cdcbb00a5128777b957ad1da1950f"},
-    {file = "samgis_core-1.1.1.tar.gz", hash = "sha256:3f779cbb75b5555f0f27f9d473f7d311c3d170a6164867bb5fa5768bce74b1f4"},
-]
+python-versions = "~3.10"
+files = []
+develop = false
 
 [package.dependencies]
-bson = ">=0.5.10,<0.6.0"
-loguru = ">=0.7.2,<0.8.0"
+bson = "^0.5.10"
+loguru = "^0.7.2"
 numpy = "1.25.2"
 onnxruntime = "1.16.3"
 opencv-python-headless = "4.8.1.78"
-pillow = ">=10.2.0,<11.0.0"
+pillow = "^10.2.0"
+
+[package.source]
+type = "directory"
+url = "../samgis_core"
 
 [[package]]
 name = "setuptools"
@@ -2398,6 +2400,24 @@ sphinxcontrib-serializinghtml = ">=1.1.9"
 docs = ["sphinxcontrib-websupport"]
 lint = ["docutils-stubs", "flake8 (>=3.5.0)", "flake8-simplify", "isort", "mypy (>=0.990)", "ruff", "sphinx-lint", "types-requests"]
 test = ["cython (>=3.0)", "filelock", "html5lib", "pytest (>=4.6)", "setuptools (>=67.0)"]
+
+[[package]]
+name = "sphinx-autodoc-defaultargs"
+version = "0.1.2"
+description = "Automatic generation of default arguments for the Sphinx autodoc extension."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "sphinx-autodoc-defaultargs-0.1.2.tar.gz", hash = "sha256:b11cd9ac43510c1f1e9a3f9469a370e6bbe2bc2cb9e67cb79987f4dcd3be5be3"},
+    {file = "sphinx_autodoc_defaultargs-0.1.2-py3-none-any.whl", hash = "sha256:1513b1aea8c20348f1763dbfd7ff11f86cd77f2ce3246c73e1405a2a67fea3ff"},
+]
+
+[package.dependencies]
+Sphinx = ">=3.0"
+
+[package.extras]
+test = ["Sphinx (>=3.2.0)", "dataclasses", "pytest (>=3.1.0)", "sphobjinv (>=2.0)", "typing-extensions (>=3.5)"]
+type-comments = ["typed-ast (>=1.4.0)"]
 
 [[package]]
 name = "sphinx-autodoc-typehints"
@@ -2691,4 +2711,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "9da4b1507746895d408c11d51a135665fee578a3f7c497d8018a252a853a9e56"
+content-hash = "c976c4dd1ee54e5bc8a77e978c4462771f4f2729ff1a2272885f588219c91e41"

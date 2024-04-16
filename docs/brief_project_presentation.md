@@ -7,14 +7,15 @@ The backend perform machine learning inference using a [Segment Anything](https:
 
 Check about implementation details on my [blog](https://trinca.tornidor.com/projects/samgis-segment-anything-applied-to-GIS).
 
-# Self-hosted demo
+## Self-hosted demo
 
 You can visit my self-hosted demo [here](https://ml-trinca.tornidor.com).
 Since this demo uses a python container backend hosted on my AWS account I keep it under authentication to prevent abuses.
 [Here](https://docs.ml-trinca.tornidor.com/openapi) the OpenAPI swagger documentation.
 
-# HuggingFace Space demo
+## HuggingFace Space demo
 
 I added also a demo on this [HuggingFace Space](https://huggingface.co/spaces/aletrn/samgis). It's
-possible to find [here](https://aletrn-samgis.hf.space/) the direct space url and 
-[here](https://aletrn-samgis.hf.space/docs#/) the OpenAPI swagger documentation.
+possible to find [here](https://aletrn-samgis.hf.space/) the direct space url and [here](https://aletrn-samgis.hf.space/docs#/) the OpenAPI swagger documentation.
+
+Another interesting resource is my [HuggingFace SamGIS - LISA on CUDA demo](https://huggingface.co/spaces/aletrn/samgis-lisa-on-cuda): you can find some details about it on [its project page](https://trinca.tornidor.com/projects/lisa-adapted-for-samgis).
