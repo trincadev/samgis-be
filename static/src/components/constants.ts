@@ -4,7 +4,7 @@ export const prefix = " &copy; <a target=\"_blank\" href=\"https://leafletjs.com
 export const OpenStreetMap = "OpenStreetMap"
 export const Satellite = "OpenStreetMap.HOT"
 export const maxZoom = 20
-export const minZoom = 3
+export const minZoom = 2
 export const waitingString = "waiting..."
 export const durationRef = ref(0)
 export const numberOfPolygonsRef = ref(0)
