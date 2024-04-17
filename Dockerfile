@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.2.2
+FROM registry.gitlab.com/aletrn/gis-prediction:1.3.0
 
 # Include global arg in this stage of the build
 ARG LAMBDA_TASK_ROOT="/var/task"
@@ -12,6 +12,8 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY samgis ${LAMBDA_TASK_ROOT}/samgis
 COPY wrappers ${LAMBDA_TASK_ROOT}/wrappers
+COPY pyproject.toml poetry.lock README.md ${LAMBDA_TASK_ROOT}
+RUN echo "# install samgis #" && pip install .
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
