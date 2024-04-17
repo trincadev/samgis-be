@@ -35,13 +35,13 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 )
 
 # build the image, use the tag "samgis-huggingface"
-docker build . --tag example-docker-namespace/samgis-huggingface --progress=plain
+docker build . --tag registry.gitlab.com/aletrn/samgis-huggingface --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name samgis-huggingface -p 7860:7860 example-docker-namespace/samgis-huggingface; docker logs -f samgis-huggingface
+docker run  -d --name samgis-huggingface -p 7860:7860 registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
 Test it with curl using a json payload:
