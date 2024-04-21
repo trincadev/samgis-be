@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.4.0
+
+- add support for python 3.11
+- add urls section used by [pypi.org](https://pypi.org/)
+- update some vulnerable dependencies
+
 ## Version 1.3.0
 
 - take advantage of re-usable image embeddings in SAM model using samgis_core@1.1.2
