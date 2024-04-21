@@ -1,28 +1,31 @@
 # Include global ARGs at the dockerfile top
 ARG ARCH="x86_64"
-ARG WORKDIR_ROOT="/var/task"
-ARG FASTAPI_STATIC="${WORKDIR_ROOT}/static"
-ARG PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
+ARG LAMBDA_TASK_ROOT="/var/task"
+ARG FASTAPI_STATIC="${LAMBDA_TASK_ROOT}/static"
+ARG PYTHONPATH="${LAMBDA_TASK_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ARG POETRY_NO_INTERACTION=1
 ARG POETRY_VIRTUALENVS_IN_PROJECT=1
 ARG POETRY_VIRTUALENVS_CREATE=1
 ARG POETRY_CACHE_DIR=/tmp/poetry_cache
+ARG RIE="https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie"
 
 
 FROM python:3.11-bookworm as builder_global
 
 ARG ARCH
-ARG WORKDIR_ROOT
+ARG LAMBDA_TASK_ROOT
 ARG PYTHONPATH
 ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
+ARG RIE
 ARG DEPENDENCY_GROUP
 ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg-3+b1_amd64.deb"
 
 RUN echo "ARCH: $ARCH ..."
 
+RUN echo "ARG RIE: $RIE ..."
 RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
 RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
 RUN test -n ${DEPENDENCY_GROUP:?}
@@ -30,8 +33,8 @@ RUN echo "python DEPENDENCY_GROUP: ${DEPENDENCY_GROUP} ..."
 RUN echo "arg dep:"
 
 # Set working directory to function root directory
-WORKDIR ${WORKDIR_ROOT}
-COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${LAMBDA_TASK_ROOT}/
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
 RUN echo "BUILDER: check libz.s* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
@@ -42,12 +45,13 @@ RUN apt update && apt install -t trixie zlib1g -y && apt clean
 RUN echo "BUILDER: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
 
 RUN ls -l /etc/apt/sources* /etc/apt/preferences*
+RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then curl -Lo /usr/local/bin/aws-lambda-rie ${RIE}; fi
 
-# poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
-RUN python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
+# poetry installation path is NOT within ${LAMBDA_TASK_ROOT}: not needed for runtime docker image
+RUN python -m pip install -r ${LAMBDA_TASK_ROOT}/requirements_poetry.txt
 
 RUN which poetry && poetry --version && poetry config --list
-RUN poetry config virtualenvs.path ${WORKDIR_ROOT}
+RUN poetry config virtualenvs.path ${LAMBDA_TASK_ROOT}
 RUN echo "# poetry config --list #" && poetry config --list
 RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 
@@ -55,10 +59,10 @@ RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 FROM python:3.11-slim-bookworm as runtime
 
 ARG ARCH
-ARG WORKDIR_ROOT
+ARG LAMBDA_TASK_ROOT
 
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
-    PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
+ENV VIRTUAL_ENV=${LAMBDA_TASK_ROOT}/.venv \
+    PATH="${LAMBDA_TASK_ROOT}/.venv/bin:$PATH"
 
 RUN echo "COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
@@ -66,11 +70,16 @@ RUN echo "RUNTIME: check libz.s* before upgrade" && ls -l /usr/lib/${ARCH}-linux
 RUN echo "RUNTIME: remove libz.s* to force upgrade" && rm /usr/lib/${ARCH}-linux-gnu/libz.so*
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libz.so* /usr/lib/${ARCH}-linux-gnu/
 RUN echo "RUNTIME: check libz.s* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
-COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
+COPY --from=builder_global ${LAMBDA_TASK_ROOT}/.venv ${LAMBDA_TASK_ROOT}/.venv
 
-RUN echo "new WORKDIR_ROOT after hidden venv copy => ${WORKDIR_ROOT}"
-RUN ls -ld ${WORKDIR_ROOT}/
-RUN ls -lA ${WORKDIR_ROOT}/
+RUN echo "new LAMBDA_TASK_ROOT after hidden venv copy => ${LAMBDA_TASK_ROOT}"
+RUN ls -ld ${LAMBDA_TASK_ROOT}/
+RUN ls -lA ${LAMBDA_TASK_ROOT}/
+
+COPY --from=builder_global /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+RUN chmod +x /usr/local/bin/aws-lambda-rie
+COPY ./scripts/lambda-entrypoint.sh /lambda-entrypoint.sh
+RUN chmod +x /lambda-entrypoint.sh
 
 
 ### conditional section
@@ -117,6 +126,6 @@ FROM runtime
 ARG FASTAPI_STATIC
 RUN mkdir ${FASTAPI_STATIC}
 
-COPY ./machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
+COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist

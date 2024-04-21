@@ -1,10 +1,17 @@
 # Changelog
 
+## Version 1.4.1
+
+- update base python docker image to bookworm-3.11
+- move support for AWS lambda (aws-lambda-rie, lambda-entrypoint.sh) docker to separated dockerfile
+- add Demo url entry in pyproject.toml file
+
 ## Version 1.4.0
 
 - add support for python 3.11
 - add urls section used by [pypi.org](https://pypi.org/)
 - update some vulnerable dependencies
+- update samgis_core@1.2.0 to use python 3.11
 
 ## Version 1.3.0
 
