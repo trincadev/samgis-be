@@ -9,12 +9,13 @@ license: mit
 ---
 
 ## Segment Anything models
-It's possible to prepare the model files using https://github.com/vietanhdev/samexporter/ or using the ones 
-from https://huggingface.co/aletrn/sam-quantized (copy them within the folder `/machine_learning_models`).
+
+It's possible to prepare the model files using <https://github.com/vietanhdev/samexporter/> or using the ones
+from <https://huggingface.co/aletrn/sam-quantized> (copy them within the folder `/machine_learning_models`).
 
 ## SamGIS - HuggingFace version
 
-The SamGIS HuggingSpace url is https://huggingface.co/spaces/aletrn/samgis.
+The SamGIS HuggingSpace url is <https://huggingface.co/spaces/aletrn/samgis>.
 Build the docker image this way:
 
 ```bash
@@ -51,8 +52,7 @@ URL=http://localhost:7860/infer_samgis
 curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
 ```
 
-or better visiting the swagger page on http://localhost:7860/docs 
-
+or better visiting the swagger page on <http://localhost:7860/docs>
 
 ## SamGIS - lambda AWS version
 
@@ -84,10 +84,12 @@ curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
 ```
 
 ### Publish the aws lambda docker image
+
 Login on aws ECR with the correct aws profile (change the example `example-docker-namespace/` repository url with the one from
 the [ECR push command instructions page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/)).
 
 ### Dependencies installation and local tests
+
 The docker build process needs only the base dependency group plus the `aws_lambda` or `fastapi` optional one.
 Install also the `test` and/or `docs` groups if needed.
 
@@ -102,7 +104,7 @@ python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 ### How to update the static documentation with sphinx
 
 This project documentation uses sphinx-apidoc: it's a tool for automatic generation of Sphinx sources that, using the autodoc
-extension, document a whole package in the style of other automatic API documentation tools. See the 
+extension, document a whole package in the style of other automatic API documentation tools. See the
 [documentation page](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html) for details.
 Run the command from the project root:
 
@@ -124,7 +126,8 @@ cd docs && make clean html && cd ../
 ```
 
 The static documentation it's now ready at the path `docs/_build/html/index.html`.
- 
+
 To create a work in progress openapi json or yaml file use
+
 - `extract-openapi-fastapi.py`
 - `extract-openapi-lambda.py` (useful to export the json schema request and response from lambda app api)
