@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.4.2
+
+- frontend: add support for hiding old polygon layers from ML inferences
+
 ## Version 1.4.1
 
 - update base python docker image to bookworm-3.11
