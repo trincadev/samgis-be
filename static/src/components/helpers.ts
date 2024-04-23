@@ -1,10 +1,15 @@
-import L, { icon, Evented as LEvented, type LatLng, Map as LMap } from 'leaflet'
+import L, { icon, Evented as LEvented, type LatLng, Map as LMap, geoJSON as LeafletGeoJSON, FeatureGroup, } from 'leaflet'
 import {
-  responseMessageRef,
-  waitingString,
+  currentMapBBoxRef,
+  currentZoomRef,
   durationRef,
   numberOfPolygonsRef,
-  numberOfPredictedMasksRef
+  numberOfPredictedMasksRef,
+  layerControlGroupLayersRef,
+  mapNavigationLocked,
+  OpenStreetMap,
+  responseMessageRef,
+  waitingString
 } from './constants'
 import {
   ExcludeIncludeLabelPrompt as excludeIncludeLabelPrompt,
@@ -13,9 +18,59 @@ import {
   type ExcludeIncludeLabelPrompt,
   type IBodyLatLngPoints,
   type IPointPrompt,
-  type IRectanglePrompt, type IRectangleTable, type IPointTable
+  type IRectanglePrompt,
+  type IRectangleTable,
+  type IPointTable,
+  type SourceTileType,
+  type ServiceTiles
 } from './types.d'
-import type { Ref } from 'vue'
+import { type Ref } from 'vue'
+
+export const updateZoomBboxMap = (localMap: LMap) => {
+  currentZoomRef.value = localMap.getZoom()
+  currentMapBBoxRef.value = getExtentCurrentViewMapBBox(localMap)
+}
+
+export const getCurrentBasemap = (url: string, providersArray: ServiceTiles): string => {
+  for (const [key, value] of Object.entries(providersArray)) {
+    if (value._url == url) {
+      return key
+    }
+  }
+  return "-"
+}
+
+export const sendMLRequest = async (
+  leafletMap: LMap, promptRequest: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType = OpenStreetMap
+  ) => {
+  if (leafletMap.pm.globalDragModeEnabled()) {
+    leafletMap.pm.disableGlobalDragMode()
+  }
+  if (leafletMap.pm.globalEditModeEnabled()) {
+    leafletMap.pm.disableGlobalEditMode()
+  }
+  mapNavigationLocked.value = true
+  const bodyRequest: IBodyLatLngPoints = {
+    bbox: getExtentCurrentViewMapBBox(leafletMap),
+    prompt: promptRequest,
+    zoom: leafletMap.getZoom(),
+    source_type: sourceType
+  }
+  try {
+    const geojsonOutputOnMounted = await getGeoJSONRequest(bodyRequest, '/infer_samgis')
+    const featureNew = LeafletGeoJSON(geojsonOutputOnMounted)
+    let now = new Date(Date.now())
+    let nowString = now.toLocaleString('it-it',  )
+    let overlayMaps = new FeatureGroup([featureNew])
+    layerControlGroupLayersRef.value.addOverlay(overlayMaps, nowString)
+    leafletMap.addLayer(featureNew)
+  } catch (errGeojsonOutputOnMounted) {
+    console.error('sendMLRequest:: sourceType: ', sourceType)
+    console.error('sendMLRequest:: promptRequest: ', promptRequest.length, '::', promptRequest)
+    console.error('sendMLRequest:: bodyRequest => ', bodyRequest, "#")
+    console.error("errGeojsonOutputOnMounted => ", errGeojsonOutputOnMounted)
+  }
+}
 
 export const getQueryParams = () => {
   const urlSearchParams = new URLSearchParams(window.location.search);

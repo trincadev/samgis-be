@@ -100,13 +100,11 @@
 import {
   control as LeafletControl,
   Evented as LEvented,
-  geoJSON as LeafletGeoJSON,
   type LatLng,
   Map as LMap,
   map as LeafletMap,
   tileLayer,
-  TileLayer as LTileLayer,
-  FeatureGroup
+  TileLayer as LTileLayer
 } from 'leaflet'
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
@@ -115,57 +113,47 @@ import { onMounted, onUpdated, ref, type Ref } from 'vue'
 import { driver } from "../../node_modules/@trincadev/driver.js/src/driver"
 
 import {
+  currentBaseMapNameRef,
+  currentMapBBoxRef,
+  currentZoomRef,
+  driverSteps,
   durationRef,
+  layerControlGroupLayersRef,
+  mapNavigationLocked,
+  mapOptionsDefaultRef,
   maxZoom,
   minZoom,
   numberOfPolygonsRef,
   numberOfPredictedMasksRef,
   OpenStreetMap,
   prefix,
+  promptsArrayRef,
   responseMessageRef,
   Satellite,
-  waitingString
+  waitingString,
 } from './constants'
 import {
   applyFnToObjectWithinArray,
   getExtentCurrentViewMapBBox,
-  getGeoJSONRequest,
+  sendMLRequest,
   getQueryParams,
   getSelectedPointCoordinate,
   setGeomanControls,
-  updateMapData
+  updateMapData,
+  updateZoomBboxMap,
+  getCurrentBasemap
 } from '@/components/helpers'
-import type { IBodyLatLngPoints, IPointPrompt, IRectanglePrompt, SourceTileType } from '@/components/types';
+import type { ServiceTiles, SourceTileType } from '@/components/types';
 import StatsGrid from '@/components/StatsGrid.vue';
 import TableGenericComponent from '@/components/TableGenericComponent.vue';
 import ButtonMapSendRequest from '@/components/buttons/ButtonMapSendRequest.vue';
 
 const driverObj = driver({
   showProgress: true,
-  steps: [
-    { element: 'id-prediction-map-container', popover: { title: 'SamGIS', description: 'A quick tour about SamGIS functionality' } },
-    { element: '#map', popover: { title: 'Webmap for ML prompt', description: 'Add here your machine learning prompt. Pay attention about markers and polygons outside the map bounds: you could get unexpected results' } },
-    { element: '.leaflet-pm-icon-marker-include', popover: { title: '"Include" point prompt', description: 'add "include" points prompt (label 1) for machine learning request' } },
-    { element: '.leaflet-pm-icon-marker-exclude', popover: { title: '"Exclude" point prompt', description: 'add "exclude" points prompt (label 0) for machine learning request' } },
-    { element: '.leaflet-pm-icon-rectangle', popover: { title: '"Include" rectangle prompt', description: 'add "include" rectangles prompt for machine learning request' } },
-    { element: "#id-button-submit", popover: { title: 'ML submit button', description: 'Machine learning submit button' } },
-    { element: '.leaflet-control-layers-toggle', popover: { title: 'Map provider selector', description: 'select a different map provider' } },
-    { element: '#id-map-info', popover: { title: 'map info', description: 'Section about various map info' } },
-    { element: '#id-ml-request-prompt', popover: { title: 'ML prompt quest', description: 'Empty at beginning, this table will contain the machine learning prompt (points and rectangles) section' } }
-  ]
+  steps: driverSteps
 });
 
-const currentBaseMapNameRef = ref("")
-const currentMapBBoxRef = ref()
-const currentZoomRef = ref()
-const promptsArrayRef: Ref<Array<IPointPrompt | IRectanglePrompt>> = ref([])
-const mapNavigationLocked = ref(false)
-const mapOptionsDefaultRef = ref()
-const layerControlGroupLayersRef = ref(LeafletControl.layers());
 let map: LMap
-type ServiceTiles = {
-  [key: SourceTileType]: LTileLayer;
-};
 
 const props = defineProps<{
   mapBounds: Array<LatLng>,
@@ -186,51 +174,6 @@ const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivEle
   popupDiv.appendChild(popupContent)
 
   return popupDiv
-}
-
-const sendMLRequest = async (
-  leafletMap: LMap, promptRequest: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType = OpenStreetMap
-  ) => {
-  if (map.pm.globalDragModeEnabled()) {
-    map.pm.disableGlobalDragMode()
-  }
-  if (map.pm.globalEditModeEnabled()) {
-    map.pm.disableGlobalEditMode()
-  }
-  mapNavigationLocked.value = true
-  const bodyRequest: IBodyLatLngPoints = {
-    bbox: getExtentCurrentViewMapBBox(leafletMap),
-    prompt: promptRequest,
-    zoom: leafletMap.getZoom(),
-    source_type: sourceType
-  }
-  try {
-    const geojsonOutputOnMounted = await getGeoJSONRequest(bodyRequest, '/infer_samgis')
-    const featureNew = LeafletGeoJSON(geojsonOutputOnMounted)
-    let now = new Date(Date.now())
-    let nowString = now.toLocaleString('it-it',  )
-    let overlayMaps = new FeatureGroup([featureNew])
-    layerControlGroupLayersRef.value.addOverlay(overlayMaps, nowString)
-    leafletMap.addLayer(featureNew)
-  } catch (errGeojsonOutputOnMounted) {
-    console.error('sendMLRequest:: sourceType: ', sourceType)
-    console.error('sendMLRequest:: promptRequest: ', promptRequest.length, '::', promptRequest)
-    console.error('sendMLRequest:: bodyRequest => ', bodyRequest, "#")
-    console.error("errGeojsonOutputOnMounted => ", errGeojsonOutputOnMounted)
-  }
-}
-
-const updateZoomBboxMap = (localMap: LMap) => {
-  currentZoomRef.value = localMap.getZoom()
-  currentMapBBoxRef.value = getExtentCurrentViewMapBBox(localMap)
-}
-
-const getCurrentBasemap = (url: string, providersArray: ServiceTiles) => {
-  for (const [key, value] of Object.entries(providersArray)) {
-    if (value._url == url) {
-      return key
-    }
-  }
 }
 
 onMounted(async () => {
@@ -300,4 +243,3 @@ onUpdated(() => {
   }
 })
 </script>
-
