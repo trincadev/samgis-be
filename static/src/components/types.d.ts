@@ -48,3 +48,7 @@ export type OpenStreetMap = "OpenStreetMap"
 export type Satellite = "Satellite"
 export type SourceTileType = OpenStreetMap | Satellite
 export type ArrayNumber = Array<number>
+export type ServiceTiles = {
+    [key: SourceTileType]: LTileLayer;
+};
+  
