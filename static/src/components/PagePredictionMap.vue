@@ -105,7 +105,8 @@ import {
   Map as LMap,
   map as LeafletMap,
   tileLayer,
-  TileLayer as LTileLayer
+  TileLayer as LTileLayer,
+  FeatureGroup
 } from 'leaflet'
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
@@ -160,6 +161,7 @@ const currentZoomRef = ref()
 const promptsArrayRef: Ref<Array<IPointPrompt | IRectanglePrompt>> = ref([])
 const mapNavigationLocked = ref(false)
 const mapOptionsDefaultRef = ref()
+const layerControlGroupLayersRef = ref(LeafletControl.layers());
 let map: LMap
 type ServiceTiles = {
   [key: SourceTileType]: LTileLayer;
@@ -186,7 +188,9 @@ const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivEle
   return popupDiv
 }
 
-const sendMLRequest = async (leafletMap: LMap, promptRequest: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType = OpenStreetMap) => {
+const sendMLRequest = async (
+  leafletMap: LMap, promptRequest: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType = OpenStreetMap
+  ) => {
   if (map.pm.globalDragModeEnabled()) {
     map.pm.disableGlobalDragMode()
   }
@@ -203,6 +207,10 @@ const sendMLRequest = async (leafletMap: LMap, promptRequest: Array<IPointPrompt
   try {
     const geojsonOutputOnMounted = await getGeoJSONRequest(bodyRequest, '/infer_samgis')
     const featureNew = LeafletGeoJSON(geojsonOutputOnMounted)
+    let now = new Date(Date.now())
+    let nowString = now.toLocaleString('it-it',  )
+    let overlayMaps = new FeatureGroup([featureNew])
+    layerControlGroupLayersRef.value.addOverlay(overlayMaps, nowString)
     leafletMap.addLayer(featureNew)
   } catch (errGeojsonOutputOnMounted) {
     console.error('sendMLRequest:: sourceType: ', sourceType)
@@ -253,8 +261,7 @@ onMounted(async () => {
   map.fitBounds(props.mapBounds)
   map.attributionControl.setPrefix(prefix)
   LeafletControl.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(map)
-
-  LeafletControl.layers(baseMaps).addTo(map)
+  layerControlGroupLayersRef.value = LeafletControl.layers(baseMaps).addTo(map)
   setGeomanControls(map)
   updateZoomBboxMap(map)
   mapOptionsDefaultRef.value = {...map.options}
