@@ -1,10 +1,12 @@
 import json
+import os
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from samgis import PROJECT_ROOT_FOLDER
@@ -121,6 +123,24 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"msg": "Error - Internal Server Error"}
     )
+
+
+write_tmp_on_disk = os.getenv("WRITE_TMP_ON_DISK", "")
+app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
+if bool(write_tmp_on_disk):
+    app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
+    templates = Jinja2Templates(directory=PROJECT_ROOT_FOLDER / "static")
+
+
+    @app.get("/vis_output", response_class=HTMLResponse)
+    def list_files(request: Request):
+
+        files = os.listdir(write_tmp_on_disk)
+        files_paths = sorted([f"{request.url._url}/{f}" for f in files])
+        print(files_paths)
+        return templates.TemplateResponse(
+            "list_files.html", {"request": request, "files": files_paths}
+        )
 
 
 # important: the index() function and the app.mount MUST be at the end

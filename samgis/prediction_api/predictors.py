@@ -1,18 +1,21 @@
 """functions using machine learning instance model(s)"""
+from datetime import datetime
+from os import getenv
+
 from samgis import app_logger, MODEL_FOLDER
 from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
-from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_prediction_image
+from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_prediction_image, write_raster_png, write_raster_tiff
 from samgis.io.tms2geotiff import download_extent
 from samgis.io.wrappers_helpers import check_source_type_is_terrain
 from samgis.utilities.constants import DEFAULT_URL_TILES, SLOPE_CELLSIZE
-from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX
-from samgis_core.prediction_api.sam_onnx import get_raster_inference, get_raster_inference_with_embedding_from_dict
+from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX, get_raster_inference_with_embedding_from_dict
 from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_INPUT_SHAPE
 from samgis_core.utilities.type_hints import LlistFloat, DictStrInt, ListDict
 
 
 models_dict = {"fastsam": {"instance": None}}
 embedding_dict = {}
+msg_write_tmp_on_disk = "found option to write images and geojson output..."
 
 
 def samexporter_predict(
@@ -62,6 +65,17 @@ def samexporter_predict(
         slope_cellsize = int(img.shape[1] * SLOPE_CELLSIZE / DEFAULT_INPUT_SHAPE[1])
         app_logger.info(f"terrain-rgb like raster: compute slope, curvature using {slope_cellsize} as cell size.")
         img = get_rgb_prediction_image(dem, slope_cellsize)
+
+    folder_write_tmp_on_disk = getenv("WRITE_TMP_ON_DISK", "")
+    app_logger.info(f"folder_write_tmp_on_disk:{folder_write_tmp_on_disk}.")
+    prefix = f"w{pt1[1]},s{pt1[0]},e{pt0[1]},n{pt0[0]}_"
+    if bool(folder_write_tmp_on_disk):
+        now = datetime.now().strftime('%Y%m%d_%H%M%S')
+        app_logger.info(msg_write_tmp_on_disk + f"with coords {prefix}, shape:{img.shape}, {len(img.shape)}.")
+        if img.shape and len(img.shape) == 2:
+            write_raster_tiff(img, transform, f"{prefix}_{now}_", f"raw_tiff", folder_write_tmp_on_disk)
+        if img.shape and len(img.shape) == 3 and img.shape[2] == 3:
+            write_raster_png(img, transform, f"{prefix}_{now}_", f"raw_img", folder_write_tmp_on_disk)
 
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
