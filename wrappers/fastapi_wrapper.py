@@ -88,7 +88,7 @@ def infer_samgis(request_input: ApiRequestBody) -> JSONResponse:
         except Exception as inference_exception:
             import subprocess
             home_content = subprocess.run(
-                "ls -l /var/task {PROJECT_ROOT_FOLDER} {PROJECT_ROOT_FOLDER}/* {WORKDIR} {WORKDIR}/*", shell=True, universal_newlines=True, stdout=subprocess.PIPE
+                "ls -l /var/task /var/task/* {WRITE_TMP_ON_DISK} {WRITE_TMP_ON_DISK}/* {PROJECT_ROOT_FOLDER} {PROJECT_ROOT_FOLDER}/* {WORKDIR} {WORKDIR}/*", shell=True, universal_newlines=True, stdout=subprocess.PIPE
             )
             app_logger.error(f"/home/user ls -l: {home_content.stdout}.")
             app_logger.error(f"inference error:{inference_exception}.")

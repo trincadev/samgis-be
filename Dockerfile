@@ -14,7 +14,8 @@ COPY samgis ${WORKDIR_ROOT}/samgis
 COPY wrappers ${WORKDIR_ROOT}/wrappers
 COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
 RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
-RUN mkdir ${WORKDIR_ROOT}/vis_output
+RUN mkdir /tmp/vis_output
+RUN ls -l /tmp/vis_output
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
