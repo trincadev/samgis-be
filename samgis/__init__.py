@@ -7,6 +7,7 @@ from pathlib import Path
 from samgis.utilities.constants import SERVICE_NAME
 
 PROJECT_ROOT_FOLDER = Path(globals().get("__file__", "./_")).absolute().parent.parent
+WORKDIR = os.getenv("WORKDIR", PROJECT_ROOT_FOLDER)
 MODEL_FOLDER = Path(PROJECT_ROOT_FOLDER / "machine_learning_models")
 
 IS_AWS_LAMBDA = bool(os.getenv("IS_AWS_LAMBDA", ""))

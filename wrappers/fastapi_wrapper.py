@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
-from samgis import PROJECT_ROOT_FOLDER
+from samgis import PROJECT_ROOT_FOLDER, WORKDIR
 from samgis.io.wrappers_helpers import get_parsed_bbox_points, get_source_name
 from samgis.utilities.type_hints import ApiRequestBody
 from samgis_core.utilities.fastapi_logger import setup_logging
@@ -18,6 +18,7 @@ from samgis.prediction_api.predictors import samexporter_predict
 
 app_logger = setup_logging(debug=True)
 app_logger.info(f"PROJECT_ROOT_FOLDER:{PROJECT_ROOT_FOLDER}.")
+app_logger.info(f"WORKDIR:{WORKDIR}.")
 app = FastAPI()
 
 
@@ -87,7 +88,7 @@ def infer_samgis(request_input: ApiRequestBody) -> JSONResponse:
         except Exception as inference_exception:
             import subprocess
             home_content = subprocess.run(
-                "ls -l {PROJECT_ROOT_FOLDER} {PROJECT_ROOT_FOLDER}/*", shell=True, universal_newlines=True, stdout=subprocess.PIPE
+                "ls -l /var/task {PROJECT_ROOT_FOLDER} {PROJECT_ROOT_FOLDER}/* {WORKDIR} {WORKDIR}/*", shell=True, universal_newlines=True, stdout=subprocess.PIPE
             )
             app_logger.error(f"/home/user ls -l: {home_content.stdout}.")
             app_logger.error(f"inference error:{inference_exception}.")
