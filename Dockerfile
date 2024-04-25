@@ -42,6 +42,6 @@ RUN ls -l ${WORKDIR_ROOT}/wrappers/
 RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
-RUN ls -l ${WORKDIR_ROOT}/vis_output
+RUN ls -l /tmp/vis_output
 
 CMD ["uvicorn", "wrappers.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
