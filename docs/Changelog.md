@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.5.0
+
+- now it's possible to download tmp images from /vis_output routes if WRITE_TMP_ON_DISK env variable exists (it's the output folder path)
+
 ## Version 1.4.2
 
 - frontend: add support for hiding old polygon layers from ML inferences
