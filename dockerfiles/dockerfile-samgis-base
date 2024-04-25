@@ -67,6 +67,7 @@ RUN echo "RUNTIME: remove libz.s* to force upgrade" && rm /usr/lib/${ARCH}-linux
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libz.so* /usr/lib/${ARCH}-linux-gnu/
 RUN echo "RUNTIME: check libz.s* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
 COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
+RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
 
 RUN echo "new WORKDIR_ROOT after hidden venv copy => ${WORKDIR_ROOT}"
 RUN ls -ld ${WORKDIR_ROOT}/
@@ -120,3 +121,5 @@ RUN mkdir ${FASTAPI_STATIC}
 COPY ./machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
 COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
+COPY static/list_files.html ${FASTAPI_STATIC}/
+RUN ls -l ${FASTAPI_STATIC}/
