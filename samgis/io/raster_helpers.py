@@ -1,9 +1,11 @@
 """helpers for computer vision duties"""
 import numpy as np
 from numpy import ndarray, bitwise_not
+from rasterio import open as rasterio_open
 
 from samgis import app_logger
 from samgis.utilities.type_hints import XYZTerrainProvidersNames
+from samgis.utilities.constants import OUTPUT_CRS_STRING
 
 
 def get_nextzen_terrain_rgb_formula(red: ndarray, green: ndarray, blue: ndarray) -> ndarray:
@@ -292,3 +294,37 @@ def check_empty_array(arr: ndarray, val: float) -> bool:
     check5 = np.array_equal(arr_check5_tmp, arr_check5)
     app_logger.debug(f"array checks:{check1}, {check2}, {check3}, {check4}, {check5}.")
     return check1 or check2 or check3 or check4 or check5
+
+
+def write_raster_png(arr, transform, prefix: str, suffix: str, folder_output_path="/tmp"):
+    from pathlib import Path
+    from rasterio.plot import reshape_as_raster
+
+    output_filename = Path(folder_output_path) / f"{prefix}_{suffix}.png"
+
+    with rasterio_open(
+            output_filename, 'w', driver='PNG',
+            height=arr.shape[0],
+            width=arr.shape[1],
+            count=3,
+            dtype=str(arr.dtype),
+            crs=OUTPUT_CRS_STRING,
+            transform=transform) as dst:
+        dst.write(reshape_as_raster(arr))
+    app_logger.info(f"written:{output_filename} as PNG, use {OUTPUT_CRS_STRING} as CRS.")
+
+
+def write_raster_tiff(arr, transform, prefix: str, suffix: str, folder_output_path="/tmp"):
+    from pathlib import Path
+    output_filename = Path(folder_output_path) / f"{prefix}_{suffix}.tiff"
+
+    with rasterio_open(
+            output_filename, 'w', driver='GTiff',
+            height=arr.shape[0],
+            width=arr.shape[1],
+            count=1,
+            dtype=str(arr.dtype),
+            crs=OUTPUT_CRS_STRING,
+            transform=transform) as dst:
+        dst.write(arr, 1)
+    app_logger.info(f"written:{output_filename} as TIFF, use {OUTPUT_CRS_STRING} as CRS.")

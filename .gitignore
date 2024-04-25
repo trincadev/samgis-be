@@ -196,6 +196,7 @@ tmp
 nohup.out
 /tests/events.tar
 function_dump_*.json
+vis_output/*
 
 # onnx models
 *.onnx

@@ -14,6 +14,7 @@ COPY samgis ${WORKDIR_ROOT}/samgis
 COPY wrappers ${WORKDIR_ROOT}/wrappers
 COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
 RUN echo "# install samgis #" && pip install .
+RUN mkdir ${WORKDIR_ROOT}/vis_output
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
@@ -38,5 +39,6 @@ RUN ls -l ${WORKDIR_ROOT}/wrappers/
 RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
+RUN ls -l ${WORKDIR_ROOT}/vis_output
 
 CMD ["uvicorn", "wrappers.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
