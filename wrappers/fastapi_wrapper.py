@@ -131,7 +131,14 @@ write_tmp_on_disk = os.getenv("WRITE_TMP_ON_DISK", "")
 app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
 if bool(write_tmp_on_disk):
     try:
-        pathlib.Path.unlink(write_tmp_on_disk, missing_ok=True)
+        path_write_tmp_on_disk = pathlib.Path(write_tmp_on_disk)
+        try:
+            pathlib.Path.unlink(path_write_tmp_on_disk, missing_ok=True)
+        except PermissionError or OSError as err:
+            app_logger.error(f"{err} while removing old write_tmp_on_disk:{write_tmp_on_disk}.")
+            app_logger.error(f"is file?{path_write_tmp_on_disk.is_file()}.")
+            app_logger.error(f"is symlink?{path_write_tmp_on_disk.is_symlink()}.")
+            app_logger.error(f"is folder?{path_write_tmp_on_disk.is_dir()}.")
         os.makedirs(write_tmp_on_disk, exist_ok=True)
         app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
     except RuntimeError as rerr:
