@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+import pathlib
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -129,7 +130,12 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 write_tmp_on_disk = os.getenv("WRITE_TMP_ON_DISK", "")
 app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
 if bool(write_tmp_on_disk):
-    app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
+    try:
+        app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
+    except RuntimeError:
+        pathlib.Path.unlink(write_tmp_on_disk, missing_ok=True)
+        os.makedirs(write_tmp_on_disk, exist_ok=True)
+        app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
     templates = Jinja2Templates(directory=PROJECT_ROOT_FOLDER / "static")
 
 
