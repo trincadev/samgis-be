@@ -131,14 +131,12 @@ write_tmp_on_disk = os.getenv("WRITE_TMP_ON_DISK", "")
 app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
 if bool(write_tmp_on_disk):
     try:
-        app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
-    except RuntimeError:
-        app_logger.info(f"missing folder write_tmp_on_disk:{write_tmp_on_disk}, try to remove if it's a file or symlink...")
         pathlib.Path.unlink(write_tmp_on_disk, missing_ok=True)
-        app_logger.info(f"try to create the folder write_tmp_on_disk:{write_tmp_on_disk}.")
         os.makedirs(write_tmp_on_disk, exist_ok=True)
         app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
-        app_logger.info(f"mounted folder write_tmp_on_disk:{write_tmp_on_disk}.")
+    except RuntimeError as rerr:
+        app_logger.error(f"{rerr} while loading the folder write_tmp_on_disk:{write_tmp_on_disk}...")
+        raise rerr
     templates = Jinja2Templates(directory=PROJECT_ROOT_FOLDER / "static")
 
 
