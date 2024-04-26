@@ -73,9 +73,9 @@ def samexporter_predict(
         now = datetime.now().strftime('%Y%m%d_%H%M%S')
         app_logger.info(msg_write_tmp_on_disk + f"with coords {prefix}, shape:{img.shape}, {len(img.shape)}.")
         if img.shape and len(img.shape) == 2:
-            write_raster_tiff(img, transform, f"{prefix}_{now}_", f"raw_tiff", folder_write_tmp_on_disk)
+            write_raster_tiff(img, transform, f"{source_name}_{prefix}_{now}_", f"raw_tiff", folder_write_tmp_on_disk)
         if img.shape and len(img.shape) == 3 and img.shape[2] == 3:
-            write_raster_png(img, transform, f"{prefix}_{now}_", f"raw_img", folder_write_tmp_on_disk)
+            write_raster_png(img, transform, f"{source_name}_{prefix}_{now}_", f"raw_img", folder_write_tmp_on_disk)
 
     app_logger.info(
         f"img type {type(img)} with shape/size:{img.size}, transform type: {type(transform)}, transform:{transform}.")
