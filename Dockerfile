@@ -6,6 +6,7 @@ ARG PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packag
 ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
     PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 ENV IS_AWS_LAMBDA=""
+ENV WRITE_TMP_ON_DISK="/tmp/vis_output"
 
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
@@ -14,8 +15,8 @@ COPY samgis ${WORKDIR_ROOT}/samgis
 COPY wrappers ${WORKDIR_ROOT}/wrappers
 COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
 RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
-RUN mkdir /tmp/vis_output
-RUN ls -l /tmp/vis_output
+RUN mkdir {WRITE_TMP_ON_DISK}
+RUN ls -l {WRITE_TMP_ON_DISK}
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
@@ -42,6 +43,6 @@ RUN ls -l ${WORKDIR_ROOT}/wrappers/
 RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
-RUN ls -l /tmp/vis_output
+RUN ls -l {WRITE_TMP_ON_DISK}
 
 CMD ["uvicorn", "wrappers.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
