@@ -8,6 +8,10 @@ pinned: false
 license: mit
 ---
 
+# About this README
+
+I tested these instructions on MacOS, but should work on linux as well.
+
 ## Segment Anything models
 
 It's possible to prepare the model files using <https://github.com/vietanhdev/samexporter/> or using the ones
@@ -49,7 +53,7 @@ Test it with curl using a json payload:
 
 ```bash
 URL=http://localhost:7860/infer_samgis
-curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
+curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
 ```
 
 or better visiting the swagger page on <http://localhost:7860/docs>
@@ -80,7 +84,7 @@ Test it with curl using a json payload:
 
 ```bash
 URL=http://localhost:8080/2015-03-31/functions/function/invocations
-curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
+curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
 ```
 
 ### Publish the aws lambda docker image
@@ -88,10 +92,26 @@ curl -d@./events/payload_point_eolie.json -H 'accept: application/json' ${URL}
 Login on aws ECR with the correct aws profile (change the example `example-docker-namespace/` repository url with the one from
 the [ECR push command instructions page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/)).
 
-### Dependencies installation and local tests
+### Dependencies installation, local execution and local tests
 
-The docker build process needs only the base dependency group plus the `aws_lambda` or `fastapi` optional one.
-Install also the `test` and/or `docs` groups if needed.
+The docker build process needs only the base dependency group plus the `aws_lambda` or `fastapi` optional one (right now I use almost only the `fastapi` version). Install also the `test` and/or `docs` groups if needed.
+
+#### Local execution
+
+If you need to use the SPA frontend follow the frontend instruction [here](/static/README.md).
+
+You can run the local server using this python command:
+
+```python
+uvicorn wrappers.fastapi_wrapper:app --host 127.0.0.1 --port 7860
+```
+
+Change the port and/or the host ip if needed. Test it with curl using a json payload:
+
+```bash
+URL=http://localhost:7860/infer_samgis
+curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
+```
 
 ### Tests
 
