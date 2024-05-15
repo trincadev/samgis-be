@@ -7,15 +7,26 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import os
 import sys
+import tomllib
+
 
 project = 'SamGIS'
-copyright = '2023-now, alessandro trinca tornidor'
-author = 'alessandro trinca tornidor'
-release = '1.3.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 sys.path.insert(0, os.path.abspath('..'))
+
+# Pull general sphinx project info from pyproject.toml
+# Modified from https://stackoverflow.com/a/75396624/1304076
+with open("../pyproject.toml", "rb") as f:
+    toml = tomllib.load(f)
+
+pyproject = toml["tool"]["poetry"]
+version = pyproject["version"]
+release = version
+authors_list = [author for author in pyproject["authors"]]
+author = ", ".join(authors_list) if len(authors_list) > 1 else authors_list[0]
+copyright = f"2023-now {author}"
 
 extensions = [
     'sphinx.ext.autodoc',
