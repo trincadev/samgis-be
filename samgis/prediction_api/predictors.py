@@ -7,13 +7,14 @@ from samgis.io.geo_helpers import get_vectorized_raster_as_geojson
 from samgis.io.raster_helpers import get_raster_terrain_rgb_like, get_rgb_prediction_image, write_raster_png, write_raster_tiff
 from samgis.io.tms2geotiff import download_extent
 from samgis.io.wrappers_helpers import check_source_type_is_terrain
-from samgis.utilities.constants import DEFAULT_URL_TILES, SLOPE_CELLSIZE
-from samgis_core.prediction_api.sam_onnx import SegmentAnythingONNX, get_raster_inference_with_embedding_from_dict
+from samgis.utilities.constants import DEFAULT_URL_TILES, MODEL_NAME, SLOPE_CELLSIZE
+from samgis_core.prediction_api.sam_onnx2 import SegmentAnythingONNX2
+from samgis_core.prediction_api.sam_onnx_inference import get_raster_inference_with_embedding_from_dict
 from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME, DEFAULT_INPUT_SHAPE
 from samgis_core.utilities.type_hints import LlistFloat, DictStrInt, ListDict
 
 
-models_dict = {"fastsam": {"instance": None}}
+models_dict = {MODEL_NAME: {"instance": None}}
 embedding_dict = {}
 msg_write_tmp_on_disk = "found option to write images and geojson output..."
 
@@ -22,7 +23,7 @@ def samexporter_predict(
         bbox: LlistFloat,
         prompt: ListDict,
         zoom: float,
-        model_name: str = "fastsam",
+        model_name: str = MODEL_NAME,
         source: str = DEFAULT_URL_TILES,
         source_name: str = None
 ) -> DictStrInt:
@@ -47,7 +48,7 @@ def samexporter_predict(
     """
     if models_dict[model_name]["instance"] is None:
         app_logger.info(f"missing instance model {model_name}, instantiating it now!")
-        model_instance = SegmentAnythingONNX(
+        model_instance = SegmentAnythingONNX2(
             encoder_model_path=MODEL_FOLDER / MODEL_ENCODER_NAME,
             decoder_model_path=MODEL_FOLDER / MODEL_DECODER_NAME
         )
