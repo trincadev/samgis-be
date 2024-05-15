@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.5.0
+FROM registry.gitlab.com/aletrn/gis-prediction:1.5.1
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
@@ -14,7 +14,7 @@ WORKDIR ${WORKDIR_ROOT}
 COPY samgis ${WORKDIR_ROOT}/samgis
 COPY wrappers ${WORKDIR_ROOT}/wrappers
 COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
-RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
+RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
 RUN mkdir {WRITE_TMP_ON_DISK}
 RUN ls -l {WRITE_TMP_ON_DISK}
 
@@ -29,7 +29,6 @@ RUN ls -l ${WORKDIR_ROOT}
 RUN ls -ld ${WORKDIR_ROOT}
 RUN ls -l ${WORKDIR_ROOT}/machine_learning_models
 RUN python -c "import sys; print(sys.path)"
-RUN python -c "import cv2"
 RUN python -c "import fastapi"
 RUN python -c "import geopandas"
 RUN python -c "import loguru"
