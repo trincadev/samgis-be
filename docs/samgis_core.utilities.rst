@@ -20,6 +20,14 @@ samgis\_core.utilities.fastapi\_logger module
    :undoc-members:
    :show-inheritance:
 
+samgis\_core.utilities.plot\_images module
+------------------------------------------
+
+.. automodule:: samgis_core.utilities.plot_images
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 samgis\_core.utilities.serialize module
 ---------------------------------------
 

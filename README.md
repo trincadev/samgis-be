@@ -113,6 +113,33 @@ URL=http://localhost:7860/infer_samgis
 curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
 ```
 
+#### Local execution on MacOS
+
+There is a known issue running the project on MacOS. SamGIS still work also without executing it within a docker container, but is slower during image embedding because of a memory leak caused by CoreML. Here a log about this bug:
+
+```less
+[...]
+2024-05-15T18:38:37.478698+0200 - INFO - predictors.py - samexporter_predict - (be2506dc-0887-4752-9889-cf12db7501f5) missing instance model mobile_sam, instantiating it now! 
+2024-05-15T18:38:37.479582+0200 - INFO - sam_onnx2.py - __init__ - (be2506dc-0887-4752-9889-cf12db7501f5) Available providers for ONNXRuntime: %s 
+2024-05-15 18:38:37.673229 [W:onnxruntime:, coreml_execution_provider.cc:81 GetCapability] CoreMLExecutionProvider::GetCapability, number of partitions supported by CoreML: 104 number of nodes in the graph: 566 number of nodes supported by CoreML: 383
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+2024-05-15T18:38:47.691608+0200 - INFO - sam_onnx2.py - __init__ - (be2506dc-0887-4752-9889-cf12db7501f5) encoder_input_name: 
+2024-05-15 18:38:47.913677 [W:onnxruntime:, coreml_execution_provider.cc:81 GetCapability] CoreMLExecutionProvider::GetCapability, number of partitions supported by CoreML: 48 number of nodes in the graph: 496 number of nodes supported by CoreML: 221
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+Context leak detected, CoreAnalytics returned false
+2024-05-15T18:38:50.926801+0200 - DEBUG - predictors.py - samexporter_predict - (be2506dc-0887-4752-9889-cf12db7501f5) using a mobile_sam instance model... 
+[...]
+```
+
+This problem doesn't rise if running it within the docker container.
+
 ### Tests
 
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
@@ -130,7 +157,8 @@ Run the command from the project root:
 
 ```bash
 # missing docs folder (run from project root) initialize this way
-cd docs && sphinx-quickstart -p SamGIS -r 1.0.0 -l python --master index
+# 
+cd docs && sphinx-quickstart --project SamGIS --release 1.0.0 --language python --master index
 
 # update docs folder (from project root)
 sphinx-apidoc -f -o docs samgis
