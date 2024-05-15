@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.5.1
+
+- samgis_core: now support onnxruntime 1.17.x and later
+- samgis_core: remove opencv-python dependency, now SegmentAnythingONNX2 resize images using PIL
+- samgis_core: bump to version 2.0.0 to remark a breaking change: passage from SegmentAnythingONNX to SegmentAnythingONNX2
+- known issue: on MacOS, samgis still work without executing it within a docker container, but it's slower during image embedding because of a memory leak caused by CoreML
+
 ## Version 1.5.0
 
 - now it's possible to download tmp images from /vis_output routes if WRITE_TMP_ON_DISK env variable exists (it's the output folder path)
