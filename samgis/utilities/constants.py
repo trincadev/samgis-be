@@ -1,4 +1,7 @@
 """Project constants"""
+import os
+
+
 INPUT_CRS_STRING = "EPSG:4326"
 OUTPUT_CRS_STRING = "EPSG:3857"
 DRIVER_RASTERIO_GTIFF = "GTiff"
@@ -38,3 +41,4 @@ RELATIVE_URL_TILES_NEXTZEN = "elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"  #
 COMPLETE_URL_TILES_NEXTZEN = f"https://{DOMAIN_URL_TILES_NEXTZEN}/{RELATIVE_URL_TILES_NEXTZEN}"
 CHANNEL_EXAGGERATIONS_LIST = [2.5, 1.1, 2.0]
 SLOPE_CELLSIZE = 61
+MODEL_NAME = os.getenv("MODEL_NAME", "mobile_sam")
