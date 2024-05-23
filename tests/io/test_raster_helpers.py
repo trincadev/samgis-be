@@ -133,7 +133,7 @@ class Test(unittest.TestCase):
                         count_abs_diff += 1
                     if check_type == "float":
                         cls.assertAlmostEqual(el00, el01, places=places)
-                    cls.assertTrue(ndiff < check_ndiff)
+                    cls.assertLess(ndiff, check_ndiff)
             print("count_abs_diff:", count_abs_diff)
 
         normalized_array = raster_helpers.normalize_array(z)
@@ -174,7 +174,6 @@ class Test(unittest.TestCase):
     def test_normalize_array_exception_error_mocked(self, nanmax_mocked, nanmin_mocked):
         nanmax_mocked.return_value = 100
         nanmin_mocked.return_value = np.NaN
-
         with self.assertRaises(ValueError):
             try:
                 raster_helpers.normalize_array(
