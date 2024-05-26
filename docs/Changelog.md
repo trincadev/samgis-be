@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.5.2
+
+- update backend and frontend dependencies
+
 ## Version 1.5.1
 
 - samgis_core: now support onnxruntime 1.17.x and later
