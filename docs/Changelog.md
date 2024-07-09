@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.5.4
+
+- update backend and frontend dependencies (samgis-core updated to version 2.0.2)
+
 ## Version 1.5.3
 
 - update backend and frontend dependencies (samgis-core updated to version 2.0.1)
