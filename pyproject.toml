@@ -37,7 +37,7 @@ optional = true
 aws-lambda-powertools = "^2.30.2"
 awslambdaric = "^2.0.10"
 jmespath = "^1.0.1"
-pydantic = "^2.5.3"
+pydantic = "^2.8.2"
 
 [tool.poetry.group.test]
 optional = true
