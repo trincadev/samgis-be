@@ -9,7 +9,7 @@ ARG POETRY_VIRTUALENVS_CREATE=1
 ARG POETRY_CACHE_DIR=/tmp/poetry_cache
 
 
-FROM python:3.11-bookworm as builder_global
+FROM python:3.11-bookworm AS builder_global
 
 ARG ARCH
 ARG WORKDIR_ROOT
@@ -52,7 +52,7 @@ RUN echo "# poetry config --list #" && poetry config --list
 RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
 
 
-FROM python:3.11-slim-bookworm as runtime
+FROM python:3.11-slim-bookworm AS runtime
 
 ARG ARCH
 ARG WORKDIR_ROOT
@@ -102,8 +102,10 @@ FROM node_fastapi AS node_build
 ARG DEPENDENCY_GROUP
 ARG VITE__MAP_DESCRIPTION
 ARG VITE__SAMGIS_SPACE
+ENV VITE__INDEX_URL="/"
 RUN echo "VITE__MAP_DESCRIPTION:" ${VITE__MAP_DESCRIPTION}
 RUN echo "VITE__SAMGIS_SPACE:" ${VITE__SAMGIS_SPACE}
+RUN echo "VITE__INDEX_URL:" ${VITE__INDEX_URL}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
     pnpm install --frozen-lockfile; else \
@@ -118,7 +120,7 @@ FROM runtime
 ARG FASTAPI_STATIC
 RUN mkdir ${FASTAPI_STATIC}
 
-COPY ./machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
+COPY ./sam-quantized/machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
 COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
 COPY static/list_files.html ${FASTAPI_STATIC}/
