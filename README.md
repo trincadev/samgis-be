@@ -17,6 +17,12 @@ I tested these instructions on MacOS, but should work on linux as well.
 It's possible to prepare the model files using <https://github.com/vietanhdev/samexporter/> or using the ones
 from <https://huggingface.co/aletrn/sam-quantized> (copy them within the folder `/machine_learning_models`).
 
+In this case after the clone of this repository it's best to initialize the `sam-quantized` submodule:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## SamGIS - HuggingFace version
 
 The SamGIS HuggingSpace url is <https://huggingface.co/spaces/aletrn/samgis>.
@@ -36,6 +42,7 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
   --build-arg DEPENDENCY_GROUP=fastapi \
   --build-arg VITE__MAP_DESCRIPTION=${VITE__MAP_DESCRIPTION} \
   --build-arg VITE__SAMGIS_SPACE=${VITE__SAMGIS_SPACE} \
+  --build-arg VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
   --tag registry.gitlab.com/aletrn/gis-prediction
 )
 
@@ -46,7 +53,10 @@ docker build . --tag registry.gitlab.com/aletrn/samgis-huggingface --progress=pl
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name samgis-huggingface -p 7860:7860 registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface
+docker run  -d --name samgis-huggingface -p 7860:7860 \
+  -e VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
+  -e VITE__INDEX_URL=${VITE__INDEX_URL} \
+  registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
 Test it with curl using a json payload:
@@ -103,7 +113,7 @@ If you need to use the SPA frontend follow the frontend instruction [here](/stat
 You can run the local server using this python command:
 
 ```python
-uvicorn wrappers.fastapi_wrapper:app --host 127.0.0.1 --port 7860
+uvicorn app:app --host 127.0.0.1 --port 7860
 ```
 
 Change the port and/or the host ip if needed. Test it with curl using a json payload:

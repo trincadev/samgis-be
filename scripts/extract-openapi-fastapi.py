@@ -7,7 +7,8 @@ import sys
 import yaml
 from uvicorn.importer import import_from_string
 
-from samgis import PROJECT_ROOT_FOLDER
+from app import project_root_folder
+
 
 parser = argparse.ArgumentParser(prog="extract-openapi-fastapi.py")
 parser.add_argument("app",       help='App import string. Eg. "main:app"', default="main:app")
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     version = openapi.get("openapi", "unknown version")
 
     logging.info(f"writing openapi spec v{version}...")
-    output_dir_path = PROJECT_ROOT_FOLDER / "docs" / "specs"
+    output_dir_path = project_root_folder / "docs" / "specs"
     with open(output_dir_path / "output.json", "w") as f:
         json.dump(openapi, f)
     with open(output_dir_path / "output.yaml", "w") as f:
