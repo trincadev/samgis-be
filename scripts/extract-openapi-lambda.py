@@ -1,11 +1,11 @@
 import json
 
-from samgis import PROJECT_ROOT_FOLDER
+from app import project_root_folder
+from samgis_web.utilities.type_hints import ApiRequestBody, ApiResponseBodyFailure, ApiResponseBodySuccess
+
 
 if __name__ == '__main__':
-    from samgis.utilities.type_hints import ApiRequestBody, ApiResponseBodyFailure, ApiResponseBodySuccess
-
-    with open(PROJECT_ROOT_FOLDER / "docs" / "specs" / "openapi_lambda_wip.json", "w") as output_json:
+    with open(project_root_folder / "docs" / "specs" / "openapi_lambda_wip.json", "w") as output_json:
         json.dump({
             "ApiRequestBody": ApiRequestBody.model_json_schema(),
             "ApiResponseBodyFailure": ApiResponseBodyFailure.model_json_schema(),
