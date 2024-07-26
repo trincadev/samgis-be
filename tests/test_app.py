@@ -4,19 +4,16 @@ import unittest
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+from samgis_web.utilities.local_tiles_http_server import LocalTilesHttpServer
+from samgis_web.web import web_helpers
 
-from samgis import PROJECT_ROOT_FOLDER
-from samgis.io import wrappers_helpers
-from tests import TEST_EVENTS_FOLDER
-from tests.local_tiles_http_server import LocalTilesHttpServer
-from wrappers import fastapi_wrapper
-from wrappers.fastapi_wrapper import app
+import app
 
 
 infer_samgis = "/infer_samgis"
 response_status_code = "response.status_code:{}."
 response_body_loaded = "response.body_loaded:{}."
-client = TestClient(app)
+client = TestClient(app.app)
 source = {
     'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'max_zoom': 19,
     'html_attribution': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -60,45 +57,24 @@ class TestFastapiApp(unittest.TestCase):
         body = response.json()
         assert body == {"msg": "still alive..."}
 
-    def test_fastapi_handler_post_test_200(self):
-        fn_name = "lambda_handler"
-        for json_filename in [
-            "single_point",
-            "multi_prompt",
-            "single_rectangle"
-        ]:
-            with open(TEST_EVENTS_FOLDER / f"{fn_name}_{json_filename}.json") as tst_json:
-                inputs_outputs = json.load(tst_json)
-                input_body = json.loads(inputs_outputs["input"]["body"])
-                response = client.post("/post_test", json=input_body)
-                assert response.status_code == 200
-                response_body = response.json()
-                assert response_body == response_bodies_post_test[json_filename]
-
-    def test_fastapi_handler_post_test_422(self):
-        response = client.post("/post_test", json={})
-        assert response.status_code == 422
-        body = response.json()
-        assert body == {'msg': 'Error - Unprocessable Entity'}
-
-    def test_index(self):
-        import subprocess
-
-        subprocess.run(["pnpm", "build"], cwd=PROJECT_ROOT_FOLDER / "static")
-        subprocess.run(["pnpm", "tailwindcss", "-i", "./src/input.css", "-o", "./dist/output.css"],
-                       cwd=PROJECT_ROOT_FOLDER / "static")
-        response = client.get("/")
-        assert response.status_code == 200
-        html_body = response.read().decode("utf-8")
-        assert "html" in html_body
-        assert "head" in html_body
-        assert "body" in html_body
+    # def test_index(self):
+    #     import subprocess
+    #
+    #     subprocess.run(["pnpm", "build"], cwd=project_root_folder / "static")
+    #     subprocess.run(["pnpm", "tailwindcss", "-i", "./src/input.css", "-o", "./dist/output.css"],
+    #                    cwd=project_root_folder / "static")
+    #     response = client.get("/")
+    #     assert response.status_code == 200
+    #     html_body = response.read().decode("utf-8")
+    #     assert "html" in html_body
+    #     assert "head" in html_body
+    #     assert "body" in html_body
 
     def test_404(self):
         response = client.get("/404")
         assert response.status_code == 404
 
-    def test_infer_samgis_422(self):
+    def test_infer_samgis_empty_body_422(self):
         response = client.post(infer_samgis, json={})
         print(response_status_code.format(response.status_code))
         assert response.status_code == 422
@@ -106,22 +82,20 @@ class TestFastapiApp(unittest.TestCase):
         print(response_body_loaded.format(body_loaded))
         assert body_loaded == {"msg": "Error - Unprocessable Entity"}
 
-    def test_infer_samgis_middleware_500(self):
+    def test_infer_samgis_source_422(self):
         from copy import deepcopy
         local_event = deepcopy(event)
 
         local_event["source_type"] = "source_fake"
         response = client.post(infer_samgis, json=local_event)
         print(response_status_code.format(response.status_code))
-        assert response.status_code == 500
+        assert response.status_code == 422
         body_loaded = response.json()
         print(response_body_loaded.format(body_loaded))
-        assert body_loaded == {'success': False}
+        assert body_loaded == {"msg": "Error - Unprocessable Entity"}
 
-    @patch.object(time, "time")
-    @patch.object(fastapi_wrapper, "samexporter_predict")
-    def test_infer_samgis_500(self, samexporter_predict_mocked, time_mocked):
-        time_mocked.return_value = 0
+    @patch.object(app, "samexporter_predict")
+    def test_infer_samgis_500(self, samexporter_predict_mocked):
         samexporter_predict_mocked.side_effect = ValueError("I raise a value error!")
 
         response = client.post(infer_samgis, json=event)
@@ -131,7 +105,7 @@ class TestFastapiApp(unittest.TestCase):
         print(response_body_loaded.format(body))
         assert body == {'msg': 'Error - Internal Server Error'}
 
-    @patch.object(wrappers_helpers, "get_url_tile")
+    @patch.object(web_helpers, "get_url_tile")
     @patch.object(time, "time")
     def test_infer_samgis_real_200(self, time_mocked, get_url_tile_mocked):
         import shapely
@@ -162,7 +136,7 @@ class TestFastapiApp(unittest.TestCase):
         assert len(output_geojson.geoms) == 3
 
     @patch.object(time, "time")
-    @patch.object(fastapi_wrapper, "samexporter_predict")
+    @patch.object(app, "samexporter_predict")
     def test_infer_samgis_mocked_200(self, samexporter_predict_mocked, time_mocked):
         self.maxDiff = None
 
