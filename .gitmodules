@@ -1,0 +1,3 @@
+[submodule "sam-quantized"]
+	path = sam-quantized
+	url = https://huggingface.co/aletrn/sam-quantized
