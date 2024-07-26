@@ -56,6 +56,7 @@ Run the container (keep it on background) and show logs
 docker run  -d --name samgis-huggingface -p 7860:7860 \
   -e VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
   -e VITE__INDEX_URL=${VITE__INDEX_URL} \
+  -e MOUNT_GRADIO_APP="" \
   registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
