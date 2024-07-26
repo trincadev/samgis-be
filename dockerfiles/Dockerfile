@@ -1,22 +1,23 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.5.4
+FROM registry.gitlab.com/aletrn/gis-prediction:1.6.0
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-ARG PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
+ENV PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
     PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
-ENV IS_AWS_LAMBDA=""
-ENV WRITE_TMP_ON_DISK="/tmp/vis_output"
+ENV WRITE_TMP_ON_DISK=""
+ENV MOUNT_GRADIO_APP=""
+ENV VITE__STATIC_INDEX_URL="/static"
+ENV VITE__INDEX_URL="/"
 
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
 
-COPY samgis ${WORKDIR_ROOT}/samgis
-COPY wrappers ${WORKDIR_ROOT}/wrappers
+COPY app.py ${WORKDIR_ROOT}/
 COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
-RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
-RUN mkdir {WRITE_TMP_ON_DISK}
-RUN ls -l {WRITE_TMP_ON_DISK}
+# RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
+RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then mkdir {WRITE_TMP_ON_DISK}; fi
+RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then ls -l {WRITE_TMP_ON_DISK}; fi
 
 RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
@@ -31,17 +32,14 @@ RUN ls -l ${WORKDIR_ROOT}/machine_learning_models
 RUN python -c "import sys; print(sys.path)"
 RUN python -c "import fastapi"
 RUN python -c "import geopandas"
-RUN python -c "import loguru"
 RUN python -c "import onnxruntime"
 RUN python -c "import rasterio"
 RUN python -c "import uvicorn"
 RUN python -c "import jinja2"
 RUN df -h
-RUN ls -l ${WORKDIR_ROOT}/samgis/
-RUN ls -l ${WORKDIR_ROOT}/wrappers/
+RUN ls -l ${WORKDIR_ROOT}/app.py
 RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
-RUN ls -l {WRITE_TMP_ON_DISK}
 
-CMD ["uvicorn", "wrappers.fastapi_wrapper:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
