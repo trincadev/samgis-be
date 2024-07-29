@@ -62,7 +62,7 @@ async def health() -> JSONResponse:
 
 
 def infer_samgis_fn(request_input: ApiRequestBody | str) -> str | JSONResponse:
-    from samgis_web.web.web_helpers import get_source_name, get_parsed_bbox_points_with_dictlist_prompt
+    from samgis_web.web.web_helpers import get_parsed_bbox_points_with_dictlist_prompt
 
     app_logger.info("starting inference request...")
     try:
@@ -72,11 +72,10 @@ def infer_samgis_fn(request_input: ApiRequestBody | str) -> str | JSONResponse:
         body_request = get_parsed_bbox_points_with_dictlist_prompt(request_input)
         app_logger.info(f"body_request:{body_request}.")
         try:
-            source_name = get_source_name(request_input.source_type)
-            app_logger.info(f"source_name = {source_name}.")
+            app_logger.info(f"source_name = {body_request['source_name']}.")
             output = samexporter_predict(
                 bbox=body_request["bbox"], prompt=body_request["prompt"], zoom=body_request["zoom"],
-                source=body_request["source"], source_name=source_name, model_folder=model_folder
+                source=body_request["source"], source_name=body_request['source_name'], model_folder=model_folder
             )
             duration_run = time.time() - time_start_run
             app_logger.info(f"duration_run:{duration_run}.")
