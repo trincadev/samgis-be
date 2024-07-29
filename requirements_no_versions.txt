@@ -1,0 +1,15 @@
+bson
+contextily
+geopandas
+numpy
+pillow
+python-dotenv
+onnxruntime
+rasterio
+requests
+samgis-core
+samgis-web
+fastapi
+jinja2
+pydantic
+uvicorn

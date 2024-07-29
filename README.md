@@ -25,7 +25,27 @@ In this case after the clone of this repository it's best to initialize the `sam
 git submodule update --init --recursive
 ```
 
-## SamGIS - HuggingFace version
+## SamGIS - Gradio SDK version
+
+After developed your project using [the gradio quickstart](https://www.gradio.app/guides/quickstart),
+you can declare the specific gradio version you want to use in the HuggingFace space using
+the README.md header section. You need to compile these fields:
+
+```
+sdk: gradio
+sdk_version: 4.39.0
+app_file: app.py
+```
+
+For some reason the space won't work if the app_file setting points to a file not
+within the root folder project.
+
+Under the hood, HuggingFace install the gradio SDK using docker. If you need to install some dependencies
+(for this project I needed `nodejs`) you can add some system
+[debian packages](https://huggingface.co/docs/hub/spaces-dependencies#adding-your-own-dependencies)
+within the `pre-requirements.txt` file.
+
+## SamGIS - Docker version
 
 The SamGIS HuggingSpace url is <https://huggingface.co/spaces/aletrn/samgis>.
 Build the docker image this way:
