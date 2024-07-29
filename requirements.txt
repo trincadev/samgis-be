@@ -8,7 +8,7 @@ onnxruntime==1.18.1
 rasterio==1.3.10
 requests==2.32.3
 samgis_core==3.0.6
-samgis_web==1.0.7
+samgis_web==1.0.8
 fastapi==0.111.1
 pydantic==2.8.2
 uvicorn==0.30.3
