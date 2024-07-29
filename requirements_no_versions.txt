@@ -9,6 +9,8 @@ rasterio
 requests
 samgis-core
 samgis-web
+samgis_core
+samgis_web
 fastapi
 jinja2
 pydantic
