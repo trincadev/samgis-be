@@ -39,10 +39,10 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
   set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport;
   env|grep VITE__;
   docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
-  --build-arg DEPENDENCY_GROUP=fastapi \
-  --build-arg VITE__MAP_DESCRIPTION=${VITE__MAP_DESCRIPTION} \
-  --build-arg VITE__SAMGIS_SPACE=${VITE__SAMGIS_SPACE} \
-  --build-arg VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
+  --build-arg DEPENDENCY_GROUP="fastapi" \
+  --build-arg VITE__MAP_DESCRIPTION="${VITE__MAP_DESCRIPTION}" \
+  --build-arg VITE__SAMGIS_SPACE="${VITE__SAMGIS_SPACE}" \
+  --build-arg VITE__STATIC_INDEX_URL="${VITE__STATIC_INDEX_URL}" \
   --tag registry.gitlab.com/aletrn/gis-prediction
 )
 
