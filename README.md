@@ -3,7 +3,9 @@ title: SamGIS
 emoji: 🗺️
 colorFrom: red
 colorTo: blue
-sdk: docker
+sdk: gradio
+sdk_version: 4.39.0
+app_file: app.py
 pinned: false
 license: mit
 ---
