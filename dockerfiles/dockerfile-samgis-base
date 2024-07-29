@@ -49,7 +49,7 @@ RUN python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
 RUN which poetry && poetry --version && poetry config --list
 RUN poetry config virtualenvs.path ${WORKDIR_ROOT}
 RUN echo "# poetry config --list #" && poetry config --list
-RUN poetry install --with ${DEPENDENCY_GROUP} --no-root
+RUN poetry install --with ${DEPENDENCY_GROUP} --no-root --no-cache
 
 
 FROM python:3.11-slim-bookworm AS runtime
