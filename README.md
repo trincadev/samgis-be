@@ -193,9 +193,9 @@ Run the command from the project root:
 # 
 cd docs && sphinx-quickstart --project SamGIS --release 1.0.0 --language python --master index
 
-# update docs folder (from project root)
-sphinx-apidoc -f -o docs samgis
-sphinx-apidoc -f -o docs samgis_core
+# update docs folder (from project root) referring to the other packages folder
+sphinx-apidoc -f -o docs /path/to/samgis_web
+sphinx-apidoc -f -o docs /path/to/samgis_core
 ```
 
 Then it's possible to generate the HTML pages

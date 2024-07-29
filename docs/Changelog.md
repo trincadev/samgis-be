@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.6.5
+
+- add missing files needed for HuggingFace ci
+- using samgis-core = 3.0.6, samgis-web = 1.0.8
+- updated sam-quantized submodule because of updated decoder model
+
+## Version 1.6.0
+
+- move all the helper functions to samgis_web (version 1.0.6) to avoid code duplication between different demos
+- update backend and frontend dependencies (samgis-core updated to version 3.0.5)
+- samgis_core 3.0.5 now exposes ``setup_logger()` based on `structlog` package to improve logging with correlation id
+  (that's not working with functions called from gradio interfaces)
+- SamGIS now can work using Gradio SDK on huggingface (if needed change the README.md file accordingly)
+
 ## Version 1.5.4
 
 - update backend and frontend dependencies (samgis-core updated to version 2.0.2)
