@@ -12,10 +12,10 @@ samgis\_core.utilities.constants module
    :undoc-members:
    :show-inheritance:
 
-samgis\_core.utilities.fastapi\_logger module
----------------------------------------------
+samgis\_core.utilities.create\_folders\_if\_not\_exists module
+--------------------------------------------------------------
 
-.. automodule:: samgis_core.utilities.fastapi_logger
+.. automodule:: samgis_core.utilities.create_folders_if_not_exists
    :members:
    :undoc-members:
    :show-inheritance:
@@ -32,6 +32,14 @@ samgis\_core.utilities.serialize module
 ---------------------------------------
 
 .. automodule:: samgis_core.utilities.serialize
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+samgis\_core.utilities.session\_logger module
+---------------------------------------------
+
+.. automodule:: samgis_core.utilities.session_logger
    :members:
    :undoc-members:
    :show-inheritance:

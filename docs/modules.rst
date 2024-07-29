@@ -4,5 +4,5 @@ modules
 .. toctree::
    :maxdepth: 4
 
-   samgis
+   samgis_web
    samgis_core
