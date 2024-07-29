@@ -2562,13 +2562,13 @@ structlog = ">=24.4.0,<25.0.0"
 
 [[package]]
 name = "samgis-web"
-version = "1.0.7"
+version = "1.0.8"
 description = "SamGIS WEB"
 optional = false
 python-versions = "<3.12,>=3.10"
 files = [
-    {file = "samgis_web-1.0.7-py3-none-any.whl", hash = "sha256:99db238547fee3962d3c20638b5ea03cb87c78c8df3388456e7a6f90b290f9e7"},
-    {file = "samgis_web-1.0.7.tar.gz", hash = "sha256:9c3ef6789855744a43448e3c6b3e1883d9407c63452b23df5c8ff81576a5175b"},
+    {file = "samgis_web-1.0.8-py3-none-any.whl", hash = "sha256:447d718fb10a975c0e9067353fdd4c3621b2f1e1d8f3ffd1592cd9a9a3ae2315"},
+    {file = "samgis_web-1.0.8.tar.gz", hash = "sha256:12020d9564095851cc050f14acfc106a6c8fb1c755869d2db93027848e5d9ef2"},
 ]
 
 [package.dependencies]
@@ -3348,4 +3348,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "a6f674a4f65c14c2cdf7ef327319bbd94cd1a09d6a81656dca66299a75289bbc"
+content-hash = "3e63d3a7325f81dd7ca8572300f796f1978437a6d9a6639b3104ab10982c0b7b"
