@@ -28,8 +28,8 @@ python-dotenv = "^1.0.1"
 onnxruntime = "^1.18.1"
 rasterio = "^1.3.10"
 requests = "^2.32.3"
-samgis-core = "^3.0.2"
-samgis-web = "^1.0.4"
+samgis-core = "3.0.6"
+samgis-web = "1.0.7"
 
 [tool.poetry.group.test]
 optional = true
