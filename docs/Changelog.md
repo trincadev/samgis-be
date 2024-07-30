@@ -1,10 +1,15 @@
 # Changelog
 
+## Version 1.6.6
+
+- Adopt again docker SDK (we'll try Gradio SDK on duplicated HuggingFace space)
+
 ## Version 1.6.5
 
 - add missing files needed for HuggingFace ci
 - using samgis-core = 3.0.6, samgis-web = 1.0.8
 - updated sam-quantized submodule because of updated decoder model
+- trying to adopt Gradio SDK
 
 ## Version 1.6.0
 
