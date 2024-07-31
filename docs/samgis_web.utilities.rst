@@ -12,14 +12,6 @@ samgis\_web.utilities.constants module
    :undoc-members:
    :show-inheritance:
 
-samgis\_web.utilities.frontend\_builder module
-----------------------------------------------
-
-.. automodule:: samgis_web.utilities.frontend_builder
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 samgis\_web.utilities.local\_tiles\_http\_server module
 -------------------------------------------------------
 

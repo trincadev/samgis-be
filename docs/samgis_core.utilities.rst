@@ -20,6 +20,14 @@ samgis\_core.utilities.create\_folders\_if\_not\_exists module
    :undoc-members:
    :show-inheritance:
 
+samgis\_core.utilities.frontend\_builder module
+-----------------------------------------------
+
+.. automodule:: samgis_core.utilities.frontend_builder
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 samgis\_core.utilities.plot\_images module
 ------------------------------------------
 
