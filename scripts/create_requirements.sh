@@ -4,6 +4,7 @@ SCRIPT=$(realpath "$0")
 SCRIPT_FOLDER=$(dirname "$SCRIPT")
 ROOT_FOLDER=${SCRIPT_FOLDER}/../
 
+mkdir -p tmp
 rm ./tmp/requirements_tmp.txt || echo "./tmp/requirements_tmp.txt not found!"
 
 echo "start requirements.txt preparation: pip freeze..."
