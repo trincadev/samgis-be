@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.6.7
+
+- Update samgis-core = 3.0.8, samgis-web = 1.0.9
+- move frontend_builder from samgis-web to samgis-core but expose it also within samgis_web.utilities
+- create_requirements.sh: handle case of of missing ./tmp/ folder
+- update docs
+
 ## Version 1.6.6
 
 - Adopt again docker SDK (we'll try Gradio SDK on duplicated HuggingFace space)

@@ -13,9 +13,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 from samgis_core.utilities import create_folders_if_not_exists
+from samgis_web.utilities import frontend_builder
 from samgis_core.utilities.session_logger import setup_logging
 from samgis_web.prediction_api.predictors import samexporter_predict
-from samgis_web.utilities.frontend_builder import build_frontend
 from samgis_web.utilities.type_hints import ApiRequestBody
 from starlette.responses import JSONResponse
 
@@ -142,16 +142,17 @@ if bool(write_tmp_on_disk):
         app_logger.error(f"{rerr} while loading the folder write_tmp_on_disk:{write_tmp_on_disk}...")
         raise rerr
 
-
-build_frontend(
+frontend_builder.build_frontend(
     project_root_folder=workdir,
     input_css_path=input_css_path,
     output_dist_folder=static_dist_folder
 )
 app_logger.info("build_frontend ok!")
 
+# eventually needed for tailwindcss output.css
 app.mount("/static", StaticFiles(directory=static_dist_folder, html=True), name="static")
 app.mount(vite_index_url, StaticFiles(directory=static_dist_folder, html=True), name="index")
+app.mount(vite_gradio_url, StaticFiles(directory=static_dist_folder, html=True), name="gradio")
 
 
 @app.get(vite_index_url)
@@ -159,22 +160,29 @@ async def index() -> FileResponse:
     return FileResponse(path=static_dist_folder / "index.html", media_type="text/html")
 
 
+app_logger.info(f"Mounted index on url path {vite_index_url} .")
 app_logger.info(f"There is need to create and mount gradio app interface? {mount_gradio_app}...")
 if mount_gradio_app:
-    import gradio as gr
-    from samgis_web.web.gradio_helpers import get_gradio_interface_geojson
+    try:
+        import gradio as gr
+        from samgis_web.web.gradio_helpers import get_gradio_interface_geojson
 
-    app_logger.info(f"creating gradio interface...")
-    gr_interface = get_gradio_interface_geojson(
-        infer_samgis_fn,
-        markdown_text,
-        examples_text_list,
-        example_body
-    )
-    app_logger.info(
-        f"gradio interface created, mounting gradio app on url {vite_gradio_url} within FastAPI...")
-    app = gr.mount_gradio_app(app, gr_interface, path=vite_gradio_url)
-    app_logger.info("mounted gradio app within fastapi")
+        app_logger.info(f"creating gradio interface...")
+        gr_interface = get_gradio_interface_geojson(
+            infer_samgis_fn,
+            markdown_text,
+            examples_text_list,
+            example_body
+        )
+        app_logger.info(f"gradio interface created, mounting gradio app on url path {vite_gradio_url} within FastAPI.")
+        app_logger.debug(f"gr_interface vars:{vars(gr_interface)}.")
+        app = gr.mount_gradio_app(app, gr_interface, path=vite_gradio_url)
+        app = gr.mount_gradio_app(app, gr_interface, path="/gradio")
+        app_logger.info(f"mounted gradio app within fastapi, url path {vite_gradio_url} .")
+    except (ModuleNotFoundError, ImportError) as mnfe:
+        app_logger.error("cannot import gradio, have you installed it if you want to mount a gradio app?")
+        app_logger.error(mnfe)
+        raise mnfe
 
 
 # add the CorrelationIdMiddleware AFTER the @app.middleware("http") decorated function to avoid missing request id
