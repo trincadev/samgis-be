@@ -60,6 +60,14 @@ samgis\_core.utilities.type\_hints module
    :undoc-members:
    :show-inheritance:
 
+samgis\_core.utilities.update\_requirements\_txt module
+-------------------------------------------------------
+
+.. automodule:: samgis_core.utilities.update_requirements_txt
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 samgis\_core.utilities.utilities module
 ---------------------------------------
 
