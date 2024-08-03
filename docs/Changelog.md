@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.6.8
+
+- Update samgis-core = 3.0.9, samgis-web = 1.0.10
+- now in samgis-core there is get_dependencies_freeze(), a function that write an updated requirements.txt starting 
+  from current installed packages
+
 ## Version 1.6.7
 
 - Update samgis-core = 3.0.8, samgis-web = 1.0.9
