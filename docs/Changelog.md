@@ -1,5 +1,10 @@
 # Changelog
 
+
+## Version 1.6.9
+
+- Update samgis-core = 3.0.12, samgis-web = 1.0.13
+
 ## Version 1.6.8
 
 - Update samgis-core = 3.0.9, samgis-web = 1.0.10

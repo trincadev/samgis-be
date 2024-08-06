@@ -2543,13 +2543,13 @@ files = [
 
 [[package]]
 name = "samgis-core"
-version = "3.0.9"
+version = "3.0.12"
 description = "SamGIS CORE"
 optional = false
 python-versions = "<3.12,>=3.10"
 files = [
-    {file = "samgis_core-3.0.9-py3-none-any.whl", hash = "sha256:594fd140dd2bdb210367ba5606d4dbd94cc216b6be91f9624a5548eb37ad7eb4"},
-    {file = "samgis_core-3.0.9.tar.gz", hash = "sha256:cf0634e79d65a0bffe0081844efa52501299ac8fc8fccffe9b316ba315bc34b6"},
+    {file = "samgis_core-3.0.12-py3-none-any.whl", hash = "sha256:d03fcd178711e3f894363e74180d1c42b472e6c3d9872d618fb29ca211cc6c47"},
+    {file = "samgis_core-3.0.12.tar.gz", hash = "sha256:77d4b809e1574919ffc25a679124b026c841a491bf99775f073d6c944de1ca93"},
 ]
 
 [package.dependencies]
@@ -2564,13 +2564,13 @@ structlog = ">=24.4.0,<25.0.0"
 
 [[package]]
 name = "samgis-web"
-version = "1.0.10"
+version = "1.0.13"
 description = "SamGIS WEB"
 optional = false
 python-versions = "<3.12,>=3.10"
 files = [
-    {file = "samgis_web-1.0.10-py3-none-any.whl", hash = "sha256:bdde5e53702cae96be7f222666964cf202a0745767098bc0d37d3845be7ebaf5"},
-    {file = "samgis_web-1.0.10.tar.gz", hash = "sha256:ea764526cb683bda28de9785872ce8d07e242b9ceb278fc9adfc79384d0c7c2b"},
+    {file = "samgis_web-1.0.13-py3-none-any.whl", hash = "sha256:b5e24774f34d78e08d1dc85afdadad4205c755d91ee270d07eb7fb3fa2213538"},
+    {file = "samgis_web-1.0.13.tar.gz", hash = "sha256:0a650ed134c335059d9ecc37d215f022a5d351b3508df16a998e809e88cc08a4"},
 ]
 
 [package.dependencies]
@@ -2580,7 +2580,7 @@ fastapi = ">=0.111.1,<0.112.0"
 geopandas = ">=1.0.1,<2.0.0"
 rasterio = ">=1.3.10,<2.0.0"
 requests = ">=2.32.3,<3.0.0"
-samgis-core = "3.0.9"
+samgis-core = "3.0.12"
 shapely = ">=2.0.5,<3.0.0"
 uvicorn = ">=0.30.1,<0.31.0"
 
@@ -3351,4 +3351,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "39748d1b4fb72fde93b6d16fd47d1855a36f0417b7101e7a00913eaaa95c1f35"
+content-hash = "1b79a65edd71014c2036ba863d75a7fa49595ac6ed7df85efeaaf318f2ffa2d4"
