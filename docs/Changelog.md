@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.6.10
+
+- Update frontend dependencies
+- update backend dependencies
 
 ## Version 1.6.9
 
