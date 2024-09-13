@@ -31,7 +31,7 @@ the README.md header section. You need to compile these fields:
 
 ```
 sdk: gradio
-sdk_version: 4.39.0
+sdk_version: [current Gradio version, e.g. 4.44.0]
 app_file: app.py
 ```
 
@@ -59,7 +59,6 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
   set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport;
   env|grep VITE__;
   docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
-  --build-arg DEPENDENCY_GROUP="fastapi" \
   --build-arg VITE__MAP_DESCRIPTION="${VITE__MAP_DESCRIPTION}" \
   --build-arg VITE__SAMGIS_SPACE="${VITE__SAMGIS_SPACE}" \
   --build-arg VITE__STATIC_INDEX_URL="${VITE__STATIC_INDEX_URL}" \
@@ -88,40 +87,6 @@ curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${
 ```
 
 or better visiting the swagger page on <http://localhost:7860/docs>
-
-## SamGIS - lambda AWS version
-
-Build the docker image this way:
-
-```bash
-# clean any old active containers
-docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
-
-# build the base docker image with the docker aws repository tag
-docker build . -f dockerfiles/dockerfile-samgis-base --build-arg DEPENDENCY_GROUP=aws_lambda \
-  --tag example-docker-namespace/samgis-base-aws-lambda --progress=plain
-
-# build the final docker image
-docker build . -f dockerfiles/dockerfile-lambda-fastsam-api --tag example-docker-namespace/lambda-fastsam-api --progress=plain
-```
-
-Run the container (keep it on background) and show logs
-
-```bash
-docker run  -d --name lambda-fastsam-api -p 8080:8080 lambda-fastsam-api; docker logs -f lambda-fastsam-api
-```
-
-Test it with curl using a json payload:
-
-```bash
-URL=http://localhost:8080/2015-03-31/functions/function/invocations
-curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
-```
-
-### Publish the aws lambda docker image
-
-Login on aws ECR with the correct aws profile (change the example `example-docker-namespace/` repository url with the one from
-the [ECR push command instructions page](https://eu-west-1.console.aws.amazon.com/ecr/repositories/)).
 
 ### Dependencies installation, local execution and local tests
 

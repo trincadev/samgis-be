@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.7.0
+
+- Update frontend dependencies
+- remove backend dependencies already installed by samgis-web (samgis-core = 3.0.14, samgis-web = 1.0.14)
+- remove poetry dependency groups 'fastapi' and 'gradio'
+- update Dockerfile, README.md because of removed fastapi poetry dependency group
+
 ## Version 1.6.10
 
 - Update frontend dependencies
