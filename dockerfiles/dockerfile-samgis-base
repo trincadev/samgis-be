@@ -18,15 +18,12 @@ ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
-ARG DEPENDENCY_GROUP
 ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg-3+b1_amd64.deb"
 
 RUN echo "ARCH: $ARCH ..."
 
 RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
 RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
-RUN test -n ${DEPENDENCY_GROUP:?}
-RUN echo "python DEPENDENCY_GROUP: ${DEPENDENCY_GROUP} ..."
 RUN echo "arg dep:"
 
 # Set working directory to function root directory
@@ -49,7 +46,7 @@ RUN python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
 RUN which poetry && poetry --version && poetry config --list
 RUN poetry config virtualenvs.path ${WORKDIR_ROOT}
 RUN echo "# poetry config --list #" && poetry config --list
-RUN poetry install --with ${DEPENDENCY_GROUP} --no-root --no-cache
+RUN poetry install --no-root --no-cache
 
 
 FROM python:3.11-slim-bookworm AS runtime
@@ -77,29 +74,23 @@ RUN ls -lA ${WORKDIR_ROOT}/
 ### conditional section
 FROM node:20-slim AS node_fastapi
 
-ARG DEPENDENCY_GROUP
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 COPY ./static /appnode
 WORKDIR /appnode
-# RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then echo "pnpm store path:" && pnpm store path; fi
 
 
 FROM node_fastapi AS node_prod_deps
 
-ARG DEPENDENCY_GROUP
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
-    pnpm install --prod --frozen-lockfile; else \
-    echo "DEPENDENCY_GROUP 1: ${DEPENDENCY_GROUP} ..."; fi
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --prod --frozen-lockfile
 # here multiple conditions concatenated to avoid failing on check
-RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exit 1; fi; fi
+RUN if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exit 1; fi
 
 
 FROM node_fastapi AS node_build
 
-ARG DEPENDENCY_GROUP
 ARG VITE__MAP_DESCRIPTION
 ARG VITE__SAMGIS_SPACE
 ENV VITE__INDEX_URL="/"
@@ -107,13 +98,10 @@ RUN echo "VITE__MAP_DESCRIPTION:" ${VITE__MAP_DESCRIPTION}
 RUN echo "VITE__SAMGIS_SPACE:" ${VITE__SAMGIS_SPACE}
 RUN echo "VITE__INDEX_URL:" ${VITE__INDEX_URL}
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
-    pnpm install --frozen-lockfile; else \
-    echo "DEPENDENCY_GROUP 2: ${DEPENDENCY_GROUP} ..."; fi
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then pnpm build; fi
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then \
-    pnpm tailwindcss -i /appnode/src/input.css -o /appnode/dist/output.css; fi
-RUN if [ "${DEPENDENCY_GROUP}" = "fastapi" ]; then if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi; fi
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm tailwindcss -i /appnode/src/input.css -o /appnode/dist/output.css
+RUN if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi
 
 
 FROM runtime
