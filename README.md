@@ -43,6 +43,13 @@ Under the hood, HuggingFace install the gradio SDK using docker. If you need to 
 [debian packages](https://huggingface.co/docs/hub/spaces-dependencies#adding-your-own-dependencies)
 within the `pre-requirements.txt` file.
 
+If you want to run locally the project not from a docker container you can install the optional gradio poetry group like this:
+
+```bash
+poetry install --with gradio --with --no-root
+```
+
+
 ## SamGIS - Docker version
 
 The SamGIS HuggingSpace url is <https://huggingface.co/spaces/aletrn/samgis>.
