@@ -1,8 +1,7 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.7.0
+FROM registry.gitlab.com/aletrn/gis-prediction:1.7.1
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-ENV PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
     PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 ENV WRITE_TMP_ON_DISK=""
@@ -23,7 +22,6 @@ RUN ls -l /usr/bin/which
 RUN /usr/bin/which python
 RUN python --version
 RUN pip list
-RUN echo "PYTHONPATH: ${PYTHONPATH}."
 RUN echo "PATH: ${PATH}."
 RUN echo "WORKDIR_ROOT: ${WORKDIR_ROOT}."
 RUN ls -l ${WORKDIR_ROOT}
