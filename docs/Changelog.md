@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.7.1
+
+- Update frontend dependencies
+- remove backend dependencies already installed by samgis-web (samgis-core = 3.0.17, samgis-web = 1.0.16)
+- update Dockerfile, README.md because of added optional gradio poetry dependency group (useful only in case of )
+
 ## Version 1.7.0
 
 - Update frontend dependencies
