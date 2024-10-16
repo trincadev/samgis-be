@@ -10,7 +10,7 @@ license: mit
 
 # About this README
 
-I tested these instructions on MacOS, but should work on linux as well.
+I tested these instructions on macOS, but should work on linux as well.
 
 ## Segment Anything models
 
@@ -59,17 +59,17 @@ Build the docker image this way:
 # clean any old active containers
 docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 
-# build the base docker image from the repository root folder using ARGs:
-# - DEPENDENCY_GROUP=fastapi used by poetry
-# VITE__MAP_DESCRIPTION, VITE__SAMGIS_SPACE used by 'docker build'
+# build the base docker image from the repository root folder.
+# The SAMGIS_BASE_DOCKER_VERSION env variable read from the pyproject.toml is used to tag the docker image
 (
+  SAMGIS_BASE_DOCKER_VERSION=$(grep version pyproject.toml |head -1|cut -d'=' -f2|cut -d'"' -f2);
   set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport;
   env|grep VITE__;
   docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
   --build-arg VITE__MAP_DESCRIPTION="${VITE__MAP_DESCRIPTION}" \
   --build-arg VITE__SAMGIS_SPACE="${VITE__SAMGIS_SPACE}" \
   --build-arg VITE__STATIC_INDEX_URL="${VITE__STATIC_INDEX_URL}" \
-  --tag registry.gitlab.com/aletrn/gis-prediction
+  --tag registry.gitlab.com/aletrn/gis-prediction:${SAMGIS_BASE_DOCKER_VERSION}
 )
 
 # build the image, use the tag "samgis-huggingface"
@@ -118,7 +118,7 @@ curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${
 
 #### Local execution on MacOS
 
-There is a known issue running the project on MacOS. SamGIS still work also without executing it within a docker container, but is slower during image embedding because of a memory leak caused by CoreML. Here a log about this bug:
+There is a known issue running the project on macOS. SamGIS still work also without executing it within a docker container, but is slower during image embedding because of a memory leak caused by CoreML. Here a log about this bug:
 
 ```less
 [...]
