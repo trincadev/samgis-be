@@ -1,10 +1,18 @@
 # Changelog
 
+## Version 1.8.0
+
+- Update frontend dependencies
+- update backend dependencies (samgis-core = 3.0.17, samgis-web = 1.0.16, gradio == 5.1.0, numpy == 2.1.2, starlette == 0.40.0, max python version == 3.12)
+- update poetry == 1.8.4
+- update Dockerfile to use the python base version == 3.12-bookworm
+- update README.md because of updated command to create an already tagged docker image
+
 ## Version 1.7.1
 
 - Update frontend dependencies
 - remove backend dependencies already installed by samgis-web (samgis-core = 3.0.17, samgis-web = 1.0.16)
-- update Dockerfile, README.md because of added optional gradio poetry dependency group (useful only in case of )
+- update Dockerfile, README.md because of added optional gradio poetry dependency group (useful only in case of local tests on the HuggingFace page)
 
 ## Version 1.7.0
 
