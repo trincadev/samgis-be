@@ -32,7 +32,7 @@ COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
 RUN echo "BUILDER: check libz.s* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
-RUN apt update && apt install -y libgl1 curl python3-pip && apt clean
+RUN apt update && apt install -y libgl1 curl python3-pip libexpat1 && apt clean
 COPY ./dockerfiles/apt_preferences /etc/apt/preferences
 COPY ./dockerfiles/debian.sources /etc/apt/sources.list.d/debian.sources
 RUN apt update && apt install -t trixie zlib1g -y && apt clean
@@ -62,6 +62,7 @@ COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}
 RUN echo "RUNTIME: check libz.s* before upgrade" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
 RUN echo "RUNTIME: remove libz.s* to force upgrade" && rm /usr/lib/${ARCH}-linux-gnu/libz.so*
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libz.so* /usr/lib/${ARCH}-linux-gnu/
+COPY --from=builder_global /lib/${ARCH}-linux-gnu/libexpat.so* /lib/${ARCH}-linux-gnu/
 RUN echo "RUNTIME: check libz.s* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
 COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
 RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
