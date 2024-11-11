@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.8.2
+
+- Update frontend dependencies
+- update backend dependencies (samgis-core = 3.1.1, samgis-web = 1.1.2, gradio == 5.5.0, numpy == 2.1.3, onnxruntime==1.20.0, starlette == 0.41.2)
+- base dockerfile: install `libexpat1` Debian package to avoid the `Cannot open library: libexpat.so.1: cannot open shared object file: No such file or directory` error on `rasterio` python import
+
 ## Version 1.8.0
 
 - Update frontend dependencies
