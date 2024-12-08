@@ -54,11 +54,26 @@ async def request_middleware(request, call_next):
 
 @app.get("/health")
 async def health() -> JSONResponse:
+    from onnxruntime import __version__ as ort_version
     from samgis_web.__version__ import __version__ as version_web
     from samgis_core.__version__ import __version__ as version_core
+    
+    from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
 
-    app_logger.info(f"still alive, version_web:{version_web}, version_core:{version_core}.")
-    return JSONResponse(status_code=200, content={"msg": "still alive..."})
+    msg_model_folder_error = f"health_check: model_folder:'{model_folder}' is not a directory."
+    msg_model_file_error = f"health_check: model_file:'{model_folder}' not found."
+    try:
+        assert model_folder.is_dir(), msg_model_folder_error
+        encoder_model_path = Path(model_folder) / MODEL_ENCODER_NAME
+        decoder_model_path = Path(model_folder) / MODEL_DECODER_NAME
+        assert encoder_model_path.is_file(), msg_model_file_error
+        assert decoder_model_path.is_file(), msg_model_file_error
+        app_logger.info(f"still alive, version_onnxruntime:{ort_version}, version_web:{version_web}, version_core:{version_core}.")
+        app_logger.info(f"still alive, encoder_model:{encoder_model_path}, decoder_model:{decoder_model_path}.")
+        return JSONResponse(status_code=200, content={"msg": "still alive..."})
+    except AssertionError as ae:
+        app_logger.error(f"health_check: AssertionError:{ae}.")
+        raise HTTPException(500, detail=msg_model_folder_error)
 
 
 def infer_samgis_fn(request_input: ApiRequestBody | str) -> str | JSONResponse:
