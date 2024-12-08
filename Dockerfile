@@ -1,9 +1,8 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.8.2
+FROM registry.gitlab.com/aletrn/gis-prediction:1.10.0
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
-    PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 ENV WRITE_TMP_ON_DISK=""
 ENV MOUNT_GRADIO_APP=""
 ENV VITE__STATIC_INDEX_URL="/static"
@@ -12,8 +11,8 @@ ENV VITE__INDEX_URL="/"
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
 
-COPY app.py ${WORKDIR_ROOT}/
-COPY pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
+COPY --chown=python:python app.py ${WORKDIR_ROOT}/
+COPY --chown=python:python pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
 # RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then mkdir {WRITE_TMP_ON_DISK}; fi
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then ls -l {WRITE_TMP_ON_DISK}; fi
@@ -40,4 +39,7 @@ RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
 
+USER 999
+
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://localhost:7860/health

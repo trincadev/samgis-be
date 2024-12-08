@@ -18,7 +18,7 @@ ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
-ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg-3+b1_amd64.deb"
+ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb"
 
 RUN echo "ARCH: $ARCH ..."
 
@@ -26,19 +26,22 @@ RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
 RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
 RUN echo "arg dep:"
 
+RUN groupadd -g 999 python && useradd -r -u 999 -g python python
 # Set working directory to function root directory
+RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
 WORKDIR ${WORKDIR_ROOT}
-COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
+COPY --chown=python:python requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
-RUN echo "BUILDER: check libz.s* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
+RUN echo "BUILDER: check libz.s* before start:" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
 RUN apt update && apt install -y libgl1 curl python3-pip libexpat1 && apt clean
-COPY ./dockerfiles/apt_preferences /etc/apt/preferences
-COPY ./dockerfiles/debian.sources /etc/apt/sources.list.d/debian.sources
-RUN apt update && apt install -t trixie zlib1g -y && apt clean
-RUN echo "BUILDER: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
-
-RUN ls -l /etc/apt/sources* /etc/apt/preferences*
+RUN curl -o /root/zlib1g-1.3.deb ${ZLIB1G}
+RUN dpkg -i /root/zlib1g-1.3.deb
+RUN rm /lib/x86_64-linux-gnu/libz.so.1.2* || echo "BUILDER: no /lib/${ARCH}-linux-gnu/libz.so.1.2* found"
+RUN rm /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* || echo "BUILDER: no /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* found"
+RUN ln -sf /usr/lib/${ARCH}-linux-gnu/libz.so.1 /usr/lib/${ARCH}-linux-gnu/libz.so
+RUN ln -sf /lib/${ARCH}-linux-gnu/libz.so.1 /lib/${ARCH}-linux-gnu/libz.so
+RUN echo "BUILDER: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
 
 # poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
 RUN python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
@@ -54,16 +57,24 @@ FROM python:3.12-slim-bookworm AS runtime
 ARG ARCH
 ARG WORKDIR_ROOT
 
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
-    PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 
-RUN echo "COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/"
+RUN groupadd -g 999 python && useradd -r -u 999 -g python python
+RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
+
+RUN echo "RUNTIME: check libz.s* before start:" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
+COPY --from=builder_global /root/zlib1g-1.3.deb /root/zlib1g-1.3.deb
+RUN dpkg -i /root/zlib1g-1.3.deb
+RUN rm /lib/x86_64-linux-gnu/libz.so.1.2* || echo "RUNTIME: no /lib/${ARCH}-linux-gnu/libz.so.1.2* found"
+RUN rm /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* || echo "RUNTIME: no /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* found"
+RUN ln -sf /usr/lib/${ARCH}-linux-gnu/libz.so.1 /usr/lib/${ARCH}-linux-gnu/libz.so
+RUN ln -sf /lib/${ARCH}-linux-gnu/libz.so.1 /lib/${ARCH}-linux-gnu/libz.so
+RUN echo "RUNTIME: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
+
+RUN echo "RUNTIME: check libexpat.so*, libGL.so* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libexpat.so* /usr/lib/${ARCH}-linux-gnu/libGL.so* || echo "libraries libexpat.so*, libGL.so* not found"
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
-RUN echo "RUNTIME: check libz.s* before upgrade" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
-RUN echo "RUNTIME: remove libz.s* to force upgrade" && rm /usr/lib/${ARCH}-linux-gnu/libz.so*
-COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libz.so* /usr/lib/${ARCH}-linux-gnu/
 COPY --from=builder_global /lib/${ARCH}-linux-gnu/libexpat.so* /lib/${ARCH}-linux-gnu/
-RUN echo "RUNTIME: check libz.s* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so*
+RUN echo "RUNTIME: check libexpat.so*, libGL.so* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libexpat.so* /usr/lib/${ARCH}-linux-gnu/libGL.so*
 COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
 RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
 
@@ -107,10 +118,11 @@ RUN if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi
 
 FROM runtime
 ARG FASTAPI_STATIC
-RUN mkdir ${FASTAPI_STATIC}
 
-COPY ./sam-quantized/machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
-COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
-COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
-COPY static/list_files.html ${FASTAPI_STATIC}/
+RUN mkdir ${FASTAPI_STATIC} && chown python:python ${FASTAPI_STATIC}
+
+COPY --chown=python:python ./sam-quantized/machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
+COPY --chown=python:python --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
+COPY --chown=python:python --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
+COPY --chown=python:python static/list_files.html ${FASTAPI_STATIC}/
 RUN ls -l ${FASTAPI_STATIC}/
