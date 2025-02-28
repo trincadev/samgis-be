@@ -110,7 +110,7 @@ import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
 import { onMounted, onUpdated, ref, type Ref } from 'vue'
 // workaround because of dist/ content not included in @trincadev/driver.js tag release tarball
-import { driver } from "../../node_modules/@trincadev/driver.js/src/driver"
+import { driver } from "../driverjs/src/driver.ts"
 
 import {
   currentBaseMapNameRef,
