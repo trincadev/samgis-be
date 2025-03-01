@@ -244,7 +244,7 @@ export const htmlStatusMessages = [
   }
 ]
 export const driverSteps = [
-  { element: 'id-prediction-map-container', popover: { title: 'SamGIS', description: 'A quick tour about SamGIS functionality' } },
+  { element: 'id-prediction-map-container', popover: { title: 'SamGIS', description: 'A quick tour about SamGIS functionality'} },
   { element: '#map', popover: { title: 'Webmap for ML prompt', description: 'Add here your machine learning prompt. Pay attention about markers and polygons outside the map bounds: you could get unexpected results' } },
   { element: '.leaflet-pm-icon-marker-include', popover: { title: '"Include" point prompt', description: 'add "include" points prompt (label 1) for machine learning request' } },
   { element: '.leaflet-pm-icon-marker-exclude', popover: { title: '"Exclude" point prompt', description: 'add "exclude" points prompt (label 0) for machine learning request' } },
