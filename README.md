@@ -183,3 +183,12 @@ To create a work in progress openapi json or yaml file use
 
 - `extract-openapi-fastapi.py`
 - `extract-openapi-lambda.py` (useful to export the json schema request and response from lambda app api)
+
+
+### Update `requirements.txt` using poetry
+
+```bash
+poetry export --without-hashes --format=requirements.txt |grep -w -E "$(sed -z -e 's/\n/=|/g' requirements_no_versions.txt)" > requirements.txt
+```
+
+Avoid newlines after the last pip package within the `requirements_no_versions.txt` file or the grep command will fail.
