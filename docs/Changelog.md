@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.11.5
+
+- pin sphinx version < 8.2.0 to avoid a failure on docs build, see https://github.com/tox-dev/sphinx-autodoc-typehints/issues/523 (sphinx-autodoc-typehints 3.2.0 at the moment doesn't resolve this issue)
+- updated docs because of removed `samgis_core.utilities.update_requirements_txt` module
+
+## Version 1.11.4
+
+- Update backend dependencies (samgis-core==3.3.1, samgis-web==1.2.5)
+- Update frontend dependecies
+- fixed build:tailwindcss command (now it's using @tailwindcss/cli)
+
+I forgot to report some minor versions, sorry =)
+
 ## Version 1.8.2
 
 - Update frontend dependencies

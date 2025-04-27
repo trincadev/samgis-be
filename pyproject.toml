@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "samgis"
-version = "1.11.4"
+version = "1.11.5"
 description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
 authors = ["alessandro trinca tornidor <alessandro@trinca.tornidor.com>"]
 license = "MIT license"
@@ -9,7 +9,7 @@ package-mode = false
 
 [metadata]
 name = "samgis"
-version = "1.11.4"
+version = "1.11.5"
 
 [tool.poetry.urls]
 Source = "https://github.com/trincadev/samgis-be"
@@ -39,7 +39,7 @@ python-dotenv = "^1.0.1"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^8.1.3"
+sphinx = "^8.1.3,<8.2.0"
 sphinx-autodoc-typehints = "^2.5.0"
 sphinxcontrib-openapi = "^0.8.4"
 myst-parser = "^4.0.0"
