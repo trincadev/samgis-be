@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "samgis"
-version = "1.11.6"
+version = "1.11.7"
 description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
 authors = ["alessandro trinca tornidor <alessandro@trinca.tornidor.com>"]
 license = "MIT license"
@@ -9,7 +9,7 @@ package-mode = false
 
 [metadata]
 name = "samgis"
-version = "1.11.6"
+version = "1.11.7"
 
 [tool.poetry.urls]
 Source = "https://github.com/trincadev/samgis-be"

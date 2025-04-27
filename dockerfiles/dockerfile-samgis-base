@@ -7,6 +7,7 @@ ARG POETRY_NO_INTERACTION=1
 ARG POETRY_VIRTUALENVS_IN_PROJECT=1
 ARG POETRY_VIRTUALENVS_CREATE=1
 ARG POETRY_CACHE_DIR=/tmp/poetry_cache
+ARG HOME_USER=/home/python
 
 
 FROM python:3.12-bookworm AS builder_global
@@ -56,10 +57,18 @@ FROM python:3.12-slim-bookworm AS runtime
 
 ARG ARCH
 ARG WORKDIR_ROOT
+ARG HOME_USER
 
 ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 
+# workaround for missing /home folder
+RUN mkdir -p /home
 RUN groupadd -g 999 python && useradd -r -u 999 -g python python
+RUN ls -l /home
+RUN ls -ld /home
+RUN mkdir -p ${HOME_USER} ${HOME_USER}/.config && chown python:python -R ${HOME_USER}
+RUN ls -ld ${HOME_USER}
+RUN ls -lA ${HOME_USER}
 RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
 
 RUN echo "RUNTIME: check libz.s* before start:" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*

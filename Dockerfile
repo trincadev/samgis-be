@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.11.6
+FROM registry.gitlab.com/aletrn/gis-prediction:1.11.7
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
@@ -7,9 +7,13 @@ ENV WRITE_TMP_ON_DISK=""
 ENV MOUNT_GRADIO_APP=""
 ENV VITE__STATIC_INDEX_URL="/static"
 ENV VITE__INDEX_URL="/"
+ENV HOME_USER=/home/python
 
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
+# workaround for missing /home folder
+RUN ls -ld ${HOME_USER}
+RUN ls -lA ${HOME_USER}
 
 COPY --chown=python:python app.py ${WORKDIR_ROOT}/
 COPY --chown=python:python pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
