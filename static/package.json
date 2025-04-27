@@ -6,7 +6,7 @@
     "build": "rm -rf dist && vite build && pnpm tailwindcss -i src/input.css -o dist/output.css",
     "preview": "vite preview --port 5173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "build:tailwindcss": "pnpm tailwindcss -i src/input.css -o dist/output.css"
+    "build:tailwindcss": "pnpm dlx @tailwindcss/cli -i src/input.css -o dist/output.css"
   },
   "type": "module",
   "dependencies": {
@@ -16,18 +16,18 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.0.9",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/leaflet": "^1.9.16",
-    "@types/node": "^22.13.5",
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@tailwindcss/cli": "^4.1.4",
+    "@tsconfig/node20": "^20.1.5",
+    "@types/leaflet": "^1.9.17",
+    "@types/node": "^22.15.2",
+    "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
-    "eslint": "^9.21.0",
-    "eslint-plugin-vue": "^9.32.0",
-    "prettier": "^3.5.2",
-    "snyk": "^1.1295.3",
-    "tailwindcss": "^4.0.9",
-    "vite": "^6.2.0"
+    "eslint": "^9.25.1",
+    "eslint-plugin-vue": "^10.0.0",
+    "prettier": "^3.5.3",
+    "snyk": "^1.1296.2",
+    "tailwindcss": "^4.1.4",
+    "vite": "^6.3.3"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
