@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.11.6
+
+- fix the tailwindcss build command within the docker image
+
 ## Version 1.11.5
 
 - pin sphinx version < 8.2.0 to avoid a failure on docs build, see https://github.com/tox-dev/sphinx-autodoc-typehints/issues/523 (sphinx-autodoc-typehints 3.2.0 at the moment doesn't resolve this issue)

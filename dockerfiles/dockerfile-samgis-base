@@ -112,7 +112,7 @@ RUN echo "VITE__INDEX_URL:" ${VITE__INDEX_URL}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm tailwindcss -i /appnode/src/input.css -o /appnode/dist/output.css
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm dlx @tailwindcss/cli -i /appnode/src/input.css -o /appnode/dist/output.css
 RUN if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi
 
 
