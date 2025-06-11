@@ -43,7 +43,7 @@ typehints_defaults = "comma"
 
 templates_path = ['_templates']
 exclude_patterns = [
-    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*'
+    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*', "sam-quantized/machine_learning_models", "sam-quantized/machine_learning_models/*"
 ]
 
 source_suffix = {

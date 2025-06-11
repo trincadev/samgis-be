@@ -15,9 +15,8 @@ I tested these instructions on macOS, but should work on linux as well.
 ## Segment Anything models
 
 It's possible to prepare the model files using <https://github.com/vietanhdev/samexporter/> or using the ones
-from <https://huggingface.co/aletrn/sam-quantized> (copy them within the folder `/machine_learning_models`).
-
-In this case after the clone of this repository it's best to initialize the `sam-quantized` submodule:
+from <https://huggingface.co/aletrn/sam-quantized>. By default the project contains that submodule.
+If you want to use this (recommended) after the clone of this repository it's best to initialize the `sam-quantized` submodule:
 
 ```bash
 git submodule update --init --recursive

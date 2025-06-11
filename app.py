@@ -23,7 +23,7 @@ from starlette.responses import JSONResponse
 load_dotenv()
 project_root_folder = Path(globals().get("__file__", "./_")).absolute().parent
 workdir = os.getenv("WORKDIR", project_root_folder)
-model_folder = Path(project_root_folder / "machine_learning_models")
+model_folder = Path(project_root_folder / "sam-quantized" / "machine_learning_models")
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 setup_logging(log_level=log_level)

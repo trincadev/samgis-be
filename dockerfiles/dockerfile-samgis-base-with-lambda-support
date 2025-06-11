@@ -126,6 +126,6 @@ FROM runtime
 ARG FASTAPI_STATIC
 RUN mkdir ${FASTAPI_STATIC}
 
-COPY ./machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
+COPY ./sam-quantized/machine_learning_models ${LAMBDA_TASK_ROOT}/machine_learning_models
 COPY --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
