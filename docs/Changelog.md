@@ -1,5 +1,15 @@
 # Changelog
 
+# Version 1.11.8
+
+- Update backend dependencies (samgis-core==3.4.0, samgis-web==1.2.6)
+- Update frontend dependencies
+- refactor: remove machine_learning_models unix symlink and reference directly the submodule sam-quantized
+
+## Version 1.11.7
+
+- workaround for missing /home folder within the docker image
+
 ## Version 1.11.6
 
 - fix the tailwindcss build command within the docker image
