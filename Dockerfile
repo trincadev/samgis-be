@@ -29,7 +29,10 @@ RUN echo "PATH: ${PATH}."
 RUN echo "WORKDIR_ROOT: ${WORKDIR_ROOT}."
 RUN ls -l ${WORKDIR_ROOT}
 RUN ls -ld ${WORKDIR_ROOT}
-RUN ls -l ${WORKDIR_ROOT}/machine_learning_models
+RUN ls -l ${WORKDIR_ROOT}/
+RUN ls -l ${WORKDIR_ROOT}/sam-quantized/
+RUN ls -l ${WORKDIR_ROOT}/sam-quantized/machine_learning_models
+RUN ls -ld ${WORKDIR_ROOT}/sam-quantized/machine_learning_models
 RUN python -c "import sys; print(sys.path)"
 RUN python -c "import fastapi"
 RUN python -c "import geopandas"

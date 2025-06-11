@@ -130,7 +130,7 @@ ARG FASTAPI_STATIC
 
 RUN mkdir ${FASTAPI_STATIC} && chown python:python ${FASTAPI_STATIC}
 
-COPY --chown=python:python ./sam-quantized/machine_learning_models ${WORKDIR_ROOT}/machine_learning_models
+COPY --chown=python:python ./sam-quantized ${WORKDIR_ROOT}/sam-quantized
 COPY --chown=python:python --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --chown=python:python --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
 COPY --chown=python:python static/list_files.html ${FASTAPI_STATIC}/
