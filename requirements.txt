@@ -1,15 +1,15 @@
-bson==0.5.10 ; python_version >= "3.10" and python_version < "3.13"
-contextily==1.6.2 ; python_version >= "3.10" and python_version < "3.13"
-fastapi==0.115.11 ; python_version >= "3.10" and python_version < "3.13"
-geopandas==1.0.1 ; python_version >= "3.10" and python_version < "3.13"
-jinja2==3.1.6 ; python_version >= "3.10" and python_version < "3.13"
-numpy==2.2.4 ; python_version >= "3.10" and python_version < "3.13"
-onnxruntime==1.21.0 ; python_version >= "3.10" and python_version < "3.13"
-pillow==11.1.0 ; python_version >= "3.10" and python_version < "3.13"
-pydantic==2.10.6 ; python_version >= "3.10" and python_version < "3.13"
-python-dotenv==1.0.1 ; python_version >= "3.10" and python_version < "3.13"
-rasterio==1.4.3 ; python_version >= "3.10" and python_version < "3.13"
-requests==2.32.3 ; python_version >= "3.10" and python_version < "3.13"
-samgis-core==3.3.0 ; python_version >= "3.10" and python_version < "3.13"
-samgis-web==1.2.4 ; python_version >= "3.10" and python_version < "3.13"
-uvicorn==0.32.1 ; python_version >= "3.10" and python_version < "3.13"
+bson==0.5.10
+contextily==1.6.2
+fastapi==0.115.12
+geopandas==1.1.0
+numpy==2.3.0
+onnxruntime==1.22.0
+pillow==11.2.1
+pydantic==2.11.5
+pydantic_core==2.33.2
+python-dotenv==1.1.0
+rasterio==1.4.3
+requests==2.32.4
+samgis_core==3.4.0
+samgis_web==1.2.6
+uvicorn==0.32.1
