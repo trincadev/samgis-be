@@ -10,7 +10,7 @@ ARG POETRY_CACHE_DIR=/tmp/poetry_cache
 ARG HOME_USER=/home/python
 
 
-FROM python:3.12-bookworm AS builder_global
+FROM python:3.12-trixie AS builder_global
 
 ARG ARCH
 ARG WORKDIR_ROOT
@@ -19,7 +19,6 @@ ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
-ARG ZLIB1G="http://ftp.it.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb"
 
 RUN echo "ARCH: $ARCH ..."
 
@@ -34,15 +33,7 @@ WORKDIR ${WORKDIR_ROOT}
 COPY --chown=python:python requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
-RUN echo "BUILDER: check libz.s* before start:" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
 RUN apt update && apt install -y libgl1 curl python3-pip libexpat1 && apt clean
-RUN curl -o /root/zlib1g-1.3.deb ${ZLIB1G}
-RUN dpkg -i /root/zlib1g-1.3.deb
-RUN rm /lib/x86_64-linux-gnu/libz.so.1.2* || echo "BUILDER: no /lib/${ARCH}-linux-gnu/libz.so.1.2* found"
-RUN rm /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* || echo "BUILDER: no /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* found"
-RUN ln -sf /usr/lib/${ARCH}-linux-gnu/libz.so.1 /usr/lib/${ARCH}-linux-gnu/libz.so
-RUN ln -sf /lib/${ARCH}-linux-gnu/libz.so.1 /lib/${ARCH}-linux-gnu/libz.so
-RUN echo "BUILDER: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
 
 # poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
 RUN python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
@@ -53,7 +44,7 @@ RUN echo "# poetry config --list #" && poetry config --list
 RUN poetry install --no-cache
 
 
-FROM python:3.12-slim-bookworm AS runtime
+FROM python:3.12-slim-trixie AS runtime
 
 ARG ARCH
 ARG WORKDIR_ROOT
@@ -70,15 +61,6 @@ RUN mkdir -p ${HOME_USER} ${HOME_USER}/.config && chown python:python -R ${HOME_
 RUN ls -ld ${HOME_USER}
 RUN ls -lA ${HOME_USER}
 RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
-
-RUN echo "RUNTIME: check libz.s* before start:" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
-COPY --from=builder_global /root/zlib1g-1.3.deb /root/zlib1g-1.3.deb
-RUN dpkg -i /root/zlib1g-1.3.deb
-RUN rm /lib/x86_64-linux-gnu/libz.so.1.2* || echo "RUNTIME: no /lib/${ARCH}-linux-gnu/libz.so.1.2* found"
-RUN rm /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* || echo "RUNTIME: no /usr/lib/${ARCH}-linux-gnu/libz.so.1.2* found"
-RUN ln -sf /usr/lib/${ARCH}-linux-gnu/libz.so.1 /usr/lib/${ARCH}-linux-gnu/libz.so
-RUN ln -sf /lib/${ARCH}-linux-gnu/libz.so.1 /lib/${ARCH}-linux-gnu/libz.so
-RUN echo "RUNTIME: check libz.s* after install from trixie" && ls -l /usr/lib/${ARCH}-linux-gnu/libz.so* /lib/${ARCH}-linux-gnu/libz.so*
 
 RUN echo "RUNTIME: check libexpat.so*, libGL.so* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libexpat.so* /usr/lib/${ARCH}-linux-gnu/libGL.so* || echo "libraries libexpat.so*, libGL.so* not found"
 COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
