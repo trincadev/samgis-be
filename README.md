@@ -90,6 +90,8 @@ Test it with curl using a json payload:
 ```bash
 URL=http://localhost:7860/infer_samgis
 curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${URL}
+# or:
+curl -d@./events/payload_point_colico.json -H 'content-type: application/json' ${URL}
 ```
 
 or better visiting the swagger page on <http://localhost:7860/docs>
