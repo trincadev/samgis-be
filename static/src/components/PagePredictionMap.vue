@@ -6,7 +6,7 @@
       <div class="lg:border-r lg:col-span-3">
         <div id="id-map-cont" class="">
           <p class="hidden lg:block">{{ description }}</p>
-          <div class="w-full md:pt-1 md:pb-1 lg:hidden portrait:xl:hidden">
+          <div class="w-full md:pt-1 md:pb-1">
             <ButtonMapSendRequest
               id="id-button-submit"
               class="h-8 text-sm font-extralight min-w-[180px] max-w-[180px]"
@@ -17,7 +17,7 @@
               :send-m-l-request="sendMLRequest"
               :waiting-string="waitingString"
             />
-            <span class="ml-2 lg:hidden">
+            <span class="ml-2">
               <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" />
               <span class="ml-2">
                   <label class="text-red-600" for="checkboxMapNavigationLocked" v-if="mapNavigationLocked">locked map navigation!</label>
@@ -26,23 +26,6 @@
             </span>
           </div>
           <div id="map" class="map-predictions" />
-          <ButtonMapSendRequest
-            class="h-8 min-w-[240px] max-w-[240px] mt-2 mb-2 hidden sd:h-14 lg:block portrait:xl:block"
-            :current-base-map-name="currentBaseMapNameRef"
-            id="id-button-submit"
-            :map="map"
-            :prompts-array="promptsArrayRef"
-            :response-message="responseMessageRef"
-            :send-m-l-request="sendMLRequest"
-            :waiting-string="waitingString"
-          />
-          <span class="hidden lg:block lg:ml-2">
-              <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" />
-              <span class="ml-2">
-                  <label class="text-red-600" for="checkboxMapNavigationLocked" v-if="mapNavigationLocked">locked map navigation!</label>
-                  <label class="text-blue-600" for="checkboxMapNavigationLocked" v-else>map navigation unlocked</label>
-              </span>
-            </span>
         </div>
       </div>
 
@@ -108,9 +91,9 @@ import {
 } from 'leaflet'
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
-import { onMounted, onUpdated, ref, type Ref } from 'vue'
-// workaround because of dist/ content not included in @trincadev/driver.js tag release tarball
-import { driver } from "../driverjs/src/driver.ts"
+import { onMounted, onUpdated } from 'vue'
+// use directly driver.js npm package
+import { driver } from "driver.js"
 
 import {
   currentBaseMapNameRef,
