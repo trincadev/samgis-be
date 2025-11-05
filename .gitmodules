@@ -1,6 +1,3 @@
 [submodule "sam-quantized"]
 	path = sam-quantized
 	url = https://huggingface.co/aletrn/sam-quantized
-[submodule "static/src/driverjs"]
-	path = static/src/driverjs
-	url = https://huggingface.co/spaces/aletrn/driver.js
