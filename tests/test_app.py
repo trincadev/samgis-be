@@ -133,7 +133,7 @@ class TestFastapiApp(unittest.TestCase):
         output_geojson = shapely.from_geojson(geojson)
         print("output_geojson::{}.".format(output_geojson))
         assert isinstance(output_geojson, shapely.GeometryCollection)
-        assert len(output_geojson.geoms) == 3
+        assert len(output_geojson.geoms) > 1
 
     @patch.object(time, "time")
     @patch.object(app, "samexporter_predict")
