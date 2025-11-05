@@ -3,7 +3,7 @@
 @import "./leaflet-custom.css";
 @import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 /* workaround because of dist/ content not included in @trincadev/driver.js tag release tarball */
-@import "../src/driverjs/src/driver.css";
+@import "driver.js/dist/driver.css";
 
 @layer base {
     * {
