@@ -182,7 +182,7 @@ if mount_gradio_app:
         import gradio as gr
         from samgis_web.web.gradio_helpers import get_gradio_interface_geojson
 
-        app_logger.info(f"creating gradio interface...")
+        app_logger.info("creating gradio interface...")
         gr_interface = get_gradio_interface_geojson(
             infer_samgis_fn,
             markdown_text,
