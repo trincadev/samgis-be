@@ -14,7 +14,7 @@
     "driver.js": "^1.4.0",
     "leaflet": "^1.9.4",
     "leaflet-providers": "^3.0.0",
-    "vue": "^3.5.24"
+    "vue": "^3.5.25"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.17",
@@ -24,10 +24,10 @@
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.1",
-    "eslint-plugin-vue": "^10.6.0",
-    "prettier": "^3.6.2",
+    "eslint-plugin-vue": "^10.6.2",
+    "prettier": "^3.7.4",
     "tailwindcss": "^4.1.17",
-    "vite": "^7.2.4"
+    "vite": "^7.2.6"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
