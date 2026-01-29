@@ -18,7 +18,7 @@ Demo = "https://huggingface.co/spaces/aletrn/samgis"
 [tool.poetry.dependencies]
 python = ">=3.10, <3.13"
 onnxruntime = "^1.20.1"
-samgis-web = "1.2.15"
+samgis-web = "1.2.16"
 
 [tool.poetry.group.gradio]
 optional = true
