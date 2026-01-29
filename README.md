@@ -4,7 +4,7 @@ emoji: 🗺️
 colorFrom: red
 colorTo: blue
 sdk: docker
-pinned: false
+pinned: true
 license: mit
 ---
 
