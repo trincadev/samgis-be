@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.11.18
+FROM registry.gitlab.com/aletrn/gis-prediction:1.11.19
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
