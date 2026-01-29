@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.11.9 - 1.11.19
+
+Bugfix only
+
 ## Version 1.11.8
 
 - Update backend dependencies (samgis-core==3.4.0, samgis-web==1.2.6)
