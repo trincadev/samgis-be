@@ -1,24 +1,22 @@
-[tool.poetry]
+[project]
 name = "samgis"
-version = "1.11.19"
+version = "1.12.0"
 description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
-authors = ["alessandro trinca tornidor <alessandro@trinca.tornidor.com>"]
+authors = [{name = "alessandro trinca tornidor", email = "alessandro@trinca.tornidor.com"}]
 license = "MIT license"
 readme = "README.md"
-package-mode = false
+requires-python = ">=3.10, <3.14"
+dependencies = [
+    'onnxruntime (>=1.20.1,<2.0.0)',
+    "samgis-web (==1.3.0)"
+]
 
-[metadata]
-name = "samgis"
-version = "1.11.19"
+[tool.poetry]
+package-mode = false
 
 [tool.poetry.urls]
 Source = "https://github.com/trincadev/samgis-be"
 Demo = "https://huggingface.co/spaces/aletrn/samgis"
-
-[tool.poetry.dependencies]
-python = ">=3.10, <3.13"
-onnxruntime = "^1.20.1"
-samgis-web = "1.2.16"
 
 [tool.poetry.group.gradio]
 optional = true
@@ -49,5 +47,5 @@ sphinx-autodoc-defaultargs = "^0.1.2"
 addopts = "--cov=my_ghost_writer --cov-report html"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ['poetry-core (>=2.0.0,<3.0.0)']
 build-backend = "poetry.core.masonry.api"
