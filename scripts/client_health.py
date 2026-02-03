@@ -18,12 +18,16 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
+# def aa():
+#    pass
+
+
 def simple_formatter_ex(ex: Exception):
     logger.error(type(ex))
     logger.error(ex)
 
 
-def get_health(server_url: str = "/health", timeout: float = DEFAULT_TIMEOUT) -> tuple[int | None, str]:
+def get_health(server_url: str = DEFAULT_SERVER_URL, timeout: float = DEFAULT_TIMEOUT) -> tuple[int | None, str]:
     try:
         with request.urlopen(server_url, timeout=timeout) as response:
             logger.warning(f"response type: {type(response)} #")
@@ -41,7 +45,7 @@ def get_health(server_url: str = "/health", timeout: float = DEFAULT_TIMEOUT) ->
     except HTTPError as he:
         logger.error(f"HTTPError: {he.msg} #")
         return he.code, he.msg
-    except (URLError) as ue:
+    except URLError as ue:
         simple_formatter_ex(ue)
         return ue.errno, str(ue)
     except TimeoutError as te:

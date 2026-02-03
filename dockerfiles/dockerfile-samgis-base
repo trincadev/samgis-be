@@ -38,7 +38,7 @@ COPY --chown=python:python requirements_poetry.txt requirements_failed.txt pypro
 
 # avoid segment-geospatial exception caused by missing libGL.so.1 library
 # rasterio doesn't work on alpine linux without gdal-dev
-RUN apk update && apk add mesa-gl py3-onnxruntime curl gdal-dev gcc musl-dev g++ && apk cache clean
+RUN apk update && apk add mesa-gl py3-onnxruntime gdal-dev gcc musl-dev g++ && apk cache clean
 
 # poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
 RUN python -m pip install --upgrade pip \
@@ -85,7 +85,7 @@ RUN echo "RUNTIME: check libexpat.so*, libGL.so* after copy" && ls -l /usr/lib/l
 COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
 RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
 
-COPY --chown=python:python ./app.py ./scripts/health.py ${WORKDIR_ROOT}/
+COPY --chown=python:python ./app.py ./scripts/client_health.py ${WORKDIR_ROOT}/
 
 RUN echo "new WORKDIR_ROOT after hidden venv copy => ${WORKDIR_ROOT}"
 RUN ls -ld ${WORKDIR_ROOT}/
