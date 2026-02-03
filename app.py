@@ -61,13 +61,17 @@ async def health() -> JSONResponse:
     from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
 
     msg_model_folder_error = f"health_check: model_folder:'{model_folder}' is not a directory."
-    msg_model_file_error = f"health_check: model_file:'{model_folder}' not found."
+    msg_model_encoder_file_error = f"health_check: model_file:'{model_folder}' not found."
+    msg_model_decoder_file_error = f"health_check: model_file:'{model_folder}' not found."
     try:
-        assert model_folder.is_dir(), msg_model_folder_error
+        if not model_folder.is_dir():
+            raise OSError(msg_model_folder_error)
         encoder_model_path = Path(model_folder) / MODEL_ENCODER_NAME
         decoder_model_path = Path(model_folder) / MODEL_DECODER_NAME
-        assert encoder_model_path.is_file(), msg_model_file_error
-        assert decoder_model_path.is_file(), msg_model_file_error
+        if not encoder_model_path.is_file():
+            raise OSError(msg_model_encoder_file_error)
+        if not decoder_model_path.is_file():
+            raise OSError(msg_model_decoder_file_error)
         app_logger.info(f"still alive, version_onnxruntime:{ort_version}, version_web:{version_web}, version_core:{version_core}.")
         app_logger.info(f"still alive, encoder_model:{encoder_model_path}, decoder_model:{decoder_model_path}.")
         return JSONResponse(status_code=200, content={"msg": "still alive..."})
@@ -139,7 +143,8 @@ write_tmp_on_disk = os.getenv("WRITE_TMP_ON_DISK", "")
 app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
 if bool(write_tmp_on_disk):
     try:
-        assert Path(write_tmp_on_disk).is_dir()
+        if not Path(write_tmp_on_disk).is_dir():
+            raise OSError(f"error on preparing temp folder '{write_tmp_on_disk}' not found!")
         app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
         templates = Jinja2Templates(directory=str(project_root_folder / "static"))
 
