@@ -50,7 +50,7 @@ myst-parser = "^4.0.0"
 sphinx-autodoc-defaultargs = "^0.1.2"
 
 [tool.pytest.ini_options]
-addopts = "--cov=my_ghost_writer --cov-report html"
+addopts = " --cov=scripts --cov=app --cov-report html"
 
 [build-system]
 requires = ['poetry-core (>=2.0.0,<3.0.0)']

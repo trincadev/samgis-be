@@ -18,10 +18,6 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-# def aa():
-#    pass
-
-
 def simple_formatter_ex(ex: Exception):
     logger.error(type(ex))
     logger.error(ex)

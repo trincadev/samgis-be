@@ -7,7 +7,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from samgis_web.utilities.local_tiles_http_server import LocalTilesHttpServer
 from samgis_web.web import web_helpers
-from . import test_health
+from . import test_client_health
 
 import app
 
@@ -51,6 +51,7 @@ response_bodies_post_test = {
     }
 }
 
+
 def check_body(body: dict, expected_body: dict):
     if body != expected_body:
         logging.error(f"Wrong test: body not {body}.")
@@ -60,18 +61,18 @@ def check_body(body: dict, expected_body: dict):
 class TestFastapiApp(unittest.TestCase):
     def test_fastapi_handler_health_200(self):
         response = client.get("/health")
-        test_health.check_for_statuscode(response.status_code, 200, response)
+        test_client_health.check_for_statuscode(response.status_code, 200, response)
         body = response.json()
         check_body(body, {"msg": "still alive..."})
 
     def test_404(self):
         response = client.get("/404")
-        test_health.check_for_statuscode(response.status_code, 404, response)
+        test_client_health.check_for_statuscode(response.status_code, 404, response)
 
     def test_infer_samgis_empty_body_422(self):
         response = client.post(infer_samgis, json={})
         print(response_status_code.format(response.status_code))
-        test_health.check_for_statuscode(response.status_code, 422, response)
+        test_client_health.check_for_statuscode(response.status_code, 422, response)
         body = response.json()
         logging.info(response_body_loaded.format(body))
         check_body(body, {"msg": "Error - Unprocessable Entity"})
@@ -83,7 +84,7 @@ class TestFastapiApp(unittest.TestCase):
         local_event["source_type"] = "source_fake"
         response = client.post(infer_samgis, json=local_event)
         logging.info(response_status_code.format(response.status_code))
-        test_health.check_for_statuscode(response.status_code, 422, response)
+        test_client_health.check_for_statuscode(response.status_code, 422, response)
         body = response.json()
         logging.info(response_body_loaded.format(body))
         check_body(body, {"msg": "Error - Unprocessable Entity"})
@@ -94,7 +95,7 @@ class TestFastapiApp(unittest.TestCase):
 
         response = client.post(infer_samgis, json=event)
         logging.info(response_status_code.format(response.status_code))
-        test_health.check_for_statuscode(response.status_code, 500, response)
+        test_client_health.check_for_statuscode(response.status_code, 500, response)
         body = response.json()
         logging.info(response_body_loaded.format(body))
         check_body(body, {"msg": "Error - Internal Server Error"})
@@ -115,7 +116,7 @@ class TestFastapiApp(unittest.TestCase):
         with LocalTilesHttpServer.http_server("localhost", listen_port, directory=TEST_EVENTS_FOLDER):
             response = client.post(infer_samgis, json=event)
             logging.info(response_status_code.format(response.status_code))
-        test_health.check_for_statuscode(response.status_code, 200, response)
+        test_client_health.check_for_statuscode(response.status_code, 200, response)
         body_string = response.json()["body"]
         body_loaded = json.loads(body_string)
         logging.info(response_body_loaded.format(body_loaded))
@@ -123,7 +124,7 @@ class TestFastapiApp(unittest.TestCase):
             raise ValueError("Missing value in body")
         output = body_loaded["output"]
         if not ('n_predictions' in output and "n_shapes_geojson" in output):
-            raise ValueError("Missing value in body/2")
+            raise ValueError("Missing value in body")
         geojson = output["geojson"]
         output_geojson = shapely.from_geojson(geojson)
         logging.info("output_geojson::{}.".format(output_geojson))
@@ -150,7 +151,7 @@ class TestFastapiApp(unittest.TestCase):
 
         response = client.post(infer_samgis, json=event)
         logging.info(response_status_code.format(response.status_code))
-        test_health.check_for_statuscode(response.status_code, 200, response)
+        test_client_health.check_for_statuscode(response.status_code, 200, response)
         response_json = response.json()
         body_loaded = json.loads(response_json["body"])
         logging.info(response_body_loaded.format(body_loaded))

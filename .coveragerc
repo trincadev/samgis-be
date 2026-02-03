@@ -1,9 +1,9 @@
 [run]
 source = samgis
-omit = ./venv/*,__version__.py,*tests*,*apps.py,*manage.py,*__init__.py,*migrations*,*asgi*,*wsgi*,*admin.py,*urls.py,./tests/*
+omit = ./venv/*,__version__.py,*tests*,*apps.py,*manage.py,*__init__.py,*migrations*,*asgi*,*wsgi*,*admin.py,*urls.py,./tests/*,./scripts/extract-*.py
 
 [report]
 omit = ./venv/*,*tests*,*apps.py,*manage.py,*__init__.py,*migrations*,*asgi*,*wsgi*,*admin.py,*urls.py,./tests/*
 
 exclude_lines =
-     if __name__ == .__main__.:
+    if __name__\s*==\s*['"]__main__['"]\s*:
