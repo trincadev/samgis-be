@@ -1,8 +1,10 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.11.19
+FROM registry.gitlab.com/aletrn/gis-prediction:1.12.0
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
+# ENV PYTHONPATH needed by onnxruntime (/usr/lib/python3.12/site-packages)
+ENV PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3.12/dist-packages:/usr/lib/python3.12/site-packages"
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:${WORKDIR_ROOT}/.venv:$PATH"
 ENV WRITE_TMP_ON_DISK=""
 ENV MOUNT_GRADIO_APP=""
 ENV VITE__STATIC_INDEX_URL="/static"
@@ -11,12 +13,8 @@ ENV HOME_USER=/home/python
 
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
-# workaround for missing /home folder
-RUN ls -ld ${HOME_USER}
-RUN ls -lA ${HOME_USER}
 
-COPY --chown=python:python app.py ${WORKDIR_ROOT}/
-COPY --chown=python:python pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
+RUN ls -l ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/health.py && chmod 755 ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/health.py
 # RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then mkdir {WRITE_TMP_ON_DISK}; fi
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then ls -l {WRITE_TMP_ON_DISK}; fi
@@ -42,11 +40,13 @@ RUN python -c "import uvicorn"
 RUN python -c "import jinja2"
 RUN df -h
 RUN ls -l ${WORKDIR_ROOT}/app.py
+RUN ls -l ${WORKDIR_ROOT}/health.py
 RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
 
-USER 999
+USER 9988
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://localhost:7860/health
+# health.py default server_url value is http://localhost:7860/health
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD /var/task/health.py || exit 1
