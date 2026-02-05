@@ -2,9 +2,7 @@ FROM registry.gitlab.com/aletrn/gis-prediction:1.12.1
 
 # Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-# ENV PYTHONPATH needed by onnxruntime (/usr/lib/python3.12/site-packages)
-ENV PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3.12/dist-packages:/usr/lib/python3.12/site-packages"
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:${WORKDIR_ROOT}/.venv:$PATH"
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 ENV WRITE_TMP_ON_DISK=""
 ENV MOUNT_GRADIO_APP=""
 ENV VITE__STATIC_INDEX_URL="/static"
@@ -13,9 +11,15 @@ ENV HOME_USER=/home/python
 
 # Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
+# workaround for missing /home folder
+RUN ls -ld ${HOME_USER}
+RUN ls -lA ${HOME_USER}
 
-RUN ls -l ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py && \
-    chmod 755 ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py
+COPY --chown=python:python app.py ${WORKDIR_ROOT}/
+COPY --chown=python:python pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
+RUN chmod 755 ${WORKDIR_ROOT}/client_health.py
+
+#RUN ls -l ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py && chmod 755 ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py
 # RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then mkdir {WRITE_TMP_ON_DISK}; fi
 RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then ls -l {WRITE_TMP_ON_DISK}; fi
@@ -46,7 +50,7 @@ RUN ls -l ${WORKDIR_ROOT}/static/
 RUN ls -l ${WORKDIR_ROOT}/static/dist
 RUN ls -l ${WORKDIR_ROOT}/static/node_modules
 
-USER 9988
+USER 999
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
 # client_health.py default server_url value is http://localhost:7860/health
