@@ -1,0 +1,158 @@
+# Include global ARGs at the dockerfile top
+ARG ARCH="x86_64"
+ARG WORKDIR_ROOT="/var/task"
+ARG FASTAPI_STATIC="${WORKDIR_ROOT}/static"
+ARG PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3.12/dist-packages:/usr/lib/python3.12/site-packages"
+ARG POETRY_NO_INTERACTION=1
+ARG POETRY_VIRTUALENVS_IN_PROJECT=1
+ARG POETRY_VIRTUALENVS_CREATE=1
+ARG POETRY_CACHE_DIR=/tmp/poetry_cache
+ARG HOME_USER=/home/python
+
+
+FROM python:3.12-alpine3.23 AS builder_global
+
+ARG ARCH
+ARG WORKDIR_ROOT="/var/task"
+ARG POETRY_NO_INTERACTION
+ARG POETRY_VIRTUALENVS_IN_PROJECT
+ARG POETRY_VIRTUALENVS_CREATE
+ARG POETRY_CACHE_DIR
+ARG PYTHONPATH
+
+RUN echo "ARCH: $ARCH ..."
+
+RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
+RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
+RUN echo "ARG WORKDIR_ROOT: ${WORKDIR_ROOT} ..."
+RUN echo "arg dep:"
+
+RUN addgroup --gid 9988 python && adduser --system --uid 9988 -G python python
+# Set working directory to function root directory
+RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
+WORKDIR ${WORKDIR_ROOT}
+RUN ls -l ${WORKDIR_ROOT}
+RUN ls -ld ${WORKDIR_ROOT}
+
+COPY --chown=python:python requirements_poetry.txt requirements_failed.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
+
+# avoid segment-geospatial exception caused by missing libGL.so.1 library
+# rasterio doesn't work on alpine linux without gdal-dev
+RUN apk update && apk add --update py3-pip mesa-gl py3-onnxruntime gdal-dev gdal gcc musl-dev g++ && apk cache clean
+
+# poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt && python -m pip list
+RUN python3 -m venv ${WORKDIR_ROOT}/.venv && . ${WORKDIR_ROOT}/.venv/bin/activate
+RUN echo "# WORKDIR_ROOT: ${WORKDIR_ROOT} #"
+RUN ls -ld ${WORKDIR_ROOT}
+RUN ls -ltrA ${WORKDIR_ROOT}/.venv/
+RUN ls -ld ${WORKDIR_ROOT}/.venv/
+
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && poetry config virtualenvs.path ${WORKDIR_ROOT}
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && echo "# poetry config --list #" && poetry config --list
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && poetry install --no-cache || echo "error on python package installation"
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && pip wheel --no-cache-dir --use-pep517 -r requirements_failed.txt
+
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && for p in $(cat requirements_failed.txt ); do \
+    pp=$(echo $p|cut -d'=' -f1); echo "# Installing wheel for ${pp} #"; pip install ${pp}*.whl; done
+RUN . ${WORKDIR_ROOT}/.venv/bin/activate && python -c "import onnxruntime;import rasterio"
+
+RUN echo "# GDAL lib cmake #"
+RUN ls -ld /usr/lib/cmake/gdal
+RUN ls -l /usr/lib/cmake/gdal
+
+FROM python:3.12-alpine3.23 AS runtime
+
+ARG ARCH
+ARG WORKDIR_ROOT
+ARG HOME_USER
+ARG PYTHONPATH
+
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
+
+# workaround for missing /home folder
+RUN ls -ld /home && addgroup --gid 9988 python && adduser --system --uid 9988 -G python python
+RUN ls -l /home && mkdir -p ${HOME_USER} ${HOME_USER}/.config && chown python:python -R ${HOME_USER}
+RUN ls -ld ${HOME_USER}
+RUN ls -lA ${HOME_USER}
+RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
+
+RUN apk update && apk add --update py3-onnxruntime proj && apk cache clean
+# RUN apk update && apk add --update py3-onnxruntime gdal && apk cache clean
+
+RUN echo "RUNTIME: check libexpat.so*, libGL.so* before start" && ls -l /usr/lib/libexpat.so* /usr/lib/libGL.so* \
+    || echo "libraries libexpat.so*, libGL.so* not found"
+COPY --from=builder_global /usr/lib/libGL.so* /usr/lib/
+COPY --from=builder_global /usr/lib/libexpat.so* /usr/lib/
+COPY --from=builder_global /usr/lib/lib* /usr/lib/
+COPY --from=builder_global /usr/lib/pkgconfig/gdal.pc /usr/lib/pkgconfig/
+COPY --from=builder_global /usr/bin/gdal-config /usr/bin/
+RUN mkdir -p /usr/lib/cmake/gdal
+COPY --from=builder_global /usr/lib/cmake/gdal/GDAL* /usr/lib/cmake/gdal
+RUN mkdir -p /usr/share/gdal
+# COPY --from=builder_global /usr/share/gdal /usr/share/gdal
+COPY --from=builder_global /usr/share/gdal/epsg.wkt /usr/share/gdal
+COPY --from=builder_global /usr/share/gdal/gdalvrt.xsd /usr/share/gdal
+
+RUN echo "# /usr/share/gdal/ #"
+RUN ls -ld /usr/share/gdal/
+RUN ls -l /usr/share/gdal/
+
+RUN echo "RUNTIME: check libexpat.so*, libGL.so* after copy" && ls -l /usr/lib/libGL.so* /usr/lib/libexpat.so*
+COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
+RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
+
+COPY --chown=python:python ./app.py ./scripts/client_health.py ${WORKDIR_ROOT}/
+
+RUN echo "new WORKDIR_ROOT after hidden venv copy => ${WORKDIR_ROOT}"
+RUN ls -ld ${WORKDIR_ROOT}/
+RUN ls -lA ${WORKDIR_ROOT}/
+
+RUN python -c "import rasterio"
+
+### conditional section
+FROM node:24-alpine AS node_fastapi
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+COPY ./static /appnode
+WORKDIR /appnode
+
+
+FROM node_fastapi AS node_prod_deps
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --prod --frozen-lockfile
+# here multiple conditions concatenated to avoid failing on check
+RUN if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exit 1; fi
+
+
+FROM node_fastapi AS node_build
+
+ARG VITE__MAP_DESCRIPTION
+ARG VITE__SAMGIS_SPACE
+ENV VITE__INDEX_URL="/"
+RUN echo "VITE__MAP_DESCRIPTION:" ${VITE__MAP_DESCRIPTION}
+RUN echo "VITE__SAMGIS_SPACE:" ${VITE__SAMGIS_SPACE}
+RUN echo "VITE__INDEX_URL:" ${VITE__INDEX_URL}
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store; \
+    pnpm dlx @tailwindcss/cli -i /appnode/src/input.css -o /appnode/dist/output.css
+RUN if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi
+
+
+FROM runtime
+ARG FASTAPI_STATIC
+ARG WORKDIR_ROOT
+
+RUN mkdir ${FASTAPI_STATIC} && chown python:python ${FASTAPI_STATIC}
+
+COPY --chown=python:python ./sam-quantized ${WORKDIR_ROOT}/sam-quantized
+COPY --chown=python:python --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
+COPY --chown=python:python --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
+COPY --chown=python:python static/list_files.html ${FASTAPI_STATIC}/
+RUN ls -l ${FASTAPI_STATIC}/
