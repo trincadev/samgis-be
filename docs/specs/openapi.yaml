@@ -4,7 +4,8 @@ info:
   description: |-
     Segment Anything applied to GIS.
     Some useful links:
-    - [SamGIS online demo](https://ml-trinca.tornidor.com)
+    - [SamGIS HuggingFace space direct link](https://huggingface.co/spaces/aletrn/samgis)
+    - [SamGIS HuggingFace space](https://huggingface.co/spaces/aletrn/samgis)
     - [SamGIS documentation](https://docs.ml-trinca.tornidor.com)
     - [My blog](https://trinca.tornidor.com)
   contact:
@@ -13,7 +14,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: "1.2.0"
+  version: "1.3.1"
 servers:
   - url: https://localhost:8000/
 tags:
@@ -33,13 +34,21 @@ tags:
     externalDocs:
       url: https://it.wikipedia.org/wiki/Geographic_information_system
 paths:
-  /lambda-ml-fastsam-api:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /infer_samgis:
     post:
-      tags:
-        - samgis
-      summary: Make GIS ML predictions
+      summary: Infer Samgis
+      operationId: infer_samgis_infer_samgis_post
       requestBody:
-        description: input request for GIS ML predictions
         content:
           application/json:
             schema:
@@ -47,131 +56,169 @@ paths:
         required: true
       responses:
         '200':
-          description: successful operation
+          description: Successful Response
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponseBodySuccess'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponseBodyFailure'
+              schema: {}
         '422':
-          description: Unprocessable Entity
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseBodyFailure'
-        '500':
-          description: Internal Server Error
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Index
+      operationId: index__get
+      responses:
+        '200':
+          description: Successful Response
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponseBodyFailure'
+              schema: {}
 components:
   schemas:
     ApiRequestBody:
-      required:
-        - bbox
-        - prompt
-        - zoom
-      type: object
       properties:
+        id:
+          type: string
+          title: Id
+          default: ''
         bbox:
-          type: object
-          properties:
-            ne:
-              type: object
-              properties:
-                lat:
-                  type: number
-                  example: 46.180194387028855
-                lng:
-                  type: number
-                  example: 9.426848938165525
-            sw:
-              type: object
-              properties:
-                lat:
-                  type: number
-                  example: 46.17511301243843
-                lng:
-                  type: number
-                  example: 9.415862610040527
+          $ref: '#/components/schemas/RawBBox'
         prompt:
-          type: array
           items:
-            type: object
-            properties:
-              id:
-                type: integer
-                format: int32
-                example: 448
-              type:
-                type: string
-                example: point
-              data:
-                type: object
-                properties:
-                  lat:
-                    type: number
-                    example: 46.176256754439535
-                  lng:
-                    type: number
-                    example: 9.421805260519237
-              label:
-                type: integer
-                format: int32
-                example: 1
+            anyOf:
+            - $ref: '#/components/schemas/RawPromptPoint'
+            - $ref: '#/components/schemas/RawPromptRectangle'
+          type: array
+          title: Prompt
         zoom:
-          type: integer
-          format: int32
-          example: 17
+          anyOf:
+          - type: integer
+          - type: number
+          title: Zoom
         source_type:
           type: string
-          example: OpenStreetMap
-    ApiResponseBodyFailure:
+          title: Source Type
+          default: OpenStreetMap.Mapnik
+        debug:
+          type: boolean
+          title: Debug
+          default: false
       type: object
+      required:
+      - bbox
+      - prompt
+      - zoom
+      title: ApiRequestBody
+      description: Input request validator type (not yet parsed)
+    HTTPValidationError:
       properties:
-        duration_run:
-          type: number
-          example: 0.063
-        message:
-          type: string
-          example: Bad Request
-        request_id:
-          type: string
-          example: test_invoke_id
-    ApiResponseBodySuccess:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
+      title: HTTPValidationError
+    LatLngDict:
       properties:
-        n_predictions:
-          type: integer
-          format: int32
-          example: 1
-        geojson:
-          type: string
-          example: '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"raster_val":255.0},"geometry":{"type":"Polygon","coordinates":[[[9.415857195854185,46.17510931936532],[9.426854252815245,46.17510931936532],[9.426854252815245,46.18019812286394],[9.415857195854185,46.18019812286394],[9.415857195854185,46.17510931936532]]]},"id":0},{"type":"Feature","properties":{"raster_val":0.0},"geometry":{"type":"Polygon","coordinates":[[[9.143199920654297,46.30271068141335],[9.495105743408203,46.30271068141335],[9.495105743408203,46.13999860748669],[9.143199920654297,46.13999860748669],[9.143199920654297,46.30271068141335]],[[9.426854252815245,46.17510931936532],[9.426854252815245,46.18019812286394],[9.415857195854185,46.18019812286394],[9.415857195854185,46.17510931936532],[9.426854252815245,46.17510931936532]]]},"id":1}]}'
-        n_shapes_geojson:
-          type: integer
-          format: int32
-          example: 5
-        duration_run:
+        lat:
           type: number
-          example: 6.703
-        message:
+          title: Lat
+        lng:
+          type: number
+          title: Lng
+      type: object
+      required:
+      - lat
+      - lng
+      title: LatLngDict
+      description: Generic geographic latitude-longitude type
+    PromptLabel:
+      type: integer
+      enum:
+      - 0
+      - 1
+      title: PromptLabel
+      description: Valid prompt label type
+    PromptPointType:
+      type: string
+      enum:
+      - point
+      title: PromptPointType
+      description: 'Segment Anything: validation point prompt type'
+    PromptRectangleType:
+      type: string
+      enum:
+      - rectangle
+      title: PromptRectangleType
+      description: 'Segment Anything: validation rectangle prompt type'
+    RawBBox:
+      properties:
+        ne:
+          $ref: '#/components/schemas/LatLngDict'
+        sw:
+          $ref: '#/components/schemas/LatLngDict'
+      type: object
+      required:
+      - ne
+      - sw
+      title: RawBBox
+      description: Input lambda bbox request type (not yet parsed)
+    RawPromptPoint:
+      properties:
+        type:
+          $ref: '#/components/schemas/PromptPointType'
+        data:
+          $ref: '#/components/schemas/LatLngDict'
+        label:
+          $ref: '#/components/schemas/PromptLabel'
+      type: object
+      required:
+      - type
+      - data
+      - label
+      title: RawPromptPoint
+      description: Input lambda prompt request of type 'PromptPointType' - point (not
+        yet parsed)
+    RawPromptRectangle:
+      properties:
+        type:
+          $ref: '#/components/schemas/PromptRectangleType'
+        data:
+          $ref: '#/components/schemas/RawBBox'
+      type: object
+      required:
+      - type
+      - data
+      title: RawPromptRectangle
+      description: Input lambda prompt request of type 'PromptRectangleType' - rectangle
+        (not yet parsed)
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          example: ok
-        request_id:
+          title: Message
+        type:
           type: string
-          example: test_invoke_id
-  securitySchemes:
-    samgis_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://example.auth0.com/oauth/authorize
-          scopes:
-            write:lambda-ml-fastsam-api: Make GIS ML predictions
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

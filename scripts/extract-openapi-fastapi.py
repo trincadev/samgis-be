@@ -3,18 +3,20 @@ import argparse
 import json
 import logging
 import sys
+from pathlib import Path
 
 import yaml
 from uvicorn.importer import import_from_string
 
-from app import project_root_folder
+# from app import project_root_folder
 
 
 if __name__ == "__main__":  # pragma: no cover
     # python scripts/extract-openapi.py fastapi_wrapper:app --app-dir wrappers --out docs/specs/openapi_new.yaml
     parser = argparse.ArgumentParser(prog="extract-openapi-fastapi.py")
-    parser.add_argument("app",       help='App import string. Eg. "main:app"', default="main:app")
-    parser.add_argument("--app-dir", help="Directory containing the app", default=None)
+    parser.add_argument("app",       help='App import string. Eg. "app:app"', default="app:app")
+    project_root_folder = Path(__file__).parent.parent
+    parser.add_argument("--app-dir", help="Directory containing the app", default=str(project_root_folder))
     args = parser.parse_args()
 
     if args.app_dir is not None:

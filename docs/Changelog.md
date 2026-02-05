@@ -1,6 +1,34 @@
 # Changelog
 
-## Version 1.11.9 - 1.11.19
+## Version 1.12.1
+
+- ci: update requirements.txt with the updated, installed dependency versions
+- ci: revert to dockerfiles based on python debian/trixie image
+- ci: remove old dockerfiles for AWS, add alpine-linux base dockerfile
+- ci: update base dockerfile version to 1.12.1
+- doc: update changelog, openapi specs, conf and content documentation
+- chore: update samgis-web==1.3.1, pytest and docs dependencies
+- chore: rollback to onnxruntime as direct dependency
+
+## Version 1.12.0 (Not released)
+
+- test: refactored test execution
+- test: avoid using assert construct
+- ci: now dockerfiles are based on alpine linux
+- ci: move onnxruntime dependency requirement to a optional group, preparing alpine linux docker image
+- feat: add a python script (scripts/client_health.py) to perform the health check avoiding curl use
+- chore: refactor pyproject.toml, max python version is 3.13
+
+## Version 1.11.14 - 1.11.19
+
+Bugfix only
+
+## Version 1.11.13
+
+- test: fix test case condition about the number of shapely geometries created from the samgis post
+- feat: remove ButtonMapSendRequest used in desktop mode to avoid wrong references on driver.js tour
+
+## Version 1.11.9 - 1.11.12
 
 Bugfix only
 

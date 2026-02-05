@@ -5,27 +5,34 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-import os
-import sys
 import tomllib
+import pathlib
 
 
 project = 'SamGIS'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-sys.path.insert(0, os.path.abspath('..'))
 
-# Pull general sphinx project info from pyproject.toml
-# Modified from https://stackoverflow.com/a/75396624/1304076
-with open("../pyproject.toml", "rb") as f:
+toml_path = pathlib.Path(__file__).parent.parent / 'pyproject.toml'
+with open(toml_path, "rb") as f:
     toml = tomllib.load(f)
 
-pyproject = toml["tool"]["poetry"]
+pyproject = toml["project"]
 version = pyproject["version"]
 release = version
-authors_list = [author for author in pyproject["authors"]]
-author = ", ".join(authors_list) if len(authors_list) > 1 else authors_list[0]
+authors_list = [a for a in pyproject["authors"]]
+author = ""
+for author_element in authors_list:
+    if len(author) > 1:
+        author += ", "
+    if isinstance(author_element, str):
+        author += f"{author_element}"
+    else:
+        name = author_element.get("name")
+        email = author_element.get("email")
+        author += f"{name} <{email}>"
+
 copyright = f"2023-now {author}"
 
 extensions = [
@@ -39,11 +46,13 @@ extensions = [
 ]
 # Napoleon settings
 napoleon_google_docstring = True
+# sphinx_autodoc_typehints settings
 typehints_defaults = "comma"
 
 templates_path = ['_templates']
 exclude_patterns = [
-    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*', "sam-quantized/machine_learning_models", "sam-quantized/machine_learning_models/*"
+    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*',
+    "sam-quantized/machine_learning_models", "sam-quantized/machine_learning_models/*"
 ]
 
 source_suffix = {
