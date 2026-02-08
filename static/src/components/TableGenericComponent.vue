@@ -22,7 +22,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   header: Array<string>,
-  rows: Array<Map<string, string>>,
+  rows: Array<Record<string, string | number>>,
   title: string,
   rowKey: string
 }>()
