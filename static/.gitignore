@@ -32,6 +32,10 @@ vite.config.ts.*
 test-results/
 playwright-report/
 
+# stryker temp files
+.stryker-tmp
+reports/
+
 .env*
 
 # cloudflare workers
