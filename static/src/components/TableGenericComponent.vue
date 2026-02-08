@@ -11,9 +11,9 @@
     </tr>
     </thead>
 
-    <tbody class="divide-y divide-gray-200" v-for="row in props.rows" :key="props.rows[props.rowKey]">
+    <tbody class="divide-y divide-gray-200" v-for="row in props.rows" :key="row[props.rowKey]">
     <tr class="odd:bg-gray-50">
-      <td v-for="item in row" class="whitespace-nowrap px-1 py-1 text-gray-900 2md:font-medium 2md:py-2 2md:px-4">{{ item }}</td>
+      <td v-for="(item, key) in row" :key="key" class="whitespace-nowrap px-1 py-1 text-gray-900 2md:font-medium 2md:py-2 2md:px-4">{{ item }}</td>
     </tr>
     </tbody>
   </table>
