@@ -22,6 +22,10 @@ export default defineConfig(({mode}) => {
                     index: resolve(__dirname, "index.html"),
                 },
             },
+        },
+        test: {
+            include: ['tests/**/*.{test,spec}.ts'],
+            environment: 'jsdom',
         }
     }
 })

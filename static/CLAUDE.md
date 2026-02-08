@@ -20,6 +20,7 @@ The SamGIS frontend is a Single Page Application (SPA) built with Vue 3, TypeScr
 - **Build Tool**: Vite 7
 - **Styling**: Tailwind CSS 4
 - **Mapping**: Leaflet with leaflet-providers and @geoman-io/leaflet-geoman-free
+- **Testing**: Vitest with jsdom environment, @vue/test-utils for component tests
 - **UI Tour**: driver.js (custom fork)
 - **Package Manager**: pnpm
 
@@ -57,6 +58,12 @@ pnpm build:tailwindcss
 
 # Preview production build
 pnpm preview --port 5173
+
+# Run tests once
+pnpm test
+
+# Run tests in watch mode (re-runs on file changes)
+pnpm test:watch
 
 # Lint and fix
 pnpm lint:fix
@@ -97,6 +104,8 @@ static/
 │       └── buttons/               # Button components
 │           ├── ButtonComponent.vue
 │           └── ButtonMapSendRequest.vue
+├── tests/                         # Vitest test suite
+│   └── *.test.ts                  # Test files (*.test.ts or *.spec.ts)
 ├── public/                        # Static assets (favicon, manifest, etc.)
 ├── dist/                          # Production build output
 ├── index.html                     # HTML entry point
@@ -194,7 +203,7 @@ The project uses TypeScript with strict type checking:
 - `tsconfig.json`: Project references for multi-config setup
 - `tsconfig.app.json`: Application code configuration
 - `tsconfig.node.json`: Build tool (Vite) configuration
-- `tsconfig.vitest.json`: Test configuration
+- `tsconfig.vitest.json`: Test configuration (extends app config, includes `tests/` dir, adds jsdom types)
 
 **Type definitions** are in `src/components/types.d.ts`:
 - `IPointPrompt`: Point marker with label (0=exclude, 1=include)
@@ -247,6 +256,7 @@ Key settings in `vite.config.ts`:
 - **Alias**: `@` maps to `./src` for clean imports
 - **Entry point**: `index.html` (Vite's default)
 - **Build output**: `dist/`
+- **Test config**: `test.include` targets `tests/**/*.{test,spec}.ts` with jsdom environment
 
 **Import alias usage:**
 ```typescript
@@ -280,6 +290,24 @@ Custom styles in `src/leaflet-custom.css` override default Leaflet CSS for:
 - Marker appearance
 - Popup styling
 - Drawing tool UI
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev/) with jsdom environment. Test files live in `tests/` directory, separate from source code.
+
+```bash
+# Run all tests once
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+```
+
+**Conventions:**
+- Test files: `tests/*.test.ts` or `tests/*.spec.ts`
+- Use `@/` alias to import source modules (same as app code)
+- The `@` alias resolves to `./src`
+- Use `@vue/test-utils` (`mount`, `shallowMount`) for Vue component tests
 
 ## Common Development Tasks
 
@@ -330,6 +358,9 @@ Main map logic is in `PagePredictionMap.vue`:
 - `typescript`: Via tsconfig dependencies
 - `eslint`: ^10.0.0 - Linting
 - `eslint-plugin-vue`: ^10.7.0 - Vue-specific linting
+- `vitest`: ^4.0.18 - Unit testing framework
+- `@vue/test-utils`: ^2.4.6 - Vue component testing utilities
+- `jsdom`: ^28.0.0 - DOM environment for tests
 - `prettier`: ^3.8.1 - Code formatting
 
 ## Troubleshooting
