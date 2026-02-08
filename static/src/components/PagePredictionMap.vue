@@ -118,6 +118,7 @@ import {
 import {
   applyFnToObjectWithinArray,
   getExtentCurrentViewMapBBox,
+  getPopupContentPoint,
   sendMLRequest,
   getQueryParams,
   getSelectedPointCoordinate,
@@ -143,21 +144,6 @@ const props = defineProps<{
   mapName: string,
   description: string
 }>()
-
-const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivElement => {
-  let popupContent: HTMLDivElement = document.createElement('div')
-  let currentPointLayer: LatLng = getSelectedPointCoordinate(leafletEvent)
-
-  popupContent.innerHTML = `<span>lat:${JSON.stringify(currentPointLayer.lat)}<br/>`
-  popupContent.innerHTML += `lng:${JSON.stringify(currentPointLayer.lng)}<br/>`
-  popupContent.innerHTML += `label:${label}, id:${leafletEvent.layer._leaflet_id}</span>`
-
-  const popupDiv: HTMLDivElement = document.createElement('div')
-  popupDiv.className = 'leaflet-popup-content-inner'
-  popupDiv.appendChild(popupContent)
-
-  return popupDiv
-}
 
 onMounted(async () => {
   const osmTile = tileLayer.provider(OpenStreetMap)

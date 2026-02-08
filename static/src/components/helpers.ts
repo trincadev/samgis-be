@@ -326,3 +326,19 @@ export const removeEventFromArrayByIndex = (arr: Array<LEvented>, e: LEvented) =
     return el.id !== e.layer._leaflet_id
   })
 }
+
+/** build an HTML popup div showing lat, lng, label and leaflet id for a point marker */
+export const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivElement => {
+  let popupContent: HTMLDivElement = document.createElement('div')
+  let currentPointLayer: LatLng = getSelectedPointCoordinate(leafletEvent)
+
+  popupContent.innerHTML = `<span>lat:${JSON.stringify(currentPointLayer.lat)}<br/>`
+  popupContent.innerHTML += `lng:${JSON.stringify(currentPointLayer.lng)}<br/>`
+  popupContent.innerHTML += `label:${label}, id:${leafletEvent.layer._leaflet_id}</span>`
+
+  const popupDiv: HTMLDivElement = document.createElement('div')
+  popupDiv.className = 'leaflet-popup-content-inner'
+  popupDiv.appendChild(popupContent)
+
+  return popupDiv
+}
