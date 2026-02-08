@@ -7,6 +7,8 @@
     "preview": "vite preview --port 5173",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:html_report": "vitest run --coverage && vite preview --outDir coverage",
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-pattern .gitignore",
     "build:tailwindcss": "pnpm dlx @tailwindcss/cli -i src/input.css -o dist/output.css"
   },
@@ -20,10 +22,12 @@
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.18",
-    "@tsconfig/node20": "^20.1.9",
+    "@tsconfig/node24": "^24.0.4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^25.2.1",
     "@vitejs/plugin-vue": "^6.0.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^10.0.0",
@@ -42,5 +46,6 @@
     "onlyBuiltDependencies": [
       "snyk"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.29.1+sha512.48dae233635a645768a3028d19545cacc1688639eeb1f3734e42d6d6b971afbf22aa1ac9af52a173d9c3a20c15857cfa400f19994d79a2f626fcc73fccda9bbc"
 }
