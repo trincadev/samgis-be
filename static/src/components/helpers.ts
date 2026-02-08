@@ -104,7 +104,7 @@ const getUpdatedRectangle = (obj: IRectanglePrompt): IRectangleTable => {
 }
 
 /** get a custom icon given a PNG path with its anchor/size values  */
-const getCustomIconMarker = (
+export const getCustomIconMarker = (
   iconUrlNoExt: string,
   shadowUrl = '/marker-shadow.png',
   iconSize: ArrayNumber = [25, 41],
@@ -126,7 +126,7 @@ const getCustomIconMarker = (
 }
 
 /** get an  the leaflet editor geoman.io toolbar with the custom actions to draw/edit/move point and rectangle layers */
-const getCustomGeomanActionsObject = (
+export const getCustomGeomanActionsObject = (
   actionName: string, descriptionAction: string, arrayActions: Array<object>, customClassName: string
 ) => {
   return {
