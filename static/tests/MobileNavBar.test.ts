@@ -21,7 +21,7 @@ describe('MobileNavBar', () => {
       'https://trinca.tornidor.com/projects/samgis-segment-anything-applied-to-GIS'
     )
     expect(tabs[1].props('href')).toBe('https://trinca.tornidor.com/')
-    expect(tabs[2].props('href')).toBe('https://docs.trinca.tornidor.com/')
+    expect(tabs[2].props('href')).toBe('https://docs.ml-trinca.tornidor.com/')
   })
 
   it('passes correct descriptions to TabComponents', () => {
