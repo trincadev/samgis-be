@@ -16,6 +16,7 @@ import {
   getCustomIconMarker,
   getCustomGeomanActionsObject,
   setGeomanControls,
+  updateMapData
 } from '@/components/helpers'
 import {
   currentMapBBoxRef,
@@ -833,5 +834,69 @@ describe('setGeomanControls', () => {
     const firstCall = map.pm.Toolbar.copyDrawControl.mock.calls[0]
     expect(firstCall[1].actions).toHaveLength(1)
     expect(firstCall[1].actions[0].name).toBe('actionName')
+  })
+})
+
+// ──────────────────────────────────────────────────────────
+// updateMapData
+// ──────────────────────────────────────────────────────────
+describe('updateMapData', () => {
+  /**
+   * Registers 'pm:create' and 'pm:remove' event listeners on the map.
+   * We capture the registered event names and callbacks via a mock `on()`,
+   * then invoke the callbacks to verify side effects.
+   */
+
+  const makeMockMapForEvents = () => {
+    const listeners: Record<string, Function> = {}
+    return {
+      on: vi.fn((event: string, cb: Function) => {
+        listeners[event] = cb
+      }),
+      listeners,
+    }
+  }
+
+  const mockPopupFn = vi.fn(() => document.createElement('div'))
+  const makePromptsRef = () => ({ value: [] as any[] })
+
+  beforeEach(() => {
+    responseMessageRef.value = '-'
+  })
+
+  it('registers a pm:create listener on the map', () => {
+    const mockMap = makeMockMapForEvents()
+    const promptsRef = makePromptsRef()
+    updateMapData(mockMap as any, mockPopupFn, promptsRef as any)
+    expect(mockMap.listeners['pm:create']).toBeDefined()
+  })
+
+  it('registers a pm:remove listener on the map', () => {
+    const mockMap = makeMockMapForEvents()
+    const promptsRef = makePromptsRef()
+    updateMapData(mockMap as any, mockPopupFn, promptsRef as any)
+    expect(mockMap.listeners['pm:remove']).toBeDefined()
+  })
+
+  it('calls map.on exactly twice (pm:create and pm:remove)', () => {
+    const mockMap = makeMockMapForEvents()
+    const promptsRef = makePromptsRef()
+    updateMapData(mockMap as any, mockPopupFn, promptsRef as any)
+    expect(mockMap.on).toHaveBeenCalledTimes(2)
+    expect(mockMap.on.mock.calls[0][0]).toBe('pm:create')
+    expect(mockMap.on.mock.calls[1][0]).toBe('pm:remove')
+  })
+
+  it('pm:remove callback resets responseMessageRef and removes event from array', () => {
+    const mockMap = makeMockMapForEvents()
+    const promptsRef = makePromptsRef()
+    promptsRef.value = [{ id: 10 }, { id: 20 }]
+    responseMessageRef.value = 'some message'
+
+    updateMapData(mockMap as any, mockPopupFn, promptsRef as any)
+    mockMap.listeners['pm:remove']({ layer: { _leaflet_id: 10 } })
+
+    expect(responseMessageRef.value).toBe('-')
+    expect(promptsRef.value).toEqual([{ id: 20 }])
   })
 })
