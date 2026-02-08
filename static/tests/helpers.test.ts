@@ -12,6 +12,7 @@ import {
   updateZoomBboxMap,
   getQueryParams,
   getGeoJSONRequest,
+  getPopupContentPoint,
 } from '@/components/helpers'
 import {
   currentMapBBoxRef,
@@ -521,5 +522,71 @@ describe('getGeoJSONRequest', () => {
     const result = await getGeoJSONRequest(mockBody, '/infer_samgis')
     expect(typeof result).toBe('string')
     expect(result).toContain('SyntaxError')
+  })
+})
+
+// ──────────────────────────────────────────────────────────
+// getPopupContentPoint
+// ──────────────────────────────────────────────────────────
+describe('getPopupContentPoint', () => {
+  /**
+   * Builds an HTMLDivElement popup for a point marker.
+   * The event mock needs `layer._latlng` (for coordinates)
+   * and `layer._leaflet_id` (displayed in the popup text).
+   * jsdom provides full DOM APIs so we can assert on the returned element.
+   */
+
+  const makePointEvent = (lat: number, lng: number, leafletId: number) => ({
+    layer: { _latlng: { lat, lng }, _leaflet_id: leafletId },
+  })
+
+  it('returns an HTMLDivElement', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result).toBeInstanceOf(HTMLDivElement)
+  })
+
+  it('outer div has class "leaflet-popup-content-inner"', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.className).toBe('leaflet-popup-content-inner')
+  })
+
+  it('contains lat value from event', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.textContent).toContain('lat:45.5')
+  })
+
+  it('contains lng value from event', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.textContent).toContain('lng:9.2')
+  })
+
+  it('contains label value', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.textContent).toContain('label:1')
+  })
+
+  it('contains leaflet id', () => {
+    const event = makePointEvent(45.5, 9.2, 42)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.textContent).toContain('id:42')
+  })
+
+  it('works with label 0 (exclude) — falsy but valid', () => {
+    const event = makePointEvent(44.0, 8.0, 7)
+    const result = getPopupContentPoint(event, 0)
+    expect(result.textContent).toContain('label:0')
+    expect(result.textContent).toContain('id:7')
+  })
+
+  it('preserves decimal precision in coordinates', () => {
+    const event = makePointEvent(46.123456789, 9.987654321, 99)
+    const result = getPopupContentPoint(event, 1)
+    expect(result.textContent).toContain('lat:46.123456789')
+    expect(result.textContent).toContain('lng:9.987654321')
   })
 })
