@@ -41,7 +41,7 @@
             ]" />
           </div>
           <div v-if="responseMessageRef === waitingString" />
-          <h2 v-else-if="responseMessageRef || responseMessageRef == '-'" class="text-lg text-red-600">{{ responseMessageRef }}</h2>
+          <h2 v-else-if="responseMessageRef || responseMessageRef === '-'" class="text-lg text-red-600">{{ responseMessageRef }}</h2>
           <div v-else>
             <div class="grid grid-cols-1 md:grid-cols-3">
               <StatsGrid :stats-array="[

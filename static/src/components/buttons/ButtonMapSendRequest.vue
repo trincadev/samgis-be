@@ -1,8 +1,8 @@
 <template>
   <button
     :class="`${props.class} bg-gray-200 bg-opacity-50`"
-    :disabled="promptsArray.length == 0 || responseMessage === waitingString"
-    v-if="promptsArray.length == 0 || responseMessage === waitingString"
+    :disabled="promptsArray.length === 0 || responseMessage === waitingString"
+    v-if="promptsArray.length === 0 || responseMessage === waitingString"
   >{{ responseMessage === waitingString ? responseMessage : '🚫 Empty prompt (disabled)' }}
   </button>
   <button
@@ -10,7 +10,7 @@
     @click="sendMLRequest(map, promptsArray, currentBaseMapName)"
     v-else
   >
-    <span v-if="responseMessage && responseMessage != '-'">{{ responseMessage }}</span>
+    <span v-if="responseMessage && responseMessage !== '-'">{{ responseMessage }}</span>
     <span v-else>🔍 send ML request</span>
   </button>
 </template>

@@ -33,7 +33,7 @@ export const updateZoomBboxMap = (localMap: LMap) => {
 
 export const getCurrentBasemap = (url: string, providersArray: ServiceTiles): string => {
   for (const [key, value] of Object.entries(providersArray)) {
-    if (value._url == url) {
+    if (value._url === url) {
       return key
     }
   }
@@ -321,8 +321,8 @@ export const updateMapData = (
 }
 
 /** remove the selected layer from the ML request array prompt */
-const removeEventFromArrayByIndex = (arr: Array<LEvented>, e: LEvented) => {
+export const removeEventFromArrayByIndex = (arr: Array<LEvented>, e: LEvented) => {
   return arr.filter((el: LEvented) => {
-    return el.id != e.layer._leaflet_id
+    return el.id !== e.layer._leaflet_id
   })
 }
