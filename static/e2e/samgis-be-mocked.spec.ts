@@ -43,7 +43,10 @@ test('UI updates after mocked /infer_samgis response', async ({ mockedPage }) =>
 
     // Verify UI shows "waiting..." while request is in flight
 
-    // After successful response: duration, polygons, predicted masks stats should appear
+    // Check for the output polygon presence within the map
+    const mapContainer = mockedPage.locator('#map');
+    await expect(mapContainer).toHaveScreenshot({ maxDiffPixelRatio: 0.02 })
+    // After successful response: duration, polygons, predicted masks stats should appear within the Map Info section
     await expect(mapInfo).toMatchAriaSnapshot({ name: 'mapInfoAfterRequest.0.aria.yaml'})
 
     // Map navigation should be locked after request
