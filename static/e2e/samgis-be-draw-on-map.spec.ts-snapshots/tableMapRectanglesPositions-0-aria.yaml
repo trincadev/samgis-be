@@ -1,0 +1,12 @@
+- table "Table with the position for the map rectangles":
+  - caption: Table with the position for the map rectangles
+  - rowgroup:
+    - row "id data_ne data_sw":
+      - columnheader "id"
+      - columnheader "data_ne"
+      - columnheader "data_sw"
+  - rowgroup:
+    - row /\d+ LatLng\(46\.\d+, 9\.\d+\) LatLng\(46\.\d+, 9\.\d+\)/:
+      - cell /\d+/
+      - cell /LatLng\(46\.\d+, 9\.\d+\)/
+      - cell /LatLng\(46\.\d+, 9\.\d+\)/
