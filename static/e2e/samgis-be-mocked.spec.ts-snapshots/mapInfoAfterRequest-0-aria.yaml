@@ -1,0 +1,13 @@
+- heading "Map Info" [level=1]
+- term: current Zoom
+- definition: /\d+/
+- term: current map name/type
+- definition: OpenStreetMap
+- term: "prompt: points/rectangles number"
+- definition: "1"
+- term: request duration
+- definition: /[\d,.]+[hmsp]+/
+- term: polygons number
+- definition: /\d+/
+- term: predicted masks number
+- definition: "1"
