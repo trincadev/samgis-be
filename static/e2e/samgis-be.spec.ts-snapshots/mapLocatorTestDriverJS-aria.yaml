@@ -1,0 +1,16 @@
+- button "Zoom in"
+- button "Zoom out"
+- button
+- button
+- button
+- button
+- button
+- button
+- button "Layers"
+- text: 2 km ©
+- link "leaflet":
+  - /url: https://leafletjs.com
+- text: ©
+- link "OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright
+- text: contributors

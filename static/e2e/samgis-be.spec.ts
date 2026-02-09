@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 
+
 test('test the driver.js tour on the localhost SamGIS-be page', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('dialog', { name: 'SamGIS' })).toBeVisible();
@@ -31,4 +32,17 @@ test('test the driver.js tour on the localhost SamGIS-be page', async ({ page })
       'Empty at beginning, this table will contain the machine learning prompt (points and rectangles) section'
     );
     await page.getByRole('button', { name: 'Done' }).click();
+
+    const navigationMapLock = page.getByRole('checkbox', { name: 'map navigation unlocked' })
+    await expect(navigationMapLock).toBeVisible()
+    await expect(navigationMapLock).not.toBeChecked()
+
+    const mapLocator = page.locator("#map")
+    await expect(mapLocator).toBeVisible()
+    await expect(mapLocator).toMatchAriaSnapshot({ name: 'mapLocatorTestDriverJS.aria.yaml'})
+
+    const sendButton = page.getByRole('button', { name: 'Empty prompt (disabled)' })
+    await expect(sendButton).toBeVisible()
+    await expect(sendButton).toBeDisabled()
+    await page.close();
 });
