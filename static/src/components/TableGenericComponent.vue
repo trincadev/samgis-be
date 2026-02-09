@@ -1,5 +1,5 @@
 <template>
-  <table class="min-w-full divide-y-2 divide-gray-200 border border-gray-200 bg-white text-left p-4">
+  <table class="min-w-full divide-y-2 divide-gray-200 border border-gray-200 bg-white text-left p-4" data-testid="table-component" :aria-label="props.title">
     <caption class="text-2xl bg-blue-100">{{ props.title }}</caption>
     <thead class="text-left">
     <tr class="text-left">

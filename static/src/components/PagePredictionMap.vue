@@ -1,10 +1,10 @@
 <template>
-  <div class="h-auto" id="id-prediction-map-container">
+  <div class="h-auto" id="id-prediction-map-container" data-testid="prediction-map-container">
 
     <div class="grid grid-cols-1 2xl:grid-cols-5 lg:gap-1 lg:border-r ml-2 mt-2 md:ml-4 md:mr-4">
 
       <div class="lg:border-r lg:col-span-3">
-        <div id="id-map-cont" class="">
+        <div id="id-map-cont" class="" data-testid="map-section">
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1">
             <ButtonMapSendRequest
@@ -18,19 +18,19 @@
               :waiting-string="waitingString"
             />
             <span class="ml-2">
-              <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" />
+              <input type="checkbox" id="checkboxMapNavigationLocked" v-model="mapNavigationLocked" data-testid="map-navigation-checkbox" />
               <span class="ml-2">
                   <label class="text-red-600" for="checkboxMapNavigationLocked" v-if="mapNavigationLocked">locked map navigation!</label>
                   <label class="text-blue-600" for="checkboxMapNavigationLocked" v-else>map navigation unlocked</label>
               </span>
             </span>
           </div>
-          <div id="map" class="map-predictions" />
+          <div id="map" class="map-predictions" data-testid="map-container" />
         </div>
       </div>
 
       <div class="lg:col-span-2">
-        <div class="lg:pl-2 lg:pr-2 lg:border-l lg:border-3" id="id-map-info">
+        <div class="lg:pl-2 lg:pr-2 lg:border-l lg:border-3" id="id-map-info" data-testid="map-info">
 
           <h1>Map Info</h1>
           <div class="grid grid-cols-1 md:grid-cols-3">
@@ -53,25 +53,27 @@
           </div>
         </div>
 
-        <h1 id="id-ml-request-prompt">ML request prompt</h1>
+        <h1 id="id-ml-request-prompt" data-testid="ml-request-prompt">ML request prompt</h1>
         <p>Exclude points: label 0, include points: label 1.</p>
-        <div v-if="promptsArrayRef.filter(el => {return el.type === 'point'}).length > 0">
-          <TableGenericComponent
-            :header="['id', 'data', 'label']"
-            :rows="applyFnToObjectWithinArray(promptsArrayRef.filter(el => {return el.type === 'point'}))"
-            title="Points"
-            row-key="id"
-          />
-        </div>
-        <br />
-        <div v-if="promptsArrayRef.filter(el => {return el.type === 'rectangle'}).length > 0">
-          <TableGenericComponent
-            :header="['id', 'data_ne', 'data_sw']"
-            :rows="applyFnToObjectWithinArray(promptsArrayRef.filter(el => {return el.type === 'rectangle'}))"
-            title="Rectangles"
-            row-key="id"
-            class="2md:min-h-[100px]"
-          />
+        <div aria-label="Table container for the positions of map markers and rectangles">
+          <div v-if="promptsArrayRef.filter(el => {return el.type === 'point'}).length > 0">
+            <TableGenericComponent
+              :header="['id', 'data', 'label']"
+              :rows="applyFnToObjectWithinArray(promptsArrayRef.filter(el => {return el.type === 'point'}))"
+              title="Table with the position for the map markers"
+              row-key="id"
+            />
+          </div>
+          <br />
+          <div v-if="promptsArrayRef.filter(el => {return el.type === 'rectangle'}).length > 0">
+            <TableGenericComponent
+              :header="['id', 'data_ne', 'data_sw']"
+              :rows="applyFnToObjectWithinArray(promptsArrayRef.filter(el => {return el.type === 'rectangle'}))"
+              title="Table with the position for the map rectangles"
+              row-key="id"
+              class="2md:min-h-[100px]"
+            />
+          </div>
         </div>
       </div>
 

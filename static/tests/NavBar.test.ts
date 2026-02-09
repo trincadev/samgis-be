@@ -3,12 +3,14 @@ import { shallowMount } from '@vue/test-utils'
 import NavBar from '@/components/NavBar/NavBar.vue'
 
 describe('NavBar', () => {
-  it('renders a fixed-position container div', () => {
+  it('renders a fixed-position container nav', () => {
     const wrapper = shallowMount(NavBar)
-    const div = wrapper.find('div.fixed')
-    expect(div.exists()).toBe(true)
-    expect(div.classes()).toContain('top-2')
-    expect(div.classes()).toContain('right-5')
+    const nav = wrapper.find('nav.fixed')
+    expect(nav.exists()).toBe(true)
+    expect(nav.classes()).toContain('top-2')
+    expect(nav.classes()).toContain('right-5')
+    expect(nav.attributes('data-testid')).toBe('navbar')
+    expect(nav.attributes('aria-label')).toBe('Main navigation')
   })
 
   it('renders exactly three TabComponent instances', () => {

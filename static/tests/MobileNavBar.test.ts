@@ -3,9 +3,12 @@ import { shallowMount } from '@vue/test-utils'
 import MobileNavBar from '@/components/NavBar/MobileNavBar.vue'
 
 describe('MobileNavBar', () => {
-  it('renders a container div with bg-gray-200 class', () => {
+  it('renders a container nav with bg-gray-200 class', () => {
     const wrapper = shallowMount(MobileNavBar)
-    expect(wrapper.find('div.bg-gray-200').exists()).toBe(true)
+    const nav = wrapper.find('nav.bg-gray-200')
+    expect(nav.exists()).toBe(true)
+    expect(nav.attributes('data-testid')).toBe('mobile-navbar')
+    expect(nav.attributes('aria-label')).toBe('Mobile navigation')
   })
 
   it('renders exactly three TabComponent instances', () => {

@@ -37,12 +37,19 @@ test('test the driver.js tour on the localhost SamGIS-be page', async ({ page })
     await expect(navigationMapLock).toBeVisible()
     await expect(navigationMapLock).not.toBeChecked()
 
-    const mapLocator = page.locator("#map")
+    const mapLocator = page.getByTestId("map-container")
     await expect(mapLocator).toBeVisible()
     await expect(mapLocator).toMatchAriaSnapshot({ name: 'mapLocatorTestDriverJS.aria.yaml'})
 
     const sendButton = page.getByRole('button', { name: 'Empty prompt (disabled)' })
     await expect(sendButton).toBeVisible()
     await expect(sendButton).toBeDisabled()
+
+    const footerMsg = page.getByText('Trouble on scrolling this page? Open the direct URL space as a new tab. SamGIS')
+    await expect(footerMsg).toBeVisible();
+    await page.getByRole('button', { name: 'Close' }).click();
+    await expect(footerMsg).not.toBeVisible();
+
     await page.close();
 });
+
