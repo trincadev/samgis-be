@@ -1,6 +1,6 @@
 [project]
 name = "samgis"
-version = "1.12.1"
+version = "1.12.2"
 description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
 authors = [{name = "alessandro trinca tornidor", email = "alessandro@trinca.tornidor.com"}]
 license = "MIT license"
