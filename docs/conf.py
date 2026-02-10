@@ -44,6 +44,8 @@ extensions = [
     'myst_parser',
     # 'sphinx_autodoc_defaultargs'
 ]
+
+autodoc_mock_imports = ["fastapi", "gradio", "starlette"]
 # Napoleon settings
 napoleon_google_docstring = True
 # sphinx_autodoc_typehints settings
