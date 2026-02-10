@@ -155,6 +155,8 @@ cd docs && make clean html && cd ../
 # Output at: docs/_build/html/index.html
 ```
 
+**Known Issue:** Sphinx autodoc fails to import `samgis_web.web` modules (`exception_handlers`, `gradio_helpers`, `middlewares`) due to pydantic 2.10+ being incompatible with fastapi 0.128.x during type evaluation at import time. This only affects Sphinx builds, not runtime. The workaround is `autodoc_mock_imports` in `docs/conf.py` which mocks `fastapi`, `gradio`, and `starlette` during the doc build.
+
 ## Dependency Management
 
 ### Updating requirements.txt from Poetry
