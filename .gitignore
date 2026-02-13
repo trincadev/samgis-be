@@ -104,6 +104,8 @@ coverage.xml
 *.cover
 .hypothesis/
 static/coverage/
+.sonar/report-task.txt
+.sonar/.sonar_lock
 
 # Translations
 *.mo
