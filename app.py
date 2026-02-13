@@ -34,11 +34,9 @@ folders_map = os.getenv("FOLDERS_MAP", "{}")
 markdown_text = os.getenv("MARKDOWN_TEXT", "")
 examples_text_list = os.getenv("EXAMPLES_TEXT_LIST", "").split("\n")
 example_body = json.loads(os.getenv("EXAMPLE_BODY", "{}"))
-mount_gradio_app = bool(os.getenv("MOUNT_GRADIO_APP", ""))
 
 static_dist_folder = Path(project_root_folder) / "static" / "dist"
 input_css_path = os.getenv("INPUT_CSS_PATH", "src/input.css")
-vite_gradio_url = os.getenv("VITE_GRADIO_URL", "/gradio")
 vite_index_url = os.getenv("VITE_INDEX_URL", "/")
 vite_samgis_url = os.getenv("VITE_SAMGIS_URL", "/samgis")
 fastapi_title = "samgis"
@@ -172,7 +170,6 @@ app_logger.info("build_frontend ok!")
 # eventually needed for tailwindcss output.css
 app.mount("/static", StaticFiles(directory=static_dist_folder, html=True), name="static")
 app.mount(vite_index_url, StaticFiles(directory=static_dist_folder, html=True), name="index")
-app.mount(vite_gradio_url, StaticFiles(directory=static_dist_folder, html=True), name="gradio")
 
 
 @app.get(vite_index_url)
@@ -181,28 +178,6 @@ async def index() -> FileResponse:
 
 
 app_logger.info(f"Mounted index on url path {vite_index_url} .")
-app_logger.info(f"There is need to create and mount gradio app interface? {mount_gradio_app}...")
-if mount_gradio_app:
-    try:
-        import gradio as gr
-        from samgis_web.web.gradio_helpers import get_gradio_interface_geojson
-
-        app_logger.info("creating gradio interface...")
-        gr_interface = get_gradio_interface_geojson(
-            infer_samgis_fn,
-            markdown_text,
-            examples_text_list,
-            example_body
-        )
-        app_logger.info(f"gradio interface created, mounting gradio app on url path {vite_gradio_url} within FastAPI.")
-        app_logger.debug(f"gr_interface vars:{vars(gr_interface)}.")
-        app = gr.mount_gradio_app(app, gr_interface, path=vite_gradio_url)
-        app = gr.mount_gradio_app(app, gr_interface, path="/gradio")
-        app_logger.info(f"mounted gradio app within fastapi, url path {vite_gradio_url} .")
-    except (ModuleNotFoundError, ImportError) as mnfe:
-        app_logger.error("cannot import gradio, have you installed it if you want to mount a gradio app?")
-        app_logger.error(mnfe)
-        raise mnfe
 
 
 # add the CorrelationIdMiddleware AFTER the @app.middleware("http") decorated function to avoid missing request id
@@ -213,6 +188,6 @@ if __name__ == '__main__':
     try:
         uvicorn.run("app:app", host="0.0.0.0", port=7860)
     except Exception as ex:
-        app_logger.error(f"fastapi/gradio application {fastapi_title}, exception:{ex}.")
-        print(f"fastapi/gradio application {fastapi_title}, exception:{ex}.")
+        app_logger.error(f"fastapi application {fastapi_title}, exception:{ex}.")
+        print(f"fastapi application {fastapi_title}, exception:{ex}.")
         raise ex

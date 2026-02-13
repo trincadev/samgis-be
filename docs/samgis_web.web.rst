@@ -12,14 +12,6 @@ samgis\_web.web.exception\_handlers module
    :undoc-members:
    :show-inheritance:
 
-samgis\_web.web.gradio\_helpers module
---------------------------------------
-
-.. automodule:: samgis_web.web.gradio_helpers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 samgis\_web.web.middlewares module
 ----------------------------------
 

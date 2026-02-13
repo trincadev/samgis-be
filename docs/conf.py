@@ -21,7 +21,7 @@ with open(toml_path, "rb") as f:
 pyproject = toml["project"]
 version = pyproject["version"]
 release = version
-authors_list = [a for a in pyproject["authors"]]
+authors_list = list(pyproject["authors"])
 author = ""
 for author_element in authors_list:
     if len(author) > 1:
@@ -45,7 +45,7 @@ extensions = [
     # 'sphinx_autodoc_defaultargs'
 ]
 
-autodoc_mock_imports = ["fastapi", "gradio", "starlette"]
+autodoc_mock_imports = ["fastapi", "starlette"]
 # Napoleon settings
 napoleon_google_docstring = True
 # sphinx_autodoc_typehints settings

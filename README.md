@@ -22,33 +22,6 @@ If you want to use this (recommended) after the clone of this repository it's be
 git submodule update --init --recursive
 ```
 
-## SamGIS - Gradio SDK version
-
-After developed your project using [the gradio quickstart](https://www.gradio.app/guides/quickstart),
-you can declare the specific gradio version you want to use in the HuggingFace space using
-the README.md header section. You need to compile these fields:
-
-```
-sdk: gradio
-sdk_version: [current Gradio version, e.g. 4.44.0]
-app_file: app.py
-```
-
-For some reason the space won't work if the app_file setting points to a file not
-within the root folder project.
-
-Under the hood, HuggingFace install the gradio SDK using docker. If you need to install some dependencies
-(for this project I needed `nodejs`) you can add some system
-[debian packages](https://huggingface.co/docs/hub/spaces-dependencies#adding-your-own-dependencies)
-within the `pre-requirements.txt` file.
-
-If you want to run locally the project not from a docker container you can install the optional gradio poetry group like this:
-
-```bash
-poetry install --with gradio --with --no-root
-```
-
-
 ## SamGIS - Docker version
 
 The SamGIS HuggingSpace url is <https://huggingface.co/spaces/aletrn/samgis>.
@@ -81,7 +54,6 @@ Run the container (keep it on background) and show logs
 docker run  -d --name samgis-huggingface -p 7860:7860 \
   -e VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
   -e VITE__INDEX_URL=${VITE__INDEX_URL} \
-  -e MOUNT_GRADIO_APP="" \
   registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface
 ```
 
@@ -119,7 +91,8 @@ curl -d@./events/payload_point_eolie.json -H 'content-type: application/json' ${
 
 #### Local execution on MacOS
 
-There is a known issue running the project on macOS. SamGIS still work also without executing it within a docker container, but is slower during image embedding because of a memory leak caused by CoreML. Here a log about this bug:
+There is a known issue running the project on macOS. SamGIS still work also without executing it within a docker
+container, but is slower during image embedding because of a memory leak caused by CoreML. Here a log about this bug:
 
 ```less
 [...]
@@ -149,7 +122,7 @@ This problem doesn't rise if running it within the docker container.
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
 
 ```bash
-python -m pytest --cov=samgis --cov-report=term-missing && coverage html
+pytest && coverage html
 ```
 
 ### How to update the static documentation with sphinx
@@ -188,8 +161,9 @@ To create a work in progress openapi json or yaml file use
 
 ### Update `requirements.txt` using poetry
 
-```bash
-poetry export --without-hashes --format=requirements.txt |grep -w -E "$(sed -z -e 's/\n/=|/g' requirements_no_versions.txt)" > requirements.txt
-```
+If needed, run the create_requirements.sh script to update the `requirements.txt` file
+(it will overwrite the existing one, asking for confirmation):
 
-Avoid newlines after the last pip package within the `requirements_no_versions.txt` file or the grep command will fail.
+```
+bash ./create_requirements.sh
+```

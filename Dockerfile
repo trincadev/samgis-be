@@ -4,7 +4,6 @@ FROM registry.gitlab.com/aletrn/gis-prediction:1.12.1
 ARG WORKDIR_ROOT="/var/task"
 ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 ENV WRITE_TMP_ON_DISK=""
-ENV MOUNT_GRADIO_APP=""
 ENV VITE__STATIC_INDEX_URL="/static"
 ENV VITE__INDEX_URL="/"
 ENV HOME_USER=/home/python
