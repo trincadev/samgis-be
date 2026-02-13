@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 1.12.3
+
+- ci: update base dockerfile version to 1.12.3
+- chore: samgis-core==3.5.6, samgis-web==1.3.4
+- feat: remove all the references and usages of the gradio dependency
+- docs: avoid exception on sphinx doc generation using mock imports
+
+## Version 1.12.2
+
+- chore: samgis-core==3.5.5, samgis-web==1.3.3
+- test: added stryker mutation testing
+- test: add some vitest frontend unit tests
+- test: add some playwright e2e tests
+  - driver.js tour
+  - data representation on page with mocked backend response
+  - data table population on map drawing
+
 ## Version 1.12.1
 
 - ci: update requirements.txt with the updated, installed dependency versions
