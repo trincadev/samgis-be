@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+See [AGENTS.md](./AGENTS.md) for agent instructions.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -78,7 +80,6 @@ docker build . --tag registry.gitlab.com/aletrn/samgis-huggingface --progress=pl
 docker run -d --name samgis-huggingface -p 7860:7860 \
   -e VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
   -e VITE__INDEX_URL=${VITE__INDEX_URL} \
-  -e MOUNT_GRADIO_APP="" \
   registry.gitlab.com/aletrn/samgis-huggingface
 
 # Follow logs
@@ -155,7 +156,7 @@ cd docs && make clean html && cd ../
 # Output at: docs/_build/html/index.html
 ```
 
-**Known Issue:** Sphinx autodoc fails to import `samgis_web.web` modules (`exception_handlers`, `gradio_helpers`, `middlewares`) due to pydantic 2.10+ being incompatible with fastapi 0.128.x during type evaluation at import time. This only affects Sphinx builds, not runtime. The workaround is `autodoc_mock_imports` in `docs/conf.py` which mocks `fastapi`, `gradio`, and `starlette` during the doc build.
+**Known Issue:** Sphinx autodoc fails to import `samgis_web.web` modules (`exception_handlers`, `middlewares`) due to pydantic 2.10+ being incompatible with fastapi 0.128.x during type evaluation at import time. This only affects Sphinx builds, not runtime. The workaround is `autodoc_mock_imports` in `docs/conf.py` which mocks `fastapi` and `starlette` during the doc build.
 
 ## Dependency Management
 
@@ -172,7 +173,6 @@ Note: Avoid newlines after last package in `requirements_no_versions.txt`.
 ### Poetry Groups
 
 - Default: Core dependencies (onnxruntime, samgis-web)
-- `gradio` (optional): For gradio SDK version
 - `test` (optional): pytest, pytest-cov, httpx
 - `docs` (optional): sphinx, sphinx-autodoc-typehints
 
@@ -181,18 +181,10 @@ Note: Avoid newlines after last package in `requirements_no_versions.txt`.
 - `WORKDIR`: Working directory (default: project root)
 - `LOG_LEVEL`: Logging level (default: INFO)
 - `WRITE_TMP_ON_DISK`: Path to mount temporary output files
-- `MOUNT_GRADIO_APP`: Enable gradio app mounting
 - `VITE__*`: Frontend configuration variables (sourced from static/.env)
 
 ## HuggingFace Spaces Deployment
 
-The project is deployed at https://huggingface.co/spaces/aletrn/samgis
-
-For Gradio SDK version, set in README.md header:
-```yaml
-sdk: gradio
-sdk_version: 4.44.0
-app_file: app.py
-```
+The project is deployed at https://huggingface.co/spaces/aletrn/samgis using Docker SDK.
 
 System dependencies: Add to `pre-requirements.txt` (Debian packages).
