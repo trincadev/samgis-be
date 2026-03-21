@@ -18,7 +18,6 @@ import {
   mapOptionsDefaultRef,
   layerControlGroupLayersRef,
   mapNavigationLocked,
-  htmlStatusMessages,
   driverSteps,
 } from '@/components/constants'
 
@@ -120,45 +119,6 @@ describe('Vue refs initial values', () => {
    */
   it('layerControlGroupLayersRef holds a truthy value', () => {
     expect(layerControlGroupLayersRef.value).toBeTruthy()
-  })
-})
-
-// ──────────────────────────────────────────────────────────
-// htmlStatusMessages
-// ──────────────────────────────────────────────────────────
-describe('htmlStatusMessages', () => {
-  /**
-   * Structural guards — not a full snapshot.
-   * We check shape, count, uniqueness, and presence of critical codes
-   * rather than asserting every phrase (too brittle for rewording).
-   */
-
-  it('has 55 entries', () => {
-    expect(htmlStatusMessages).toHaveLength(55)
-  })
-
-  it('every entry has numeric code and string phrase', () => {
-    for (const entry of htmlStatusMessages) {
-      expect(typeof entry.code).toBe('number')
-      expect(typeof entry.phrase).toBe('string')
-      expect(entry.phrase.length).toBeGreaterThan(0)
-    }
-  })
-
-  it('has no duplicate codes', () => {
-    const codes = htmlStatusMessages.map((e) => e.code)
-    expect(new Set(codes).size).toBe(codes.length)
-  })
-
-  it.each([
-    [200, 'OK'],
-    [400, 'Bad Request'],
-    [404, 'Not Found'],
-    [500, 'Internal Server Error'],
-  ])('contains critical code %i with phrase "%s"', (code, phrase) => {
-    const entry = htmlStatusMessages.find((e) => e.code === code)
-    expect(entry).toBeDefined()
-    expect(entry!.phrase).toBe(phrase)
   })
 })
 
