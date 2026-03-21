@@ -41,12 +41,14 @@ describe('App', () => {
     )
   })
 
-  it('passes env description when VITE__MAP_DESCRIPTION is set', async () => {
+  it('prepends VITE__MAP_DESCRIPTION to model description when set', async () => {
     vi.stubEnv('VITE__MAP_DESCRIPTION', 'Custom map description')
     const wrapper = shallowMount(App, { global: { stubs } })
     await wrapper.vm.$nextTick()
     const map = wrapper.findComponent(PredictionMap)
-    expect(map.props('description')).toBe('Custom map description')
+    const desc = map.props('description') as string
+    expect(desc).toMatch(/^Custom map description /)
+    expect(desc).toContain('predictions')
   })
 
   it('passes mapName "prediction-map" to PredictionMap', () => {

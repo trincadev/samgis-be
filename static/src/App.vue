@@ -25,9 +25,16 @@ import PredictionMap from '@/components/PagePredictionMap.vue'
 import PageLayout from '@/components/PageLayout.vue'
 
 const mapName = ref('prediction-map')
-const description = ref("This page displays predictions made with a machine learning model")
+const modelVariant = import.meta.env.VITE__MODEL_VARIANT || ""
+const modelDescription = modelVariant
+  ? `ML predictions powered by ${modelVariant}`
+  : "This page displays predictions made with a machine learning model"
+const description = ref(modelDescription)
 
 onMounted(() => {
-  description.value = import.meta.env.VITE__MAP_DESCRIPTION ? import.meta.env.VITE__MAP_DESCRIPTION : description.value
+  const mapDescription = import.meta.env.VITE__MAP_DESCRIPTION || ""
+  if (mapDescription) {
+    description.value = `${mapDescription} ${description.value}`
+  }
 })
 </script>

@@ -82,7 +82,9 @@ RUN if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exi
 FROM node_fastapi AS node_build
 
 ARG VITE__MAP_DESCRIPTION
-ENV VITE__INDEX_URL="/"
+ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
+ENV VITE__INDEX_URL="/" \
+    VITE__MODEL_VARIANT=${MODEL_VARIANT}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm build
