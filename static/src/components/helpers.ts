@@ -59,9 +59,9 @@ export const sendMLRequest = async (
   try {
     const geojsonOutputOnMounted = await getGeoJSONRequest(bodyRequest, '/infer_samgis')
     const featureNew = LeafletGeoJSON(geojsonOutputOnMounted)
-    let now = new Date(Date.now())
-    let nowString = now.toLocaleString('it-it',  )
-    let overlayMaps = new FeatureGroup([featureNew])
+    const now = new Date(Date.now())
+    const nowString = now.toLocaleString('it-it',  )
+    const overlayMaps = new FeatureGroup([featureNew])
     layerControlGroupLayersRef.value.addOverlay(overlayMaps, nowString)
     leafletMap.addLayer(featureNew)
   } catch (errGeojsonOutputOnMounted) {
@@ -80,7 +80,7 @@ export const getQueryParams = () => {
 }
 
 export const applyFnToObjectWithinArray = (array: Array<IPointPrompt | IRectanglePrompt>): Array<IPointTable | IRectangleTable> => {
-  let newArray = []
+  const newArray: Array<IPointTable | IRectangleTable> = []
   for (const el of array) {
     newArray.push(el.type === 'rectangle' ? getUpdatedRectangle(el) : getUpdatedPoint(el))
   }
@@ -215,7 +215,7 @@ export const getExtentCurrentViewMapBBox = (leafletMap: LMap): BboxLatLng => {
 export const getGeoJSONRequest = async (
   requestBody: IBodyLatLngPoints,
   urlApi: string
-) => {
+): Promise<object | string | undefined> => {
   responseMessageRef.value = waitingString
   const data = await fetch(urlApi, {
     method: 'POST',
@@ -226,16 +226,16 @@ export const getGeoJSONRequest = async (
   })
   try {
     if (data.status === 200) {
-      const output: Object = await data.json()
+      const output: { body: string } = await data.json()
       try {
         const parsed = JSON.parse(output.body)
         const { geojson, n_predictions, n_shapes_geojson } = parsed.output
 
         const parsedGeojson = JSON.parse(geojson)
-      durationRef.value = parsed.duration_run
+        durationRef.value = parsed.duration_run
         numberOfPolygonsRef.value = n_shapes_geojson
         numberOfPredictedMasksRef.value = n_predictions
-      responseMessageRef.value = ''
+        responseMessageRef.value = ''
         return parsedGeojson
       } catch (errParseOutput1) {
         console.error("errParseOutput1::", errParseOutput1)
@@ -329,8 +329,8 @@ export const removeEventFromArrayByIndex = (arr: Array<LEvented>, e: LEvented) =
 
 /** build an HTML popup div showing lat, lng, label and leaflet id for a point marker */
 export const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivElement => {
-  let popupContent: HTMLDivElement = document.createElement('div')
-  let currentPointLayer: LatLng = getSelectedPointCoordinate(leafletEvent)
+  const popupContent: HTMLDivElement = document.createElement('div')
+  const currentPointLayer: LatLng = getSelectedPointCoordinate(leafletEvent)
 
   popupContent.innerHTML = `<span>lat:${JSON.stringify(currentPointLayer.lat)}<br/>`
   popupContent.innerHTML += `lng:${JSON.stringify(currentPointLayer.lng)}<br/>`

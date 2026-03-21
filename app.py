@@ -1,5 +1,6 @@
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
 
 import structlog.stdlib
@@ -17,7 +18,7 @@ from samgis_web.utilities import frontend_builder
 from samgis_core.utilities.session_logger import setup_logging
 from samgis_web.prediction_api.predictors import samexporter_predict
 from samgis_web.utilities.type_hints import ApiRequestBody
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 
 load_dotenv()
@@ -44,7 +45,7 @@ app = FastAPI(title=fastapi_title, version="1.0")
 
 
 @app.middleware("http")
-async def request_middleware(request, call_next):
+async def request_middleware(request: Request, call_next: Callable) -> Response:
     from samgis_web.web.middlewares import logging_middleware
 
     return await logging_middleware(request, call_next)
@@ -55,12 +56,18 @@ async def health() -> JSONResponse:
     from onnxruntime import __version__ as ort_version
     from samgis_web.__version__ import __version__ as version_web
     from samgis_core.__version__ import __version__ as version_core
-    
-    from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME
 
-    msg_model_folder_error = f"health_check: model_folder:'{model_folder}' is not a directory."
-    msg_model_encoder_file_error = f"health_check: model_file:'{model_folder}' not found."
-    msg_model_decoder_file_error = f"health_check: model_file:'{model_folder}' not found."
+    from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME  # pyright: ignore[reportMissingImports] — module exists at runtime in Docker, not resolvable locally
+
+    msg_model_folder_error = (
+        f"health_check: model_folder:'{model_folder}' is not a directory."
+    )
+    msg_model_encoder_file_error = (
+        f"health_check: model_file:'{model_folder}' not found."
+    )
+    msg_model_decoder_file_error = (
+        f"health_check: model_file:'{model_folder}' not found."
+    )
     try:
         if not model_folder.is_dir():
             raise OSError(msg_model_folder_error)
@@ -70,15 +77,19 @@ async def health() -> JSONResponse:
             raise OSError(msg_model_encoder_file_error)
         if not decoder_model_path.is_file():
             raise OSError(msg_model_decoder_file_error)
-        app_logger.info(f"still alive, version_onnxruntime:{ort_version}, version_web:{version_web}, version_core:{version_core}.")
-        app_logger.info(f"still alive, encoder_model:{encoder_model_path}, decoder_model:{decoder_model_path}.")
+        app_logger.info(
+            f"still alive, version_onnxruntime:{ort_version}, version_web:{version_web}, version_core:{version_core}."
+        )
+        app_logger.info(
+            f"still alive, encoder_model:{encoder_model_path}, decoder_model:{decoder_model_path}."
+        )
         return JSONResponse(status_code=200, content={"msg": "still alive..."})
     except AssertionError as ae:
         app_logger.error(f"health_check: AssertionError:{ae}.")
         raise HTTPException(500, detail=msg_model_folder_error)
 
 
-def infer_samgis_fn(request_input: ApiRequestBody | str) -> str | JSONResponse:
+def infer_samgis_fn(request_input: ApiRequestBody | str) -> str:
     from samgis_web.web.web_helpers import get_parsed_bbox_points_with_dictlist_prompt
 
     app_logger.info("starting inference request...")
@@ -91,15 +102,16 @@ def infer_samgis_fn(request_input: ApiRequestBody | str) -> str | JSONResponse:
         try:
             app_logger.info(f"source_name = {body_request['source_name']}.")
             output = samexporter_predict(
-                bbox=body_request["bbox"], prompt=body_request["prompt"], zoom=body_request["zoom"],
-                source=body_request["source"], source_name=body_request['source_name'], model_folder=model_folder
+                bbox=body_request["bbox"],
+                prompt=body_request["prompt"],
+                zoom=body_request["zoom"],
+                source=body_request["source"],
+                source_name=body_request["source_name"],
+                model_folder=model_folder,
             )
             duration_run = time.time() - time_start_run
             app_logger.info(f"duration_run:{duration_run}.")
-            body = {
-                "duration_run": duration_run,
-                "output": output
-            }
+            body = {"duration_run": duration_run, "output": output}
             dumped = json.dumps(body)
             app_logger.info(f"json.dumps(body) type:{type(dumped)}, len:{len(dumped)}.")
             app_logger.debug(f"complete json.dumps(body):{dumped}.")
@@ -123,7 +135,9 @@ def infer_samgis(request_input: ApiRequestBody) -> JSONResponse:
 
 
 @app.exception_handler(RequestValidationError)
-def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+def request_validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     from samgis_web.web import exception_handlers
 
     return exception_handlers.request_validation_exception_handler(request, exc)
@@ -142,34 +156,42 @@ app_logger.info(f"write_tmp_on_disk:{write_tmp_on_disk}.")
 if bool(write_tmp_on_disk):
     try:
         if not Path(write_tmp_on_disk).is_dir():
-            raise OSError(f"error on preparing temp folder '{write_tmp_on_disk}' not found!")
-        app.mount("/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output")
+            raise OSError(
+                f"error on preparing temp folder '{write_tmp_on_disk}' not found!"
+            )
+        app.mount(
+            "/vis_output", StaticFiles(directory=write_tmp_on_disk), name="vis_output"
+        )
         templates = Jinja2Templates(directory=str(project_root_folder / "static"))
 
-
         @app.get("/vis_output", response_class=HTMLResponse)
-        def list_files(request: Request):
-
+        def list_files(request: Request) -> Response:
             files = os.listdir(write_tmp_on_disk)
             files_paths = sorted([f"{request.url._url}/{f}" for f in files])
-            print(files_paths)
+            app_logger.info(f"files_paths: '{files_paths}'")
             return templates.TemplateResponse(
                 "list_files.html", {"request": request, "files": files_paths}
             )
     except (AssertionError, RuntimeError) as rerr:
-        app_logger.error(f"{rerr} while loading the folder write_tmp_on_disk:{write_tmp_on_disk}...")
+        app_logger.error(
+            f"{rerr} while loading the folder write_tmp_on_disk:{write_tmp_on_disk}..."
+        )
         raise rerr
 
 frontend_builder.build_frontend(
     project_root_folder=workdir,
     input_css_path=input_css_path,
-    output_dist_folder=static_dist_folder
+    output_dist_folder=static_dist_folder,
 )
 app_logger.info("build_frontend ok!")
 
 # eventually needed for tailwindcss output.css
-app.mount("/static", StaticFiles(directory=static_dist_folder, html=True), name="static")
-app.mount(vite_index_url, StaticFiles(directory=static_dist_folder, html=True), name="index")
+app.mount(
+    "/static", StaticFiles(directory=static_dist_folder, html=True), name="static"
+)
+app.mount(
+    vite_index_url, StaticFiles(directory=static_dist_folder, html=True), name="index"
+)
 
 
 @app.get(vite_index_url)
@@ -184,10 +206,9 @@ app_logger.info(f"Mounted index on url path {vite_index_url} .")
 app.add_middleware(CorrelationIdMiddleware)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         uvicorn.run("app:app", host="0.0.0.0", port=7860)
     except Exception as ex:
         app_logger.error(f"fastapi application {fastapi_title}, exception:{ex}.")
-        print(f"fastapi application {fastapi_title}, exception:{ex}.")
         raise ex

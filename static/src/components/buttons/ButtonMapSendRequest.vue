@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import {Map as LMap} from 'leaflet';
-import type { IPointPrompt, IRectanglePrompt } from '@/components/types'
+import type { IPointPrompt, IRectanglePrompt, SourceTileType } from '@/components/types'
 
 const props = defineProps<{
   class: string,
@@ -29,7 +29,7 @@ const props = defineProps<{
   promptsArray: Array<IPointPrompt | IRectanglePrompt>,
   responseMessage: string,
   map: LMap,
-  sendMLRequest: Function,
+  sendMLRequest: (map: LMap, prompts: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType) => Promise<void>,
   waitingString: string
 }>()
 </script>

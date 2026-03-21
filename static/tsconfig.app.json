@@ -4,6 +4,7 @@
   "exclude": ["src/**/__tests__/*", "functions/**/*"],
   "compilerOptions": {
     "composite": true,
+    "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

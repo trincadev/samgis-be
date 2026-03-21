@@ -150,10 +150,10 @@ const props = defineProps<{
 onMounted(async () => {
   const osmTile = tileLayer.provider(OpenStreetMap)
   const params = getQueryParams()
-  let localVarSatellite: SourceTileType = params.source ? params.source : Satellite
-  let localVarSatelliteOptions = params.options ? params.options : {}
+  const localVarSatellite: SourceTileType = params.source ? params.source : Satellite
+  const localVarSatelliteOptions = params.options ? params.options : {}
   const satelliteTile = tileLayer.provider(localVarSatellite, localVarSatelliteOptions)
-  let localVarTerrain: SourceTileType = "nextzen.terrarium"
+  const localVarTerrain: SourceTileType = "nextzen.terrarium"
   const terrainTile = new LTileLayer(
       "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png", {
         id: localVarTerrain,
@@ -162,7 +162,7 @@ onMounted(async () => {
             "<a href='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'>Mapzen Source Attributions</a>."
       }
   )
-  let baseMaps: ServiceTiles = { OpenStreetMap: osmTile }
+  const baseMaps: ServiceTiles = { OpenStreetMap: osmTile }
   baseMaps[localVarSatellite] = satelliteTile
   baseMaps[localVarTerrain] = terrainTile
   currentBaseMapNameRef.value = OpenStreetMap
