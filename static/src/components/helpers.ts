@@ -150,9 +150,7 @@ export function setGeomanControls(localMap: LMap) {
   })
 
   const actionArray = [{
-      onClick(actionEvent: LEvented) {
-        console.log('actionEvent:', typeof actionEvent, '|', actionEvent, '')
-      },
+      onClick(_actionEvent: LEvented) { /* no-op: required by Geoman API */ },
       name: 'actionName'
   }]
   const includeMarkerControl = localMap.pm.Toolbar.copyDrawControl('Marker',
