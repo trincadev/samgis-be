@@ -24,12 +24,26 @@ from starlette.responses import JSONResponse, Response
 load_dotenv()
 project_root_folder = Path(globals().get("__file__", "./_")).absolute().parent
 workdir = os.getenv("WORKDIR", project_root_folder)
-model_folder = Path(project_root_folder / "sam-quantized" / "machine_learning_models")
+
+
+def resolve_model_folder() -> Path:
+    """Resolve model directory: MODEL_FOLDER env → registry default."""
+    from samgis_core.prediction_api.model_registry import get_model_dir
+
+    env_override = os.getenv("MODEL_FOLDER")
+    if env_override is not None:
+        return Path(env_override)
+    variant = os.getenv("MODEL_VARIANT", "sam2.1_hiera_base_plus_uint8")
+    return get_model_dir(variant)
+
+
+model_folder = resolve_model_folder()
 
 log_level = os.getenv("LOG_LEVEL", "INFO")
 setup_logging(log_level=log_level)
 app_logger = structlog.stdlib.get_logger()
 app_logger.info(f"PROJECT_ROOT_FOLDER:{project_root_folder}, WORKDIR:{workdir}.")
+app_logger.info(f"model_folder resolved to: '{model_folder}'.")
 
 folders_map = os.getenv("FOLDERS_MAP", "{}")
 markdown_text = os.getenv("MARKDOWN_TEXT", "")
@@ -56,37 +70,24 @@ async def health() -> JSONResponse:
     from onnxruntime import __version__ as ort_version
     from samgis_web.__version__ import __version__ as version_web
     from samgis_core.__version__ import __version__ as version_core
+    from samgis_core.prediction_api.model_registry import verify_download
 
-    from samgis_core.utilities.constants import MODEL_ENCODER_NAME, MODEL_DECODER_NAME  # pyright: ignore[reportMissingImports] — module exists at runtime in Docker, not resolvable locally
-
-    msg_model_folder_error = (
-        f"health_check: model_folder:'{model_folder}' is not a directory."
-    )
-    msg_model_encoder_file_error = (
-        f"health_check: model_file:'{model_folder}' not found."
-    )
-    msg_model_decoder_file_error = (
-        f"health_check: model_file:'{model_folder}' not found."
-    )
+    variant = os.getenv("MODEL_VARIANT", "sam2.1_hiera_base_plus_uint8")
     try:
-        if not model_folder.is_dir():
-            raise OSError(msg_model_folder_error)
-        encoder_model_path = Path(model_folder) / MODEL_ENCODER_NAME
-        decoder_model_path = Path(model_folder) / MODEL_DECODER_NAME
-        if not encoder_model_path.is_file():
-            raise OSError(msg_model_encoder_file_error)
-        if not decoder_model_path.is_file():
-            raise OSError(msg_model_decoder_file_error)
+        failures = verify_download(variant, model_dir=model_folder)
+        if failures:
+            msg = (
+                f"health_check: SHA-256 verification failed for: {', '.join(failures)}"
+            )
+            app_logger.error(msg)
+            raise OSError(msg)
         app_logger.info(
-            f"still alive, version_onnxruntime:{ort_version}, version_web:{version_web}, version_core:{version_core}."
-        )
-        app_logger.info(
-            f"still alive, encoder_model:{encoder_model_path}, decoder_model:{decoder_model_path}."
+            f"still alive, version_onnxruntime:'{ort_version}', version_web:'{version_web}', version_core:'{version_core}'."
         )
         return JSONResponse(status_code=200, content={"msg": "still alive..."})
-    except AssertionError as ae:
-        app_logger.error(f"health_check: AssertionError:{ae}.")
-        raise HTTPException(500, detail=msg_model_folder_error)
+    except OSError as e:
+        app_logger.error(f"health_check error: {e}.")
+        raise HTTPException(500, detail=str(e))
 
 
 def infer_samgis_fn(request_input: ApiRequestBody | str) -> str:

@@ -11,7 +11,7 @@ SamGIS is a backend service for machine learning instance segmentation on geospa
 **Key Architecture:**
 - Backend: FastAPI application (`app.py`) that exposes inference endpoints
 - Frontend: Vue.js SPA in `static/` directory using Leaflet for maps
-- ML Models: SAM quantized models stored in `sam-quantized/` git submodule
+- ML Models: SAM2 ONNX weights from HuggingFace (`aletrn/sam2-onnx-weights`), downloaded via `scripts/download_models.py`
 - External Dependencies: Uses `samgis_core` and `samgis_web` packages (not in repo)
 - Deployment: Multi-stage Docker builds for production, supports HuggingFace Spaces
 
@@ -22,11 +22,12 @@ SamGIS is a backend service for machine learning instance segmentation on geospa
 ### Initial Setup
 
 ```bash
-# Initialize SAM model submodule (required)
-git submodule update --init --recursive
-
 # Install Python dependencies
 poetry install --with test --with docs --no-root
+
+# Download SAM2 model weights (default: sam2.1_hiera_base_plus_uint8)
+poetry run python scripts/download_models.py
+# Override variant: MODEL_VARIANT=sam2.1_hiera_tiny_uint8 poetry run python scripts/download_models.py
 ```
 
 ### Running Locally
@@ -99,7 +100,7 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
 ### Backend Structure
 
 - `app.py`: Main FastAPI application with inference endpoints
-  - `/health`: Health check endpoint - verifies model files exist
+  - `/health`: Health check endpoint - verifies model files via SHA-256 checksums
   - `/infer_samgis`: POST endpoint for ML inference
   - Middleware: CORS, logging, correlation ID tracking
 
@@ -108,6 +109,7 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
   - `samgis_web`: Web helpers, type hints, middlewares
 
 - `scripts/`: Utility scripts
+  - `download_models.py`: Download SAM2 model weights with SHA-256 verification
   - `extract-openapi-fastapi.py`: Export OpenAPI spec
   - `extract-openapi-lambda.py`: Export Lambda API schema
   - `client_health.py`: Health check client
@@ -137,10 +139,12 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
 
 ### Model Files
 
-- `sam-quantized/`: Git submodule with quantized SAM models
-  - Must be initialized after clone: `git submodule update --init --recursive`
-  - Contains encoder and decoder ONNX models
-  - Alternative: prepare models using samexporter or HuggingFace
+- SAM2 ONNX weights from [aletrn/sam2-onnx-weights](https://huggingface.co/aletrn/sam2-onnx-weights)
+  - Default variant: `sam2.1_hiera_base_plus_uint8` (~73 MB)
+  - Downloaded to `~/.samgis/models/<variant>/` via `scripts/download_models.py`
+  - Each variant contains `encoder.onnx`, `decoder.onnx`, `metadata.json`
+  - SHA-256 checksums verified on download and in `/health` endpoint
+  - Override variant via `MODEL_VARIANT` env, override path via `MODEL_FOLDER` env
 
 ## Documentation
 
@@ -184,6 +188,8 @@ Note: Avoid newlines after last package in `requirements_no_versions.txt`.
 
 - `WORKDIR`: Working directory (default: project root)
 - `LOG_LEVEL`: Logging level (default: INFO)
+- `MODEL_VARIANT`: SAM2 model variant (default: `sam2.1_hiera_base_plus_uint8`)
+- `MODEL_FOLDER`: Override model directory path (default: `~/.samgis/models/<variant>`)
 - `WRITE_TMP_ON_DISK`: Path to mount temporary output files
 - `VITE__*`: Frontend configuration variables (sourced from static/.env)
 

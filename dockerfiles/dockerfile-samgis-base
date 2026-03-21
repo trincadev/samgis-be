@@ -14,6 +14,8 @@ ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
+ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
+ENV MODEL_VARIANT=${MODEL_VARIANT}
 
 # Set working directory to function root directory
 RUN mkdir -p ${WORKDIR_ROOT}
@@ -25,6 +27,10 @@ RUN pip install --upgrade pip \
     && pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
 RUN poetry config virtualenvs.path ${WORKDIR_ROOT} \
     && poetry install --no-cache
+
+# Download model weights during build (builder has network access)
+COPY scripts/download_models.py ${WORKDIR_ROOT}/scripts/download_models.py
+RUN ${WORKDIR_ROOT}/.venv/bin/python3 ${WORKDIR_ROOT}/scripts/download_models.py
 
 
 FROM dhi.io/python:3.13-dev AS dir_creator
@@ -89,8 +95,12 @@ RUN if [ ! -d /appnode/dist ]; then echo "no dist folder" && exit 1; fi
 FROM runtime
 ARG FASTAPI_STATIC
 ARG WORKDIR_ROOT
+ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
+ENV MODEL_VARIANT=${MODEL_VARIANT} \
+    MODEL_FOLDER="${WORKDIR_ROOT}/.samgis/models/${MODEL_VARIANT}"
 
-COPY --chown=65532:65532 ./sam-quantized ${WORKDIR_ROOT}/sam-quantized
+# Copy downloaded model weights from builder (builder runs as root → /root/.samgis/)
+COPY --from=builder_global --chown=65532:65532 /root/.samgis/models/${MODEL_VARIANT} ${WORKDIR_ROOT}/.samgis/models/${MODEL_VARIANT}
 COPY --chown=65532:65532 --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --chown=65532:65532 --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
 COPY --chown=65532:65532 static/list_files.html ${FASTAPI_STATIC}/
