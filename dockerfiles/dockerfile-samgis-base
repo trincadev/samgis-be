@@ -82,7 +82,6 @@ RUN if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exi
 FROM node_fastapi AS node_build
 
 ARG VITE__MAP_DESCRIPTION
-ARG VITE__SAMGIS_SPACE
 ENV VITE__INDEX_URL="/"
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile

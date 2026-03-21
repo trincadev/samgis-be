@@ -37,6 +37,7 @@ playwright-report/
 reports/
 
 .env*
+!.env.example
 
 # cloudflare workers
 .wrangler

@@ -67,8 +67,6 @@ set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport
 
 docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
   --build-arg VITE__MAP_DESCRIPTION="${VITE__MAP_DESCRIPTION}" \
-  --build-arg VITE__SAMGIS_SPACE="${VITE__SAMGIS_SPACE}" \
-  --build-arg VITE__STATIC_INDEX_URL="${VITE__STATIC_INDEX_URL}" \
   --tag registry.gitlab.com/aletrn/gis-prediction:${SAMGIS_BASE_DOCKER_VERSION}
 ```
 
@@ -191,7 +189,8 @@ Note: Avoid newlines after last package in `requirements_no_versions.txt`.
 - `MODEL_VARIANT`: SAM2 model variant (default: `sam2.1_hiera_base_plus_uint8`)
 - `MODEL_FOLDER`: Override model directory path (default: `~/.samgis/models/<variant>`)
 - `WRITE_TMP_ON_DISK`: Path to mount temporary output files
-- `VITE__*`: Frontend configuration variables (sourced from static/.env)
+- `VITE__MAP_DESCRIPTION`: Map description text (frontend, optional)
+- `VITE_INDEX_URL`: Base URL path for the frontend app (default: `/`)
 
 ## HuggingFace Spaces Deployment
 
