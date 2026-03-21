@@ -1,84 +1,62 @@
 # Include global ARGs at the dockerfile top
-ARG ARCH="x86_64"
 ARG WORKDIR_ROOT="/var/task"
 ARG FASTAPI_STATIC="${WORKDIR_ROOT}/static"
-ARG PYTHONPATH="${WORKDIR_ROOT}:${PYTHONPATH}:/usr/local/lib/python3/dist-packages"
 ARG POETRY_NO_INTERACTION=1
 ARG POETRY_VIRTUALENVS_IN_PROJECT=1
 ARG POETRY_VIRTUALENVS_CREATE=1
 ARG POETRY_CACHE_DIR=/tmp/poetry_cache
-ARG HOME_USER=/home/python
 
 
-FROM python:3.13-trixie AS builder_global
+FROM dhi.io/python:3.13-dev AS builder_global
 
-ARG ARCH
 ARG WORKDIR_ROOT
-ARG PYTHONPATH
 ARG POETRY_NO_INTERACTION
 ARG POETRY_VIRTUALENVS_IN_PROJECT
 ARG POETRY_VIRTUALENVS_CREATE
 ARG POETRY_CACHE_DIR
 
-RUN echo "ARCH: $ARCH ..."
-
-RUN echo "ARG POETRY_CACHE_DIR: ${POETRY_CACHE_DIR} ..."
-RUN echo "ARG PYTHONPATH: $PYTHONPATH ..."
-RUN echo "arg dep:"
-
-RUN groupadd -g 999 python && useradd -r -u 999 -g python python
 # Set working directory to function root directory
-RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
+RUN mkdir -p ${WORKDIR_ROOT}
 WORKDIR ${WORKDIR_ROOT}
-COPY --chown=python:python requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
+COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
 
-# avoid segment-geospatial exception caused by missing libGL.so.1 library
-RUN apt update && apt install -y libgl1 python3-pip libexpat1 && apt clean
-
-# poetry installation path is NOT within ${WORKDIR_ROOT}: not needed for runtime docker image
-RUN python -m pip install --upgrade pip \
-    && python -m pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt && python -m pip list
-
-RUN which poetry && poetry --version && poetry config --list
-RUN poetry config virtualenvs.path ${WORKDIR_ROOT}
-RUN echo "# poetry config --list #" && poetry config --list
-RUN poetry install --no-cache
+# Install poetry and project dependencies into a venv
+RUN pip install --upgrade pip \
+    && pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
+RUN poetry config virtualenvs.path ${WORKDIR_ROOT} \
+    && poetry install --no-cache
 
 
-FROM python:3.13-slim-trixie AS runtime
+FROM dhi.io/python:3.13-dev AS dir_creator
 
-ARG ARCH
 ARG WORKDIR_ROOT
-ARG HOME_USER
+# Pre-create workdir and copy libexpat (needed by rasterio's bundled GDAL at runtime)
+RUN mkdir -p ${WORKDIR_ROOT} && chown 65532:65532 ${WORKDIR_ROOT}
+RUN apt update && apt install -y --no-install-recommends libexpat1 && apt clean && rm -rf /var/lib/apt/lists/*
 
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
 
-# workaround for missing /home folder
-RUN mkdir -p /home
-RUN groupadd -g 999 python && useradd -r -u 999 -g python python
-RUN ls -l /home
-RUN ls -ld /home
-RUN mkdir -p ${HOME_USER} ${HOME_USER}/.config && chown python:python -R ${HOME_USER}
-RUN ls -ld ${HOME_USER}
-RUN ls -lA ${HOME_USER}
-RUN mkdir ${WORKDIR_ROOT} && chown python:python ${WORKDIR_ROOT}
+FROM dhi.io/python:3.13 AS runtime
 
-RUN echo "RUNTIME: check libexpat.so*, libGL.so* before start" && ls -l /usr/lib/${ARCH}-linux-gnu/libexpat.so* /usr/lib/${ARCH}-linux-gnu/libGL.so* || echo "libraries libexpat.so*, libGL.so* not found"
-COPY --from=builder_global /usr/lib/${ARCH}-linux-gnu/libGL.so* /usr/lib/${ARCH}-linux-gnu/
-COPY --from=builder_global /lib/${ARCH}-linux-gnu/libexpat.so* /lib/${ARCH}-linux-gnu/
-RUN echo "RUNTIME: check libexpat.so*, libGL.so* after copy" && ls -l /usr/lib/${ARCH}-linux-gnu/libexpat.so* /usr/lib/${ARCH}-linux-gnu/libGL.so*
-COPY --from=builder_global ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
-RUN . ${WORKDIR_ROOT}/.venv && which python && pip list
+ARG WORKDIR_ROOT
 
-COPY --chown=python:python ./app.py ./scripts/client_health.py ${WORKDIR_ROOT}/
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
+    PATH="${WORKDIR_ROOT}/.venv/bin:/opt/python/bin:$PATH"
 
-RUN echo "new WORKDIR_ROOT after hidden venv copy => ${WORKDIR_ROOT}"
-RUN ls -ld ${WORKDIR_ROOT}/
-RUN ls -lA ${WORKDIR_ROOT}/
+# Copy pre-created workdir with correct ownership
+COPY --from=dir_creator --chown=65532:65532 ${WORKDIR_ROOT} ${WORKDIR_ROOT}
+# Copy libexpat (required by rasterio's bundled GDAL)
+COPY --from=dir_creator /usr/lib/*-linux-gnu/libexpat.so* /usr/lib/
+WORKDIR ${WORKDIR_ROOT}
 
-RUN python -c "import rasterio"
+# Copy venv from builder and app files
+COPY --from=builder_global --chown=65532:65532 ${WORKDIR_ROOT}/.venv ${WORKDIR_ROOT}/.venv
+COPY --chown=65532:65532 ./app.py ./scripts/client_health.py ${WORKDIR_ROOT}/
 
-### conditional section
+# Smoke test: verify critical imports work without libGL, libexpat, or system GDAL
+RUN ["python3", "-c", "import rasterio; import onnxruntime; import fastapi; import uvicorn"]
+
+
+### Frontend build (unchanged)
 FROM node:24-alpine AS node_fastapi
 
 ENV PNPM_HOME="/pnpm"
@@ -92,7 +70,6 @@ WORKDIR /appnode
 FROM node_fastapi AS node_prod_deps
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --prod --frozen-lockfile
-# here multiple conditions concatenated to avoid failing on check
 RUN if [ ! -d /appnode/node_modules ]; then echo "no node_modules folder" && exit 1; fi
 
 
@@ -101,9 +78,6 @@ FROM node_fastapi AS node_build
 ARG VITE__MAP_DESCRIPTION
 ARG VITE__SAMGIS_SPACE
 ENV VITE__INDEX_URL="/"
-RUN echo "VITE__MAP_DESCRIPTION:" ${VITE__MAP_DESCRIPTION}
-RUN echo "VITE__SAMGIS_SPACE:" ${VITE__SAMGIS_SPACE}
-RUN echo "VITE__INDEX_URL:" ${VITE__INDEX_URL}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm install --frozen-lockfile
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store; pnpm build
@@ -116,10 +90,7 @@ FROM runtime
 ARG FASTAPI_STATIC
 ARG WORKDIR_ROOT
 
-RUN mkdir ${FASTAPI_STATIC} && chown python:python ${FASTAPI_STATIC}
-
-COPY --chown=python:python ./sam-quantized ${WORKDIR_ROOT}/sam-quantized
-COPY --chown=python:python --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
-COPY --chown=python:python --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
-COPY --chown=python:python static/list_files.html ${FASTAPI_STATIC}/
-RUN ls -l ${FASTAPI_STATIC}/
+COPY --chown=65532:65532 ./sam-quantized ${WORKDIR_ROOT}/sam-quantized
+COPY --chown=65532:65532 --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
+COPY --chown=65532:65532 --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
+COPY --chown=65532:65532 static/list_files.html ${FASTAPI_STATIC}/

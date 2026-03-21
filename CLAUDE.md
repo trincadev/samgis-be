@@ -128,8 +128,12 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
 ### Docker Structure
 
 - `Dockerfile`: Main application image (uses pre-built base)
-- `dockerfiles/dockerfile-samgis-base`: Multi-stage base image with all dependencies
-- `dockerfiles/dockerfile-samgis-base-alpinelinux3.23`: Alpine Linux variant
+- `dockerfiles/dockerfile-samgis-base`: Multi-stage base image using Docker Hardened Images (`dhi.io/python:3.13`)
+  - Builder: `dhi.io/python:3.13-dev` (has `apt`, `pip`, shell)
+  - Runtime: `dhi.io/python:3.13` (no shell, no pkg manager, `nonroot` user 65532)
+  - `libexpat` copied from builder (required by rasterio's bundled GDAL)
+  - No libGL or system GDAL needed (manylinux wheels bundle everything)
+- `dockerfiles/dockerfile-samgis-base-alpinelinux3.23`: Alpine Linux variant (legacy)
 
 ### Model Files
 

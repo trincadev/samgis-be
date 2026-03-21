@@ -1,56 +1,23 @@
 FROM registry.gitlab.com/aletrn/gis-prediction:1.12.3
 
-# Include global arg in this stage of the build
 ARG WORKDIR_ROOT="/var/task"
-ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv PATH="${WORKDIR_ROOT}/.venv/bin:$PATH"
-ENV WRITE_TMP_ON_DISK=""
-ENV VITE__STATIC_INDEX_URL="/static"
-ENV VITE__INDEX_URL="/"
-ENV HOME_USER=/home/python
+ENV VIRTUAL_ENV=${WORKDIR_ROOT}/.venv \
+    PATH="${WORKDIR_ROOT}/.venv/bin:/opt/python/bin:$PATH" \
+    WRITE_TMP_ON_DISK="" \
+    VITE__STATIC_INDEX_URL="/static" \
+    VITE__INDEX_URL="/"
 
-# Set working directory to function root directory
 WORKDIR ${WORKDIR_ROOT}
-# workaround for missing /home folder
-RUN ls -ld ${HOME_USER}
-RUN ls -lA ${HOME_USER}
 
-COPY --chown=python:python app.py ${WORKDIR_ROOT}/
-COPY --chown=python:python pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}
-RUN chmod 755 ${WORKDIR_ROOT}/client_health.py
+COPY --chown=65532:65532 app.py ${WORKDIR_ROOT}/
+COPY --chown=65532:65532 pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
 
-#RUN ls -l ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py && chmod 755 ${WORKDIR_ROOT}/app.py ${WORKDIR_ROOT}/client_health.py
-# RUN . ${WORKDIR_ROOT}/.venv && which python && echo "# install samgis #" && pip install .
-RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then mkdir {WRITE_TMP_ON_DISK}; fi
-RUN if [ "${WRITE_TMP_ON_DISK}" != "" ]; then ls -l {WRITE_TMP_ON_DISK}; fi
+# Smoke tests: verify imports and model files
+RUN ["python3", "-c", "import fastapi; import onnxruntime; import rasterio; import uvicorn; import jinja2; import geopandas"]
+RUN ["python3", "-c", "from pathlib import Path; assert Path('/var/task/sam-quantized/machine_learning_models').is_dir()"]
 
-RUN ls -l /usr/bin/which
-RUN /usr/bin/which python
-RUN python --version
-RUN pip list
-RUN echo "PATH: ${PATH}."
-RUN echo "WORKDIR_ROOT: ${WORKDIR_ROOT}."
-RUN ls -l ${WORKDIR_ROOT}
-RUN ls -ld ${WORKDIR_ROOT}
-RUN ls -l ${WORKDIR_ROOT}/
-RUN ls -l ${WORKDIR_ROOT}/sam-quantized/
-RUN ls -l ${WORKDIR_ROOT}/sam-quantized/machine_learning_models
-RUN ls -ld ${WORKDIR_ROOT}/sam-quantized/machine_learning_models
-RUN python -c "import sys; print(sys.path)"
-RUN python -c "import fastapi"
-RUN python -c "import geopandas"
-RUN python -c "import onnxruntime"
-RUN python -c "import rasterio"
-RUN python -c "import uvicorn"
-RUN python -c "import jinja2"
-RUN df -h
-RUN ls -l ${WORKDIR_ROOT}/app.py
-RUN ls -l ${WORKDIR_ROOT}/client_health.py
-RUN ls -l ${WORKDIR_ROOT}/static/
-RUN ls -l ${WORKDIR_ROOT}/static/dist
-RUN ls -l ${WORKDIR_ROOT}/static/node_modules
+USER 65532
 
-USER 999
-
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
-# client_health.py default server_url value is http://localhost:7860/health
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD /var/task/client_health.py || exit 1
+CMD ["python3", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD ["/opt/python/bin/python3", "/var/task/client_health.py"]
