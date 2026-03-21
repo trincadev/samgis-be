@@ -2,7 +2,9 @@
 @import "leaflet";
 @import "./leaflet-custom.css";
 @import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
-/* workaround because of dist/ content not included in @trincadev/driver.js tag release tarball */
+/* Previously used a custom driver.js fork (@trincadev/driver.js) to support skipping
+   hidden tour elements. Switched back to upstream driver.js — the fork's submodule/path
+   overhead wasn't worth it. See commit 68ad977 for last reference. */
 @import "driver.js/dist/driver.css";
 
 @layer base {
