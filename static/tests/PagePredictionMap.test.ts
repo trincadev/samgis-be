@@ -76,6 +76,7 @@ import {
   mapNavigationLocked,
   promptsArrayRef,
   responseMessageRef,
+  waitingString,
 } from '@/components/constants'
 
 const defaultProps = {
@@ -156,5 +157,47 @@ describe('PagePredictionMap — template', () => {
     const wrapper = shallowMount(PagePredictionMap, { props: defaultProps })
     const h2 = wrapper.find('h2')
     expect(h2.text()).toBe('error: something failed')
+  })
+
+  // ────────────────────────────────────────
+  // T17: waitingString renders the empty div branch
+  // ────────────────────────────────────────
+  it('T17: renders empty div (no h2, no results stats) when responseMessage is waitingString', () => {
+    /**
+     * Template branch: v-if="responseMessageRef === waitingString"
+     * Renders an empty <div /> — no h2 and no results StatsGrid.
+     */
+    responseMessageRef.value = waitingString
+    const wrapper = shallowMount(PagePredictionMap, { props: defaultProps })
+
+    // No error h2 should be present
+    const h2 = wrapper.find('h2')
+    expect(h2.exists()).toBe(false)
+
+    // The results StatsGrid is only in the v-else branch — it should not appear.
+    // shallowMount renders child components as stubs; we confirm the stats div
+    // that contains duration/polygons/masks is absent by verifying no text about
+    // duration is rendered (the empty <div /> branch renders nothing).
+    expect(wrapper.html()).not.toContain('request duration')
+  })
+
+  // ────────────────────────────────────────
+  // T18: error message renders red h2, no results StatsGrid
+  // ────────────────────────────────────────
+  it('T18: renders red h2 with error text when responseMessage is non-empty and not waitingString', () => {
+    /**
+     * Template branch: v-else-if="responseMessageRef || responseMessageRef === '-'"
+     * Renders <h2 class="text-lg text-red-600">{{ responseMessageRef }}</h2>
+     */
+    responseMessageRef.value = 'error: timeout'
+    const wrapper = shallowMount(PagePredictionMap, { props: defaultProps })
+
+    const h2 = wrapper.find('h2.text-red-600')
+    expect(h2.exists()).toBe(true)
+    expect(h2.text()).toBe('error: timeout')
+
+    // The results StatsGrid (duration/polygons/masks) must not be present —
+    // it lives in the v-else branch which is not rendered here.
+    expect(wrapper.html()).not.toContain('request duration')
   })
 })
