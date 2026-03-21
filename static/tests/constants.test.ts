@@ -18,8 +18,8 @@ import {
   mapOptionsDefaultRef,
   layerControlGroupLayersRef,
   mapNavigationLocked,
-  driverSteps,
 } from '@/components/constants'
+import { driverSteps } from '@/components/tour'
 
 // ──────────────────────────────────────────────────────────
 // String and number constants

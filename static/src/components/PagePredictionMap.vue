@@ -97,11 +97,11 @@ import { onMounted, onUpdated } from 'vue'
 // use directly driver.js npm package
 import { driver } from "driver.js"
 
+import { driverSteps } from './tour'
 import {
   currentBaseMapNameRef,
   currentMapBBoxRef,
   currentZoomRef,
-  driverSteps,
   durationRef,
   layerControlGroupLayersRef,
   mapNavigationLocked,
