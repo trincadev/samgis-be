@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+from samgis_core.prediction_api import model_registry
 from samgis_web.utilities.local_tiles_http_server import LocalTilesHttpServer
 from samgis_web.web import web_helpers
 from . import test_client_health
@@ -78,11 +79,17 @@ def check_body(body: dict, expected_body: dict):
 
 
 class TestFastapiApp(unittest.TestCase):
-    def test_fastapi_handler_health_200(self):
+    @patch.object(model_registry, "verify_download", return_value=[])
+    def test_fastapi_handler_health_200(self, _verify_download_mocked):
         response = client.get("/health")
         test_client_health.check_for_statuscode(response.status_code, 200, response)
         body = response.json()
         check_body(body, {"msg": "still alive..."})
+
+    @patch.object(model_registry, "verify_download", return_value=["encoder.onnx"])
+    def test_fastapi_handler_health_500(self, _verify_download_mocked):
+        response = client.get("/health")
+        test_client_health.check_for_statuscode(response.status_code, 500, response)
 
     def test_404(self):
         response = client.get("/404")
@@ -120,7 +127,7 @@ class TestFastapiApp(unittest.TestCase):
         logging.info(f"response.body_loaded: '{body}'.")
         check_body(body, {"msg": "Error - Internal Server Error"})
 
-    @patch.object(web_helpers, "get_url_tile")
+    @patch.object(web_helpers, "get_source_tile")
     @patch.object(time, "time")
     def test_infer_samgis_real_200(self, time_mocked, get_url_tile_mocked):
         import shapely
