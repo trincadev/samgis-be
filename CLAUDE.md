@@ -133,7 +133,7 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
   - Runtime: `dhi.io/python:3.13` (no shell, no pkg manager, `nonroot` user 65532)
   - `libexpat` copied from builder (required by rasterio's bundled GDAL)
   - No libGL or system GDAL needed (manylinux wheels bundle everything)
-- `dockerfiles/dockerfile-samgis-base-alpinelinux3.23`: Alpine Linux variant (legacy)
+- `dockerfiles/dockerfile-samgis-base-alpinelinux3.23`: Alpine Linux POC (not production). Documents how to build onnxruntime on Alpine with `apk` system packages (`py3-onnxruntime`, `gdal-dev`). Last updated in `be6b0b0`. Superseded by DHI base for production use.
 
 ### Model Files
 
