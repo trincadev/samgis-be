@@ -1,8 +1,11 @@
 import json
 import logging
+import os
 import time
 import unittest
 from unittest.mock import patch
+
+import pytest
 
 from fastapi.testclient import TestClient
 from samgis_core.prediction_api import model_registry
@@ -72,6 +75,17 @@ response_bodies_post_test = {
 }
 
 
+def _models_available() -> bool:
+    """Check if SAM2 model files are downloaded."""
+    try:
+        from samgis_core.prediction_api.model_registry import verify_download
+
+        variant = os.getenv("MODEL_VARIANT", "sam2.1_hiera_base_plus_uint8")
+        return not verify_download(variant)
+    except Exception:
+        return False
+
+
 def check_body(body: dict, expected_body: dict):
     if body != expected_body:
         logging.error(f"Wrong test: body not {body}.")
@@ -127,6 +141,8 @@ class TestFastapiApp(unittest.TestCase):
         logging.info(f"response.body_loaded: '{body}'.")
         check_body(body, {"msg": "Error - Internal Server Error"})
 
+    @pytest.mark.integration
+    @pytest.mark.skipif(not _models_available(), reason="SAM2 models not downloaded")
     @patch.object(web_helpers, "get_source_tile")
     @patch.object(time, "time")
     def test_infer_samgis_real_200(self, time_mocked, get_url_tile_mocked):

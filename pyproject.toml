@@ -44,6 +44,7 @@ myst-parser = "^5.0.0"
 
 [tool.pytest.ini_options]
 addopts = " --cov=scripts --cov=app --cov-report html"
+markers = ["integration: integration tests requiring external resources (models, network)"]
 
 [build-system]
 requires = ['poetry-core (>=2.0.0,<3.0.0)']
