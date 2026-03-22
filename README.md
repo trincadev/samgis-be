@@ -159,11 +159,10 @@ To create a work in progress openapi json or yaml file use
 - `extract-openapi-lambda.py` (useful to export the json schema request and response from lambda app api)
 
 
-### Update `requirements.txt` using poetry
+### Update `requirements.txt` using uv
 
-If needed, run the create_requirements.sh script to update the `requirements.txt` file
-(it will overwrite the existing one, asking for confirmation):
+To regenerate the production `requirements.txt` with locked hashes:
 
-```
-bash ./create_requirements.sh
+```bash
+uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
 ```

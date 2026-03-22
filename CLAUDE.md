@@ -23,11 +23,11 @@ SamGIS is a backend service for machine learning instance segmentation on geospa
 
 ```bash
 # Install Python dependencies
-poetry install --with test --with docs --no-root
+uv sync --group test --group docs
 
 # Download SAM2 model weights (default: sam2.1_hiera_base_plus_uint8)
-poetry run python scripts/download_models.py
-# Override variant: MODEL_VARIANT=sam2.1_hiera_tiny_uint8 poetry run python scripts/download_models.py
+uv run python scripts/download_models.py
+# Override variant: MODEL_VARIANT=sam2.1_hiera_tiny_uint8 uv run python scripts/download_models.py
 ```
 
 ### Running Locally
@@ -102,7 +102,7 @@ curl -d@./events/payload_point_colico.json -H 'content-type: application/json' $
   - `/infer_samgis`: POST endpoint for ML inference
   - Middleware: CORS, logging, correlation ID tracking
 
-- External packages (installed via poetry):
+- External packages (installed via uv):
   - `samgis_core`: Core ML prediction logic, utilities
   - `samgis_web`: Web helpers, type hints, middlewares
 
@@ -166,21 +166,19 @@ cd docs && make clean html && cd ../
 
 ## Dependency Management
 
-### Updating requirements.txt from Poetry
+### Updating requirements.txt from uv
 
 ```bash
-# Export specific packages to requirements.txt
-poetry export --without-hashes --format=requirements.txt | \
-  grep -w -E "$(sed -z -e 's/\n/=|/g' requirements_no_versions.txt)" > requirements.txt
+# Export production dependencies with hashes to requirements.txt
+uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
 ```
 
-Note: Avoid newlines after last package in `requirements_no_versions.txt`.
-
-### Poetry Groups
+### Dependency Groups
 
 - Default: Core dependencies (onnxruntime, samgis-web)
-- `test` (optional): pytest, pytest-cov, httpx
-- `docs` (optional): sphinx, sphinx-autodoc-typehints
+- `test`: pytest, pytest-cov, httpx, python-dotenv
+- `dev`: pyright
+- `docs`: sphinx, sphinx-autodoc-typehints
 
 ## Key Environment Variables
 

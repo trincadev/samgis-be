@@ -1,32 +1,22 @@
 # Include global ARGs at the dockerfile top
 ARG WORKDIR_ROOT="/var/task"
 ARG FASTAPI_STATIC="${WORKDIR_ROOT}/static"
-ARG POETRY_NO_INTERACTION=1
-ARG POETRY_VIRTUALENVS_IN_PROJECT=1
-ARG POETRY_VIRTUALENVS_CREATE=1
-ARG POETRY_CACHE_DIR=/tmp/poetry_cache
 
 
 FROM dhi.io/python:3.13-dev AS builder_global
 
 ARG WORKDIR_ROOT
-ARG POETRY_NO_INTERACTION
-ARG POETRY_VIRTUALENVS_IN_PROJECT
-ARG POETRY_VIRTUALENVS_CREATE
-ARG POETRY_CACHE_DIR
 ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
 ENV MODEL_VARIANT=${MODEL_VARIANT}
 
 # Set working directory to function root directory
 RUN mkdir -p ${WORKDIR_ROOT}
 WORKDIR ${WORKDIR_ROOT}
-COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT}/
+COPY requirements.txt ${WORKDIR_ROOT}/
 
-# Install poetry and project dependencies into a venv
-RUN pip install --upgrade pip \
-    && pip install --require-hashes -r ${WORKDIR_ROOT}/requirements_poetry.txt
-RUN poetry config virtualenvs.path ${WORKDIR_ROOT} \
-    && poetry install --no-cache
+# Install project dependencies into a venv
+RUN python -m venv ${WORKDIR_ROOT}/.venv \
+    && ${WORKDIR_ROOT}/.venv/bin/pip install --require-hashes -r ${WORKDIR_ROOT}/requirements.txt
 
 # Download model weights during build (builder has network access)
 COPY scripts/download_models.py ${WORKDIR_ROOT}/scripts/download_models.py

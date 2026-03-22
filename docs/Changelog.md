@@ -3,8 +3,18 @@
 ## Version 1.12.3
 
 - ci: update base dockerfile version to 1.12.3
-- chore: samgis-core==3.5.6, samgis-web==1.3.4
+- chore: samgis-core==3.5.6, samgis-web==1.3.5
 - feat: remove all the references and usages of the gradio dependency
+- feat: migrate from Poetry to uv as package manager
+  - pyproject.toml converted to PEP 621 + PEP 735 dependency-groups
+  - Docker builder no longer installs Poetry — uses `pip install --require-hashes` from uv-exported requirements.txt
+  - removed poetry.lock, requirements_poetry.txt, requirements_no_versions.txt
+- fix(frontend): Vite 8/Rolldown UMD compatibility — leaflet-providers expects global `L`
+  - added `leafletGlobal()` Vite plugin to inject `window.L` before UMD plugins load
+  - removed duplicate `dist/output.css` link from index.html (404 in production)
+- fix: Dockerfile smoke tests use exec-form `RUN` (distroless image has no /bin/sh)
+- test: add Playwright smoke test for production build (`e2e/samgis-be-docker-smoke.spec.ts`)
+- ci: harden supply chain — `--require-hashes` with fully pinned requirements.txt
 - docs: avoid exception on sphinx doc generation using mock imports
 
 ## Version 1.12.2
