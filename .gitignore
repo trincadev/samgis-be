@@ -280,3 +280,4 @@ fabric.properties
 
 # node_modules
 node_modules
+.post-production-stamp

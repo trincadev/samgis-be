@@ -87,7 +87,7 @@ async def health() -> JSONResponse:
         return JSONResponse(status_code=200, content={"msg": "still alive..."})
     except OSError as e:
         app_logger.error(f"health_check error: {e}.")
-        raise HTTPException(500, detail=str(e))
+        raise HTTPException(500, detail="Internal Server Error")
 
 
 def infer_samgis_fn(request_input: ApiRequestBody | str) -> str:

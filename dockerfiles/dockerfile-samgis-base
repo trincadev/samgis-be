@@ -24,7 +24,7 @@ COPY requirements_poetry.txt pyproject.toml poetry.lock README.md ${WORKDIR_ROOT
 
 # Install poetry and project dependencies into a venv
 RUN pip install --upgrade pip \
-    && pip install -r ${WORKDIR_ROOT}/requirements_poetry.txt
+    && pip install --require-hashes -r ${WORKDIR_ROOT}/requirements_poetry.txt
 RUN poetry config virtualenvs.path ${WORKDIR_ROOT} \
     && poetry install --no-cache
 
