@@ -3,6 +3,7 @@ import logging
 import os
 import time
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -78,6 +79,12 @@ response_bodies_post_test = {
 def _models_available() -> bool:
     """Check if SAM2 model files are downloaded."""
     try:
+        model_folder = os.getenv("MODEL_FOLDER")
+        if model_folder is not None:
+            folder = Path(model_folder)
+            return (folder / "encoder.onnx").exists() and (
+                folder / "decoder.onnx"
+            ).exists()
         from samgis_core.prediction_api.model_registry import verify_download
 
         variant = os.getenv("MODEL_VARIANT", "sam2.1_hiera_base_plus_uint8")
@@ -181,6 +188,23 @@ class TestFastapiApp(unittest.TestCase):
             raise ValueError(
                 "Less than 2 geometries within the Shapely geometry from the geojson"
             )
+
+    @patch.dict(os.environ, {"MODEL_FOLDER": ""})
+    def test_models_available_with_model_folder_valid(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "encoder.onnx").touch()
+            (Path(tmp) / "decoder.onnx").touch()
+            with patch.dict(os.environ, {"MODEL_FOLDER": tmp}):
+                self.assertTrue(_models_available())
+
+    def test_models_available_with_model_folder_empty_dir(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {"MODEL_FOLDER": tmp}):
+                self.assertFalse(_models_available())
 
     @patch.object(time, "time")
     @patch.object(app, "samexporter_predict")

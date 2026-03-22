@@ -35,6 +35,7 @@ class TestResolveModelFolder(unittest.TestCase):
         get_model_dir_mocked.assert_called_once_with("sam2.1_hiera_tiny_uint8")
         self.assertEqual(result, Path("/mock/tiny"))
 
+    @patch.dict(os.environ, {}, clear=False)
     @patch("samgis_core.prediction_api.model_registry.get_model_dir")
     def test_default_variant_when_no_env_vars(self, get_model_dir_mocked):
         get_model_dir_mocked.return_value = Path("/mock/default")
