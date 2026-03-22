@@ -8,6 +8,7 @@
           <p class="hidden lg:block">{{ description }}</p>
           <div class="w-full md:pt-1 md:pb-1">
             <ButtonMapSendRequest
+              v-if="map"
               id="id-button-submit"
               class="h-8 text-sm font-extralight min-w-[180px] max-w-[180px]"
               :current-base-map-name="currentBaseMapNameRef"
@@ -93,7 +94,7 @@ import {
 } from 'leaflet'
 import 'leaflet-providers'
 import '@geoman-io/leaflet-geoman-free'
-import { onMounted, onUpdated } from 'vue'
+import { onMounted, onUpdated, ref } from 'vue'
 // use directly driver.js npm package
 import { driver } from "driver.js"
 
@@ -139,7 +140,7 @@ const driverObj = driver({
   steps: driverSteps
 });
 
-let map: LMap
+const map = ref<LMap | undefined>(undefined)
 
 const props = defineProps<{
   mapBounds: Array<LatLng>,
@@ -167,29 +168,29 @@ onMounted(async () => {
   baseMaps[localVarTerrain] = terrainTile
   currentBaseMapNameRef.value = OpenStreetMap
 
-  map = LeafletMap('map', {
+  map.value = LeafletMap('map', {
     layers: [osmTile],
     minZoom: minZoom,
     maxZoom: maxZoom
   })
-  map.fitBounds(props.mapBounds)
-  map.attributionControl.setPrefix(prefix)
-  LeafletControl.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(map)
-  layerControlGroupLayersRef.value = LeafletControl.layers(baseMaps).addTo(map)
-  setGeomanControls(map)
-  updateZoomBboxMap(map)
-  mapOptionsDefaultRef.value = {...map.options}
+  map.value.fitBounds(props.mapBounds)
+  map.value.attributionControl.setPrefix(prefix)
+  LeafletControl.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(map.value)
+  layerControlGroupLayersRef.value = LeafletControl.layers(baseMaps).addTo(map.value)
+  setGeomanControls(map.value)
+  updateZoomBboxMap(map.value)
+  mapOptionsDefaultRef.value = {...map.value.options}
 
-  map.on('zoomend', (e: LEvented) => {
-    updateZoomBboxMap(map)
+  map.value.on('zoomend', (e: LEvented) => {
+    updateZoomBboxMap(map.value!)
   })
 
-  map.on('mouseup', (e: LEvented) => {
-    currentMapBBoxRef.value = getExtentCurrentViewMapBBox(map)
+  map.value.on('mouseup', (e: LEvented) => {
+    currentMapBBoxRef.value = getExtentCurrentViewMapBBox(map.value!)
   })
 
-  updateMapData(map, getPopupContentPoint, promptsArrayRef)
-  map.on('baselayerchange', (e: LEvented) => {
+  updateMapData(map.value, getPopupContentPoint, promptsArrayRef)
+  map.value.on('baselayerchange', (e: LEvented) => {
     currentBaseMapNameRef.value = getCurrentBasemap(e.layer._url, baseMaps)
   })
 
@@ -197,17 +198,18 @@ onMounted(async () => {
 })
 
 onUpdated(() => {
+  if (!map.value) return
   if (mapNavigationLocked.value) {
-    map.setMaxZoom(currentZoomRef.value)
-    map.setMinZoom(currentZoomRef.value)
-    map.options.maxBoundsViscosity = 1.0
-    map.setMaxBounds(map.getBounds())
+    map.value.setMaxZoom(currentZoomRef.value)
+    map.value.setMinZoom(currentZoomRef.value)
+    map.value.options.maxBoundsViscosity = 1.0
+    map.value.setMaxBounds(map.value.getBounds())
   }
   if (!mapNavigationLocked.value) {
-    map.setMaxZoom(maxZoom)
-    map.setMinZoom(minZoom)
-    map.options.maxBoundsViscosity = 0.0
-    map.setMaxBounds([
+    map.value.setMaxZoom(maxZoom)
+    map.value.setMinZoom(minZoom)
+    map.value.options.maxBoundsViscosity = 0.0
+    map.value.setMaxBounds([
       [90, 180],
       [-90, -180]
     ])
