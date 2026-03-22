@@ -182,11 +182,15 @@ onMounted(async () => {
   mapOptionsDefaultRef.value = {...map.value.options}
 
   map.value.on('zoomend', (e: LEvented) => {
-    updateZoomBboxMap(map.value!)
+    const m = map.value
+    if (!m) return
+    updateZoomBboxMap(m)
   })
 
   map.value.on('mouseup', (e: LEvented) => {
-    currentMapBBoxRef.value = getExtentCurrentViewMapBBox(map.value!)
+    const m = map.value
+    if (!m) return
+    currentMapBBoxRef.value = getExtentCurrentViewMapBBox(m)
   })
 
   updateMapData(map.value, getPopupContentPoint, promptsArrayRef)
