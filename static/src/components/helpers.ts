@@ -26,6 +26,7 @@ import {
 } from './types.d'
 import { type Ref } from 'vue'
 
+// ── Map State & View ────────────────────────────────────────────────
 export const updateZoomBboxMap = (localMap: LMap) => {
   currentZoomRef.value = localMap.getZoom()
   currentMapBBoxRef.value = getExtentCurrentViewMapBBox(localMap)
@@ -40,6 +41,7 @@ export const getCurrentBasemap = (url: string, providersArray: ServiceTiles): st
   return "-"
 }
 
+// ── ML Inference Workflow ───────────────────────────────────────────
 export const sendMLRequest = async (
   leafletMap: LMap, promptRequest: Array<IPointPrompt | IRectanglePrompt>, sourceType: SourceTileType = OpenStreetMap
   ) => {
@@ -72,6 +74,7 @@ export const sendMLRequest = async (
   }
 }
 
+// ── URL & Query Parameters ──────────────────────────────────────────
 export const getQueryParams = () => {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
@@ -79,6 +82,7 @@ export const getQueryParams = () => {
   return {source, options}
 }
 
+// ── Prompt Data Transformation ──────────────────────────────────────
 export const applyFnToObjectWithinArray = (array: Array<IPointPrompt | IRectanglePrompt>): Array<IPointTable | IRectangleTable> => {
   const newArray: Array<IPointTable | IRectangleTable> = []
   for (const el of array) {
@@ -103,6 +107,7 @@ const getUpdatedRectangle = (obj: IRectanglePrompt): IRectangleTable => {
   }
 }
 
+// ── Leaflet UI Components (Geoman) ──────────────────────────────────
 /** get a custom icon given a PNG path with its anchor/size values  */
 export const getCustomIconMarker = (
   iconUrlNoExt: string,
@@ -189,6 +194,7 @@ export function setGeomanControls(localMap: LMap) {
   })
 }
 
+// ── Coordinate Extraction ───────────────────────────────────────────
 /** get the selected rectangle layer bounding box coordinate */
 export const getSelectedRectangleCoordinatesBBox = (leafletEvent: LEvented): BboxLatLng => {
   const { _northEast, _southWest } = leafletEvent.layer._bounds
@@ -209,6 +215,7 @@ export const getExtentCurrentViewMapBBox = (leafletMap: LMap): BboxLatLng => {
   return { ne: boundaries.getNorthEast(), sw: boundaries.getSouthWest() }
 }
 
+// ── API Communication ───────────────────────────────────────────────
 /** send the ML request to the backend API through the cloudflare proxy function */
 export const getGeoJSONRequest = async (
   requestBody: IBodyLatLngPoints,
@@ -259,6 +266,7 @@ export const getGeoJSONRequest = async (
   }
 }
 
+// ── Prompt Object Builders ──────────────────────────────────────────
 /** populate a single point ML request prompt, by type (exclude or include), see type ExcludeIncludeLabelPrompt */
 export const getPointPromptElement = (e: LEvented, elementType: ExcludeIncludeLabelPrompt): IPointPrompt|IRectanglePrompt => {
   const currentPointLayer: LatLng = getSelectedPointCoordinate(e)
@@ -279,6 +287,7 @@ export const getRectanglePromptElement = (e: LEvented) => {
   }
 }
 
+// ── Geoman Event Handling & Layer Management ────────────────────────
 /** handle different event/layer types (rectangle, point: IncludeMarkerPrompt, ExcludeMarkerPrompt) */
 const updateLayerOnCreateOrEditEvent = (
   event: LEvented,
@@ -325,6 +334,7 @@ export const removeEventFromArrayByIndex = (arr: Array<LEvented>, e: LEvented) =
   })
 }
 
+// ── UI Feedback (Popups) ────────────────────────────────────────────
 /** build an HTML popup div showing lat, lng, label and leaflet id for a point marker */
 export const getPopupContentPoint = (leafletEvent: LEvented, label: number): HTMLDivElement => {
   const popupContent: HTMLDivElement = document.createElement('div')
