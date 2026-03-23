@@ -1,9 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = process.env.SMOKE_URL || 'http://localhost:7860';
-const hasBackend = !BASE.includes(':5173');
+const BASE = process.env.SMOKE_URL ?? '';
 
-test('smoke test - frontend loads without JS errors', async ({ page }) => {
+async function hasBackend(baseURL: string): Promise<boolean> {
+    try {
+        const res = await fetch(`${baseURL}/health`, { signal: AbortSignal.timeout(2000) });
+        if (!res.ok) return false;
+        const body = await res.json();
+        return typeof body.msg === 'string';
+    } catch {
+        return false;
+    }
+}
+
+test('smoke test - frontend loads without JS errors', async ({ page, baseURL }) => {
+    const url = BASE || baseURL!;
     const jsErrors: string[] = [];
     const failedRequests: string[] = [];
 
@@ -14,7 +25,7 @@ test('smoke test - frontend loads without JS errors', async ({ page }) => {
         }
     });
 
-    const response = await page.goto(BASE, { waitUntil: 'networkidle' });
+    const response = await page.goto(url, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
 
     if (failedRequests.length > 0) {
@@ -45,18 +56,26 @@ test('smoke test - frontend loads without JS errors', async ({ page }) => {
     expect(jsErrors).toEqual([]);
 });
 
-test('smoke test - health endpoint returns 200', async ({ request }) => {
-    test.skip(!hasBackend, 'backend not available on Vite dev server');
-    const response = await request.get(`${BASE}/health`);
-    expect(response.status()).toBe(200);
+test('smoke test - health endpoint returns 200', async ({ baseURL }) => {
+    const url = BASE || baseURL!;
+    const backend = await hasBackend(url);
+    test.skip(!backend, 'backend not reachable');
+    const response = await fetch(`${url}/health`);
+    expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.msg).toContain('still alive');
 });
 
-test('smoke test - infer_samgis rejects empty body with 422', async ({ request }) => {
-    test.skip(!hasBackend, 'backend not available on Vite dev server');
-    const response = await request.post(`${BASE}/infer_samgis`, { data: {} });
-    expect(response.status()).toBe(422);
+test('smoke test - infer_samgis rejects empty body with 422', async ({ baseURL }) => {
+    const url = BASE || baseURL!;
+    const backend = await hasBackend(url);
+    test.skip(!backend, 'backend not reachable');
+    const response = await fetch(`${url}/infer_samgis`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({}),
+    });
+    expect(response.status).toBe(422);
     const body = await response.json();
     expect(body.msg).toContain('Unprocessable Entity');
 });

@@ -11,6 +11,7 @@
     "test:html_report": "vitest run --coverage && vite preview --outDir coverage",
     "test:mutate": "stryker run",
     "test:e2e": "playwright test --workers 1",
+    "test:e2e:smoke": "SMOKE_URL=http://localhost:7860 playwright test e2e/samgis-be-docker-smoke.spec.ts --workers 1",
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-pattern .gitignore",
     "build:tailwindcss": "pnpm dlx @tailwindcss/cli -i src/input.css -o dist/output.css"
   },
