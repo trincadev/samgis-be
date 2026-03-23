@@ -37,7 +37,8 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
   SAMGIS_BASE_DOCKER_VERSION=$(grep version pyproject.toml |head -1|cut -d'=' -f2|cut -d'"' -f2);
   set -o allexport && source <(cat ./static/.env|grep VITE__) && set +o allexport;
   env|grep VITE__;
-  docker build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
+  docker buildx build . -f dockerfiles/dockerfile-samgis-base --progress=plain \
+  --platform linux/amd64 --provenance=false  \
   --build-arg VITE__MAP_DESCRIPTION="${VITE__MAP_DESCRIPTION}" \
   --build-arg VITE__SAMGIS_SPACE="${VITE__SAMGIS_SPACE}" \
   --build-arg VITE__STATIC_INDEX_URL="${VITE__STATIC_INDEX_URL}" \
@@ -45,13 +46,14 @@ docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 )
 
 # build the image, use the tag "samgis-huggingface"
-docker build . --tag registry.gitlab.com/aletrn/samgis-huggingface --progress=plain
+docker build . --platform linux/amd64 --provenance=false --tag registry.gitlab.com/aletrn/samgis-huggingface --progress=plain
 ```
 
 Run the container (keep it on background) and show logs
 
 ```bash
-docker run  -d --name samgis-huggingface -p 7860:7860 \
+docker run -d --name samgis-huggingface -p 7860:7860 \
+  --platform linux/amd64 \
   -e VITE__STATIC_INDEX_URL=${VITE__STATIC_INDEX_URL} \
   -e VITE__INDEX_URL=${VITE__INDEX_URL} \
   registry.gitlab.com/aletrn/samgis-huggingface; docker logs -f samgis-huggingface

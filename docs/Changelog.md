@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.12.5
+
+- ci: update base dockerfile version to 1.12.5
+- fix(ci): build base Docker image with `--provenance=false` and `--platform linux/amd64`
+  - fixes `no match for platform in manifest` on HuggingFace Spaces and Docker Desktop
+- docs: update README with correct Docker build/run commands
+
 ## Version 1.12.4
 
 - ci: update base dockerfile version to 1.12.4
