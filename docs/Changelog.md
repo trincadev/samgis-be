@@ -14,6 +14,9 @@
   - `--require-hashes` with fully pinned requirements.txt
   - Dockerfile smoke tests use exec-form `RUN` (distroless image has no /bin/sh)
 - test: add Playwright smoke test for production build (`e2e/samgis-be-docker-smoke.spec.ts`)
+- fix(test): smoke tests auto-skip backend checks when no backend is reachable
+  - added `/health` pre-check with 2s timeout
+  - added `test:e2e:smoke` script targeting Docker container on `:7860`
 - docs: avoid exception on sphinx doc generation using mock imports
 
 ## Version 1.12.3

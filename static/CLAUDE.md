@@ -65,6 +65,15 @@ pnpm test
 # Run tests in watch mode (re-runs on file changes)
 pnpm test:watch
 
+# Run e2e tests against Vite dev server (backend tests auto-skip)
+pnpm test:e2e
+
+# Run e2e smoke tests against Docker container (requires running container on :7860)
+pnpm test:e2e:smoke
+
+# Run e2e smoke tests against a custom URL
+SMOKE_URL=http://custom:8080 pnpm test:e2e
+
 # Lint and fix
 pnpm lint:fix
 ```

@@ -57,6 +57,15 @@ python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 
 Test files are in `tests/`. Configuration in `pyproject.toml` covers `scripts/` and `app.py`.
 
+**E2E smoke tests** (from `static/` directory, requires Docker container running on `:7860`):
+```bash
+# Run smoke tests against Docker container
+pnpm test:e2e:smoke
+
+# Run all e2e tests against Vite dev server (backend tests auto-skip)
+pnpm test:e2e
+```
+
 ### Docker Development
 
 **Build base image:**

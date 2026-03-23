@@ -119,11 +119,27 @@ This problem doesn't rise if running it within the docker container.
 
 ### Tests
 
-Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
+Tests are defined in the `tests` folder in this project.
 
 ```bash
-pytest && coverage html
+# Backend unit tests with coverage
+python -m pytest --cov=samgis --cov-report=term-missing && coverage html
 ```
+
+**E2E smoke tests** (from the `static/` directory):
+
+```bash
+# Run all e2e tests against Vite dev server (backend tests auto-skip)
+pnpm test:e2e
+
+# Run smoke tests against a custom backend URL (it could be a bare python server or the docker container on a custom domain:port, e.g. localhost:7862)
+SMOKE_URL=http://localhost:7862 pnpm test:e2e
+
+# Run smoke tests against a running Docker container with SMOKE_URL=http://localhost:7860
+pnpm test:e2e:smoke
+```
+
+The smoke tests verify frontend loading (Vue + Leaflet + driver.js), the `/health` endpoint, and request validation on `/infer_samgis`. Backend-specific tests auto-skip when no backend is reachable.
 
 ### How to update the static documentation with sphinx
 
