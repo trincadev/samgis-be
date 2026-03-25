@@ -45,7 +45,7 @@ extensions = [
     # 'sphinx_autodoc_defaultargs'
 ]
 
-autodoc_mock_imports = ["fastapi", "starlette"]
+autodoc_mock_imports = ["fastapi", "starlette", "torch", "sam2"]
 # Napoleon settings
 napoleon_google_docstring = True
 # sphinx_autodoc_typehints settings

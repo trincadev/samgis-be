@@ -6,7 +6,6 @@ info:
     Some useful links:
     - [SamGIS HuggingFace space direct link](https://huggingface.co/spaces/aletrn/samgis)
     - [SamGIS HuggingFace space](https://huggingface.co/spaces/aletrn/samgis)
-    - [SamGIS documentation](https://docs.ml-trinca.tornidor.com)
     - [My blog](https://trinca.tornidor.com)
   contact:
     name: alessandro's website
@@ -14,22 +13,18 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: "1.3.1"
+  version: "1.12.5"
 servers:
-  - url: https://localhost:8000/
+  - url: https://localhost:7860/
 tags:
-  - name: samgis-aws
-    description: segment anything applied to gis (self-hosted demo)
-    externalDocs:
-      url: https://ml-trinca.tornidor.com/
   - name: samgis-huggingface
     description: segment anything applied to gis (huggingface demo)
     externalDocs:
       url: https://huggingface.co/spaces/aletrn/samgis
   - name: segment-anything
-    description: segment anything machine learning model
+    description: segment anything model 2 (SAM2)
     externalDocs:
-      url: http://segment-anything.com
+      url: https://github.com/facebookresearch/sam2
   - name: gis
     externalDocs:
       url: https://it.wikipedia.org/wiki/Geographic_information_system

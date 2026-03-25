@@ -1,4 +1,4 @@
 - My [HuggingFace SamGIS direct link space](https://aletrn-samgis.hf.space/)
 - My [HuggingFace SamGIS space](https://huggingface.co/spaces/aletrn/samgis)
-- My [HuggingFace SamGIS space - LISA on CUDA demo](https://huggingface.co/spaces/aletrn/samgis-lisa-on-cuda)
+- My [SamGIS QGIS plugin](https://plugins.qgis.org/plugins/samgis/) ([project page](https://trinca.tornidor.com/projects/samgis-qgis-plugin))
 - My [personal website](https://trinca.tornidor.com)
