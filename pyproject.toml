@@ -23,6 +23,7 @@ test = [
     "python-dotenv>=1.0.1,<2.0.0",
 ]
 dev = [
+    "pip-audit>=2.10.0",
     "pyright>=1.1.400",
 ]
 docs = [
