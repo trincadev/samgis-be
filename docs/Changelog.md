@@ -1,7 +1,13 @@
 # Changelog
 
+## Version 1.12.7
+
+- ci: rebuild base Docker image with updated frontend deps
+- chore(deps): bump pnpm 10.32.1 → 10.33.0
+
 ## Version 1.12.6
 
+- fix(deps): update frontend deps, fix picomatch ReDoS (GHSA-c2c7-rcm5-vvqj)
 - fix(deps): upgrade requests 2.32.5 → 2.33.0 (CVE-2026-25645)
   - insecure temp file reuse in `extract_zipped_paths()`, moderate severity
 - chore(deps): add pip-audit as dev dependency
