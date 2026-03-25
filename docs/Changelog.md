@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.12.6
+
+- fix(deps): upgrade requests 2.32.5 → 2.33.0 (CVE-2026-25645)
+  - insecure temp file reuse in `extract_zipped_paths()`, moderate severity
+- chore(deps): add pip-audit as dev dependency
+  - runs against project venv directly, avoids hash mismatches from multi-platform requirements.txt exports
+
 ## Version 1.12.5
 
 - ci: update base dockerfile version to 1.12.5
