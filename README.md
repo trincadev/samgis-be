@@ -12,15 +12,15 @@ license: mit
 
 I tested these instructions on macOS, but should work on linux as well.
 
-## Segment Anything models
+## SAM2 ONNX models
 
-It's possible to prepare the model files using <https://github.com/vietanhdev/samexporter/> or using the ones
-from <https://huggingface.co/aletrn/sam-quantized>. By default the project contains that submodule.
-If you want to use this (recommended) after the clone of this repository it's best to initialize the `sam-quantized` submodule:
+SAM2 ONNX weights are downloaded from [aletrn/sam2-onnx-weights](https://huggingface.co/aletrn/sam2-onnx-weights) via the download script:
 
 ```bash
-git submodule update --init --recursive
+uv run python scripts/download_models.py
 ```
+
+The default variant is `sam2.1_hiera_base_plus_uint8`. Override with `MODEL_VARIANT` env variable. Models are stored in `~/.samgis/models/<variant>/` and verified via SHA-256 checksums.
 
 ## SamGIS - Docker version
 

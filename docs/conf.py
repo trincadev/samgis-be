@@ -9,12 +9,12 @@ import tomllib
 import pathlib
 
 
-project = 'SamGIS'
+project = "SamGIS"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-toml_path = pathlib.Path(__file__).parent.parent / 'pyproject.toml'
+toml_path = pathlib.Path(__file__).parent.parent / "pyproject.toml"
 with open(toml_path, "rb") as f:
     toml = tomllib.load(f)
 
@@ -36,12 +36,12 @@ for author_element in authors_list:
 copyright = f"2023-now {author}"
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',
-    'sphinxcontrib.openapi',
-    'myst_parser',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
+    "sphinxcontrib.openapi",
+    "myst_parser",
     # 'sphinx_autodoc_defaultargs'
 ]
 
@@ -51,35 +51,37 @@ napoleon_google_docstring = True
 # sphinx_autodoc_typehints settings
 typehints_defaults = "comma"
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = [
-    '_build', 'Thumbs.db', '.DS_Store', 'build/*', 'machine_learning_models', 'machine_learning_models/*',
-    "sam-quantized/machine_learning_models", "sam-quantized/machine_learning_models/*"
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "build/*",
 ]
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "restructuredtext",
+    ".md": "markdown",
 }
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = "alabaster"
 html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
-        'donate.html',
+    "**": [
+        "about.html",
+        "navigation.html",
+        "relations.html",
+        "searchbox.html",
+        "donate.html",
     ]
 }
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_theme_options = {
     "description": "Segment Anything applied to geodata",
     "fixed_sidebar": True,
     "sidebar_collapse": False,
-    'globaltoc_collapse': False
+    "globaltoc_collapse": False,
 }

@@ -13,7 +13,7 @@ Read [CLAUDE.md](./CLAUDE.md) first for project context.
 - Read CLAUDE.md before making changes.
 - Backend uses FastAPI + samgis_core + samgis_web packages.
 - Frontend is Vue.js SPA in `static/` — see `static/CLAUDE.md`.
-- SAM models in `sam-quantized/` submodule must be initialized.
+- SAM2 ONNX models downloaded via `scripts/download_models.py` from HuggingFace.
 
 ### code-testing-planner
 - Tests in `tests/` using pytest with coverage.

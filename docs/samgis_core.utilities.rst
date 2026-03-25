@@ -4,14 +4,6 @@ samgis\_core.utilities package
 Submodules
 ----------
 
-samgis\_core.utilities.constants module
----------------------------------------
-
-.. automodule:: samgis_core.utilities.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 samgis\_core.utilities.create\_folders\_if\_not\_exists module
 --------------------------------------------------------------
 
@@ -32,6 +24,14 @@ samgis\_core.utilities.plot\_images module
 ------------------------------------------
 
 .. automodule:: samgis_core.utilities.plot_images
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+samgis\_core.utilities.request\_context module
+----------------------------------------------
+
+.. automodule:: samgis_core.utilities.request_context
    :members:
    :undoc-members:
    :show-inheritance:
