@@ -280,5 +280,6 @@ fabric.properties
 
 # node_modules
 node_modules
+.pnpm-store/
 .post-production-stamp
 soak-reports/
