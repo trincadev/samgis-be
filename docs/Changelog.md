@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.12.8
+
+- chore: bump version to 1.12.8
+- fix(deps): update frontend deps (vue 3.5.32, playwright 1.59.1, vitest 4.1.4, vite 8.0.8, eslint 10.2.0)
+- chore: add .pnpm-store/ to .gitignore
+- style: normalize pyproject.toml formatting (taplo)
+
 ## Version 1.12.7
 
 - ci: rebuild base Docker image with updated frontend deps
