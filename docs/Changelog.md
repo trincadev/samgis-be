@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.12.9
+
+- fix(deps): bump pillow 12.1.1 → 12.2.0 (Dependabot alert, regenerated requirements.txt from uv.lock)
+- chore: bump version to 1.12.9
+
 ## Version 1.12.8
 
 - chore: bump version to 1.12.8

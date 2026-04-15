@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/aletrn/gis-prediction:1.12.8
+FROM registry.gitlab.com/aletrn/gis-prediction:1.12.9
 
 ARG WORKDIR_ROOT="/var/task"
 ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
