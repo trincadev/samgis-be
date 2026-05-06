@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.12.10
+
+- fix(deps): drop pip-audit, replace with built-in `uv audit`; removes pip 26.0.1 (CVE-2026-3219) and 17 transitive packages
+- fix(deps): bump mistune 3.2.0 → 3.2.1 (CVE-2026-33079, ReDoS in Markdown parsing, docs group only)
+- chore(deps): cap pyright dev dep at <2.0.0 for consistency with other groups
+
 ## Version 1.12.9
 
 - fix(deps): bump pillow 12.1.1 → 12.2.0 (Dependabot alert, regenerated requirements.txt from uv.lock)
