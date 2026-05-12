@@ -283,3 +283,5 @@ node_modules
 .pnpm-store/
 .post-production-stamp
 soak-reports/
+
+.gitlab-ci-local/
