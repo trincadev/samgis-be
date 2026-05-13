@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.12.11
+
+- fix(deps): bump samgis-web 1.3.5 → 1.3.7, samgis-core 4.1.8 → 4.1.11, sam2-onnx 0.3.7 → 0.3.9
+- fix(deps): bump urllib3 2.6.3 → 2.7.0 (GHSA-mf9v, GHSA-qccp)
+- chore(deps): bump pyright 1.1.408 → 1.1.409, drop bson
+- fix(security): add explanatory comments for bandit B104 (0.0.0.0 binding) and B310 (localhost urlopen)
+
 ## Version 1.12.10
 
 - fix(deps): drop pip-audit, replace with built-in `uv audit`; removes pip 26.0.1 (CVE-2026-3219) and 17 transitive packages

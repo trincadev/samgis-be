@@ -52,7 +52,7 @@ COPY --chown=65532:65532 ./app.py ./scripts/client_health.py ${WORKDIR_ROOT}/
 RUN ["python3", "-c", "import rasterio; import onnxruntime; import fastapi; import uvicorn"]
 
 
-### Frontend build (unchanged)
+### Frontend build
 FROM node:24-alpine AS node_fastapi
 
 ENV PNPM_HOME="/pnpm"

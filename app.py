@@ -209,7 +209,9 @@ app.add_middleware(CorrelationIdMiddleware)
 
 if __name__ == "__main__":
     try:
-        uvicorn.run("app:app", host="0.0.0.0", port=7860)
+        uvicorn.run(
+            "app:app", host="0.0.0.0", port=7860
+        )  # intentional: container deployment requires binding all interfaces
     except Exception as ex:
         app_logger.error(f"fastapi application {fastapi_title}, exception:{ex}.")
         raise ex

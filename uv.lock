@@ -88,16 +88,6 @@ wheels = [
 ]
 
 [[package]]
-name = "bson"
-version = "0.5.10"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dateutil" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/53/7c534a38850f2252275d7f949aed2219095e90df1e2d180a9c8ed139e499/bson-0.5.10.tar.gz", hash = "sha256:d6511b2ab051139a9123c184de1a04227262173ad593429d21e443d6462d6590", size = 10363, upload-time = "2020-05-26T11:13:47.979Z" }
-
-[[package]]
 name = "certifi"
 version = "2026.2.25"
 source = { registry = "https://pypi.org/simple" }
@@ -1084,15 +1074,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.408"
+version = "1.1.409"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/74/b2/5db700e52554b8f025faa9c3c624c59f1f6c8841ba81ab97641b54322f16/pyright-1.1.408.tar.gz", hash = "sha256:f28f2321f96852fa50b5829ea492f6adb0e6954568d1caa3f3af3a5f555eb684", size = 4400578, upload-time = "2026-01-08T08:07:38.795Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/4e/3aa27f74211522dba7e9cbc3e74de779c6d4b654c54e50a4840623be8014/pyright-1.1.409.tar.gz", hash = "sha256:986ee05beca9e077c165758ad123667c679e050059a2546aa02473930394bc93", size = 4430434, upload-time = "2026-04-23T11:02:03.799Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/82/a2c93e32800940d9573fb28c346772a14778b84ba7524e691b324620ab89/pyright-1.1.408-py3-none-any.whl", hash = "sha256:090b32865f4fdb1e0e6cd82bf5618480d48eecd2eb2e70f960982a3d9a4c17c1", size = 6399144, upload-time = "2026-01-08T08:07:37.082Z" },
+    { url = "https://files.pythonhosted.org/packages/16/6b/330d8ebae582b30c2959a1ef4c3bc344ebde48c2ff0c3f113c4710735e11/pyright-1.1.409-py3-none-any.whl", hash = "sha256:aa3ea228cab90c845c7a60d28db7a844c04315356392aa09fafcee98c8c22fb3", size = 6438161, upload-time = "2026-04-23T11:02:01.309Z" },
 ]
 
 [[package]]
@@ -1301,21 +1291,21 @@ wheels = [
 
 [[package]]
 name = "sam2-onnx"
-version = "0.3.7"
+version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "onnxruntime" },
     { name = "pillow" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/92/42af7dfca52975a31c4861a2e1c3dac3bf4acc17d310c82e5158bf9c46f7/sam2_onnx-0.3.7.tar.gz", hash = "sha256:1a954812e04b78f12570e8def7f9bec1726067807968eb477cde131df0a61a14", size = 16547, upload-time = "2026-03-20T12:31:59.166Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/20/45/74424dc40316c1d8689f9ba460613a472be8162d8442a6178b61fa212497/sam2_onnx-0.3.9.tar.gz", hash = "sha256:1a81d1ee33f67b77e0864a6e6a91bc5b288b8125874392569196790860db6d10", size = 2754597, upload-time = "2026-05-12T13:01:21.971Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/03/ab4cb169ffeb7dedd32876c47a37b45161f386e4e05cf37b6bddc4538e94/sam2_onnx-0.3.7-py3-none-any.whl", hash = "sha256:d318f9c20e657925d4935d40c43e0819ffd874f23c0ca2ec83551ad4768e8d33", size = 20109, upload-time = "2026-03-20T12:31:58.087Z" },
+    { url = "https://files.pythonhosted.org/packages/72/33/d7ccf163ec03a4c74a26b37f3b1364ebfc7f58284cc9caae6edc785deb2f/sam2_onnx-0.3.9-py3-none-any.whl", hash = "sha256:28724adce4d14f9b6f3b592b45ccfe611923676738b2277a3083f7f1ace02f25", size = 20067, upload-time = "2026-05-12T13:01:20.64Z" },
 ]
 
 [[package]]
 name = "samgis"
-version = "1.12.9"
+version = "1.12.11"
 source = { virtual = "." }
 dependencies = [
     { name = "onnxruntime" },
@@ -1342,7 +1332,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "onnxruntime", specifier = ">=1.23.2,<2.0.0" },
-    { name = "samgis-web", specifier = "==1.3.5" },
+    { name = "samgis-web", specifier = "==1.3.7" },
 ]
 
 [package.metadata.requires-dev]
@@ -1362,24 +1352,23 @@ test = [
 
 [[package]]
 name = "samgis-core"
-version = "4.1.8"
+version = "4.1.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "bson" },
     { name = "numpy" },
     { name = "pillow" },
     { name = "python-dotenv" },
     { name = "sam2-onnx" },
     { name = "structlog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/98/d755a78117414d03230b29d70fbb149635be085e21a596b31dd8f96ab6b7/samgis_core-4.1.8.tar.gz", hash = "sha256:7350e7e4ed0c7ca3c17e152756bbb4d2e87043f845c739a4319185a9f917734c", size = 18618, upload-time = "2026-03-20T18:01:33.143Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/f9/d9e5a2cd8ce7dd0683d0287ba3886b65d6d97634ad34b1397e9fb39eb364/samgis_core-4.1.11.tar.gz", hash = "sha256:bbc1f993104eb0747a6cd4945f55abf156bf74bf9beeb19847c8a381076b894c", size = 16059531, upload-time = "2026-05-13T10:35:23.383Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/9d/e086771c9e6b2877bd4281565069f305216144282a10f4850244280f5aa7/samgis_core-4.1.8-py3-none-any.whl", hash = "sha256:7c69ba5706ed0845a92b458c21d4d612c7e1c0f52accad976f190049bbcac3de", size = 24708, upload-time = "2026-03-20T18:01:31.502Z" },
+    { url = "https://files.pythonhosted.org/packages/94/04/4e48e2e1f146dcd8d4c138443e6a6b316c886eccc32c0c9c6356d616e8c2/samgis_core-4.1.11-py3-none-any.whl", hash = "sha256:f0243f5ddb93b076eeb3f54e339e0f4abe5bc4eb779d5994cbc0045c38ed1ede", size = 24650, upload-time = "2026-05-13T10:35:22.007Z" },
 ]
 
 [[package]]
 name = "samgis-web"
-version = "1.3.5"
+version = "1.3.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgi-correlation-id" },
@@ -1394,9 +1383,9 @@ dependencies = [
     { name = "starlette" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/6e/e993ccbdbea936d7a41753180e32c809d8830e0eeb46a2584b2dca5e265e/samgis_web-1.3.5.tar.gz", hash = "sha256:22817e27b9d1ea749e76d3962a0c2f6aefc1a5b2f2b88eb763a4adf7b2b53658", size = 20395, upload-time = "2026-03-21T14:06:10.405Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/77/56dc41672a09936746db9c849966550528d909b944ff46a354e12869d690/samgis_web-1.3.7.tar.gz", hash = "sha256:53f49344c36f5488a013f909fbe9ef28bf6135d49e396d333de2d183a924ada4", size = 15068983, upload-time = "2026-05-13T16:59:31.047Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/bc/c4cb6c4730719be9cde5fae4b9cd19732fccb202bf7cb9e04d1159e91d4d/samgis_web-1.3.5-py3-none-any.whl", hash = "sha256:fbe95eb9be183d6e365fa69b6bb3dd7aeb2dc08a4f6291c8d84424d35f9bdc76", size = 25962, upload-time = "2026-03-21T14:06:09.308Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/c7/3cf540fc3f678a01dfe9056f3a4620a7a6c381985fe1a320459396151565/samgis_web-1.3.7-py3-none-any.whl", hash = "sha256:3815f3fe8c67c2f9aeec897050469dc31abefca25180cd7e93ff5a55d9435d4d", size = 25906, upload-time = "2026-05-13T16:59:29.693Z" },
 ]
 
 [[package]]
