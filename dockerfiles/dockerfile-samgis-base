@@ -31,7 +31,7 @@ RUN mkdir -p ${WORKDIR_ROOT} && chown 65532:65532 ${WORKDIR_ROOT}
 RUN apt update && apt install -y --no-install-recommends libexpat1 && apt clean && rm -rf /var/lib/apt/lists/*
 
 
-FROM dhi.io/python:3.13 AS runtime
+FROM dhi.io/python:3.13@sha256:a87c4bc7bbf75da7d5bb1816f2bdf7640c17eeb42d3ba84c5201827977da8de4 AS runtime
 
 ARG WORKDIR_ROOT
 
