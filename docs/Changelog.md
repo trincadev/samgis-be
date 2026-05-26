@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 1.12.13
+
+- fix(deps): patch frontend transitive CVEs via pnpm.overrides in static/package.json
+  - js-cookie >=3.0.7 (GHSA-qjx8-664m-686j, HIGH — cookie-attribute injection via @vue/test-utils)
+  - brace-expansion >=5.0.6 (GHSA-jxxr-4gwj-5jf2, MODERATE — DoS via @stryker-mutator/core)
+  - qs >=6.15.2 (GHSA-q8mj-m7cp-5q26, MODERATE — stringify crash via @stryker-mutator/core)
+
+## Version 1.12.12
+
+- fix(deps): bump samgis-web==1.3.8, samgis-core==4.1.12, sam2-onnx==0.3.10
+- fix(security): bump starlette 0.52.1 → 1.1.0 (PYSEC-2026-161 — BadHost path-auth bypass)
+- fix(security): bump idna 3.11 → 3.16 (GHSA-65pc-fj4g-8rjx — CVE-2024-3651 bypass)
+- fix(security): bump fastapi 0.129.2 → 0.136.1 (requires starlette 1.x, unblocks PYSEC-2026-161 fix)
+- chore(docker): bump base image to gis-prediction:1.12.12, pin dhi.io/python:3.13@sha256:a87c4bc7... in dockerfile-samgis-base
+- chore(docker): CVE triage — CVE-2026-6100 (C), CVE-2026-3298 (H), CVE-2026-4786 (H) in python:3.13.13 not exploitable: UAF requires decompressor reuse after MemoryError; Windows-only asyncio; webbrowser.open not called in server container
+
 ## Version 1.12.11
 
 - fix(deps): bump samgis-web 1.3.5 → 1.3.7, samgis-core 4.1.8 → 4.1.11, sam2-onnx 0.3.7 → 0.3.9
