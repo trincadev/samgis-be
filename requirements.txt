@@ -128,9 +128,9 @@ cycler==0.12.1 \
     --hash=sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30 \
     --hash=sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c
     # via matplotlib
-fastapi==0.129.2 \
-    --hash=sha256:e21d9f6e8db376655187905ad0145edd6f6a4e5f2bff241c4efb8a0bffd6a540 \
-    --hash=sha256:e2b3637a2b47856e704dbd9a3a09393f6df48e8b9cb6c7a3e26ba44d2053f9ab
+fastapi==0.136.3 \
+    --hash=sha256:3d2a69bdf04b7e9f3afa292c3bc7a98816bbfafa10bc9b45f3f3700d2f761620 \
+    --hash=sha256:e487fae93ad408e6f47641ee4dfe389864fd7bec92e547ea8498fc13f43e83ab
     # via samgis-web
 flatbuffers==25.12.19 \
     --hash=sha256:7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4
@@ -171,9 +171,9 @@ h11==0.16.0 \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
     # via uvicorn
-idna==3.11 \
-    --hash=sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea \
-    --hash=sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902
+idna==3.16 \
+    --hash=sha256:cc246e3a3f89580c3a951b5ad298ca4638078b2cdd4f115654332b5c26daded5 \
+    --hash=sha256:d7a6da03db833450fca25d2358ac9ff06cd624577a4aea3a596d5c0f77b8e03d
     # via
     #   anyio
     #   requests
@@ -588,17 +588,17 @@ requests==2.33.1 \
     # via
     #   contextily
     #   samgis-web
-sam2-onnx==0.3.9 \
-    --hash=sha256:1a81d1ee33f67b77e0864a6e6a91bc5b288b8125874392569196790860db6d10 \
-    --hash=sha256:28724adce4d14f9b6f3b592b45ccfe611923676738b2277a3083f7f1ace02f25
+sam2-onnx==0.3.10 \
+    --hash=sha256:4f51db721f3d3d42a55b1e7450191139a91e6d28485586c35e370f6865a31abe \
+    --hash=sha256:fe4a4263f5a9567983efba13219ded8c4a1fb4800eb80956add096457e0b53db
     # via samgis-core
-samgis-core==4.1.11 \
-    --hash=sha256:bbc1f993104eb0747a6cd4945f55abf156bf74bf9beeb19847c8a381076b894c \
-    --hash=sha256:f0243f5ddb93b076eeb3f54e339e0f4abe5bc4eb779d5994cbc0045c38ed1ede
+samgis-core==4.1.12 \
+    --hash=sha256:4b632e83d92060ca90e8e35bcf689822eacf57ee77a2322ba33d71330f394ee1 \
+    --hash=sha256:931826c3e313581d10c4e0e5f4feb2fc9ce212280fe3a906c6d5edc37e119b9d
     # via samgis-web
-samgis-web==1.3.7 \
-    --hash=sha256:3815f3fe8c67c2f9aeec897050469dc31abefca25180cd7e93ff5a55d9435d4d \
-    --hash=sha256:53f49344c36f5488a013f909fbe9ef28bf6135d49e396d333de2d183a924ada4
+samgis-web==1.3.8 \
+    --hash=sha256:8cdbad8c45b4af06ae195a89931f0a8331fa2af853623637b59a3b408224fa55 \
+    --hash=sha256:ea65ef2562eef09a4b2775466d70b78b947fb3faabfc2d5ab5b66411df0c0564
     # via samgis
 shapely==2.1.2 \
     --hash=sha256:01d0d304b25634d60bd7cf291828119ab55a3bab87dc4af1e44b07fb225f188b \
@@ -633,9 +633,9 @@ six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via python-dateutil
-starlette==0.52.1 \
-    --hash=sha256:0029d43eb3d273bc4f83a08720b4912ea4b071087a3b48db01b7c839f7954d74 \
-    --hash=sha256:834edd1b0a23167694292e94f597773bc3f89f362be6effee198165a35d62933
+starlette==1.1.0 \
+    --hash=sha256:7f0dfd38e428aad5cb6f9f667f0ca1d2d8ca3f3385dccac8305f79ec98458382 \
+    --hash=sha256:e83c7fe0ddecd8719c5b840080325aec0260acec86e9832899e377b91d65e90f
     # via
     #   asgi-correlation-id
     #   fastapi
