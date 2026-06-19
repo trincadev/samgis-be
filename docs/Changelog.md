@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.12.15
+
+- fix(security): bump starlette 1.1.0 → 1.3.1 via uv constraint-dependencies
+  - GHSA-82w8-qh3p-5jfq: form() limits silently ignored for application/x-www-form-urlencoded (DoS)
+  - GHSA-jp82-jpqv-5vv3: unvalidated request path concatenated into authority poisons request.url.hostname
+- chore(deps): replace httpx with httpx2 in test group; update import in test_client_health.py
+- chore(docker): bump base image to gis-prediction:1.12.15
+
 ## Version 1.12.14
 
 - fix(deps): bump samgis-web==1.3.9, sam2-onnx==0.3.11, samgis-core==4.1.13

@@ -185,7 +185,7 @@ uv export --frozen --no-dev --no-emit-project --output-file requirements.txt
 ### Dependency Groups
 
 - Default: Core dependencies (onnxruntime, samgis-web)
-- `test`: pytest, pytest-cov, httpx, python-dotenv
+- `test`: pytest, pytest-cov, httpx2, python-dotenv
 - `dev`: pyright
 - `docs`: sphinx, sphinx-autodoc-typehints
 

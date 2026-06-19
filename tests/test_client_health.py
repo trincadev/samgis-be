@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from http import client
-from httpx import HTTPError, Response
+from httpx2 import HTTPError, Response
 from samgis_web.utilities.local_tiles_http_server import LocalTilesHttpServer
 
 from scripts import client_health
