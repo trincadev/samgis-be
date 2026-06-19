@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.12.16
+
+- fix(deps): update frontend dev deps within ranges (vite 8.0.8 → 8.0.16, vue 3.5.32 → 3.5.38, @playwright/test 1.61.0, tailwindcss/@tailwindcss/cli 4.3.1, typescript-eslint 8.61.1, eslint 10.5.0, vitest/@vitest 4.1.9, jsdom 29.1.1, prettier 3.8.4, others)
+  - resolves vite@8.0.8 CVE flagged by socket.dev (no longer reported on 8.0.16)
+- fix(build): scope ajv override so eslint resolves ajv ^6.14.0 (`"eslint>ajv": "^6.14.0"` in static/package.json)
+  - global `ajv>=8.18.0` override forced eslint→ajv 8, which lacks `refs/json-schema-draft-04.json` and broke eslint entirely; @stryker-mutator/core still uses ajv 8 natively. eslint validates only trusted local config schemas, so ajv 6 here adds no runtime attack surface
+- chore(docker): bump base image to gis-prediction:1.12.16 (frontend deps are built into the base image)
+
 ## Version 1.12.15
 
 - fix(security): bump starlette 1.1.0 → 1.3.1 via uv constraint-dependencies

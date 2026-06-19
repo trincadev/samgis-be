@@ -1309,7 +1309,7 @@ wheels = [
 
 [[package]]
 name = "samgis"
-version = "1.12.15"
+version = "1.12.16"
 source = { virtual = "." }
 dependencies = [
     { name = "onnxruntime" },
