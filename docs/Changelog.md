@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.12.17 (unreleased)
+
+- fix(security): add esbuild override `^0.28.1` (GHSA-g7r4-m6w7-qqqr, low — dev-server CORS; affects esbuild >=0.27.3,<0.28.1)
+  - esbuild is an optional vite peer; the rolldown-based vite 8 build doesn't pull it, so it resolves to absent (no vulnerable version shipped). The override enforces ≥0.28.1 should any dep ever pull esbuild back in. Build + 177 frontend tests pass with esbuild absent
+
 ## Version 1.12.16
 
 - fix(deps): update frontend dev deps within ranges (vite 8.0.8 → 8.0.16, vue 3.5.32 → 3.5.38, @playwright/test 1.61.0, tailwindcss/@tailwindcss/cli 4.3.1, typescript-eslint 8.61.1, eslint 10.5.0, vitest/@vitest 4.1.9, jsdom 29.1.1, prettier 3.8.4, others)
