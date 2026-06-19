@@ -49,13 +49,6 @@
     "vitest": "^4.1.9"
   },
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "esbuild",
-      "snyk"
-    ],
-    "onlyBuiltDependencies": [
-      "snyk"
-    ],
     "overrides": {
       "minimatch": ">=10.2.3",
       "rollup": ">=4.59.0",

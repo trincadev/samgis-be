@@ -4,6 +4,8 @@
 
 - fix(security): add esbuild override `^0.28.1` (GHSA-g7r4-m6w7-qqqr, low — dev-server CORS; affects esbuild >=0.27.3,<0.28.1)
   - esbuild is an optional vite peer; the rolldown-based vite 8 build doesn't pull it, so it resolves to absent (no vulnerable version shipped). The override enforces ≥0.28.1 should any dep ever pull esbuild back in. Build + 177 frontend tests pass with esbuild absent
+- chore(security): add `static/.npmrc` with `ignore-scripts=true` (no dependency lifecycle scripts on install — matches pnpm 11's future default-deny). Explicit `pnpm run build/test/lint` unaffected. Verified: frozen install + build + 177 tests pass
+- chore(deps): drop stale pnpm `onlyBuiltDependencies`/`ignoredBuiltDependencies` (snyk, esbuild) — neither is in the dependency tree (snyk CLI is installed standalone, not as a project dep), and `ignore-scripts=true` makes the allowlist moot. Lockfile unchanged
 
 ## Version 1.12.16
 
