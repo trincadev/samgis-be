@@ -588,17 +588,17 @@ requests==2.33.1 \
     # via
     #   contextily
     #   samgis-web
-sam2-onnx==0.3.10 \
-    --hash=sha256:4f51db721f3d3d42a55b1e7450191139a91e6d28485586c35e370f6865a31abe \
-    --hash=sha256:fe4a4263f5a9567983efba13219ded8c4a1fb4800eb80956add096457e0b53db
+sam2-onnx==0.3.11 \
+    --hash=sha256:18324f56e8ccaa8d6fa3e62e362366ef60d25a3391ec4778f0ac527d41415061 \
+    --hash=sha256:3ef0f4b45620b351d842d1cb371e295781720ed2a2776bbc1ef351cdefbed1e7
     # via samgis-core
-samgis-core==4.1.12 \
-    --hash=sha256:4b632e83d92060ca90e8e35bcf689822eacf57ee77a2322ba33d71330f394ee1 \
-    --hash=sha256:931826c3e313581d10c4e0e5f4feb2fc9ce212280fe3a906c6d5edc37e119b9d
+samgis-core==4.1.13 \
+    --hash=sha256:2466ccba0486bc26c07c0084b099e2c5313709ea9348d5e977db28199a5c691e \
+    --hash=sha256:d3c7c7fd68b2ff751e91ca9b2b8109b043b752bb838344389690382f468cb42e
     # via samgis-web
-samgis-web==1.3.8 \
-    --hash=sha256:8cdbad8c45b4af06ae195a89931f0a8331fa2af853623637b59a3b408224fa55 \
-    --hash=sha256:ea65ef2562eef09a4b2775466d70b78b947fb3faabfc2d5ab5b66411df0c0564
+samgis-web==1.3.9 \
+    --hash=sha256:7e5bc3995a7648c7101b1273209ed047e25b7cacc743a53274e4bd8cea6f6ba6 \
+    --hash=sha256:a7881550d890e217190b7950ffa0a0c2b481cb13fc654d1a3adb8d483e7f437c
     # via samgis
 shapely==2.1.2 \
     --hash=sha256:01d0d304b25634d60bd7cf291828119ab55a3bab87dc4af1e44b07fb225f188b \

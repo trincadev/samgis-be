@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(supply-chain)",
+      "Skill(code-analyst)",
+      "Skill(post-production)",
+      "Skill(insecure-defaults)",
+      "Skill(security-review)",
+      "Skill(soak)"
+    ]
+  }
+}
