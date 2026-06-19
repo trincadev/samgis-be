@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.12.14
+
+- fix(deps): bump samgis-web==1.3.9, sam2-onnx==0.3.11, samgis-core==4.1.13
+- chore(docker): bump base image to gis-prediction:1.12.14
+
 ## Version 1.12.13
 
 - fix(deps): patch frontend transitive CVEs via pnpm.overrides in static/package.json
