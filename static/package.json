@@ -56,12 +56,12 @@
       "eslint>ajv": "^6.14.0",
       "esbuild": "^0.28.1",
       "flatted": ">=3.4.2",
-      "fast-uri": ">=3.1.2",
-      "postcss": ">=8.5.10",
+      "fast-uri": ">=4.1.1",
+      "postcss": ">=8.5.18",
       "js-cookie": ">=3.0.7",
-      "brace-expansion": ">=5.0.6",
+      "brace-expansion": ">=5.0.8",
       "qs": ">=6.15.2"
     }
   },
-  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
+  "packageManager": "pnpm@10.34.5+sha512.a4ee05f2f73658255bd6a89859c065a45c28a57daefae2c893a168ee2b73168c37b91e83e57ea67654ad03f03031746430e8bce38e362e042605fb8abc80192e"
 }
