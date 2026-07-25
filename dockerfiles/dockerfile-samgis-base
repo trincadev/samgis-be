@@ -3,24 +3,32 @@ ARG WORKDIR_ROOT="/var/task"
 ARG FASTAPI_STATIC="${WORKDIR_ROOT}/static"
 
 
-FROM dhi.io/python:3.13-dev AS builder_global
+# Pinned to the exact same digest as the `runtime` stage below (dhi.io/python:3.13, hardened,
+# no shell/pkg manager). Must stay in sync: a venv built here is copied into `runtime` as-is,
+# and only works if both stages share the identical Python install location (/opt/python) —
+# the dhi.io/python:3.13-dev variant installs Python at /usr instead, which breaks the copy
+# (silently falls back to the runtime's own bare interpreter, missing every installed package).
+FROM dhi.io/python:3.13@sha256:a87c4bc7bbf75da7d5bb1816f2bdf7640c17eeb42d3ba84c5201827977da8de4 AS builder_global
 
 ARG WORKDIR_ROOT
 ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
 ENV MODEL_VARIANT=${MODEL_VARIANT}
 
-# Set working directory to function root directory
-RUN mkdir -p ${WORKDIR_ROOT}
+# WORKDIR creates the directory itself — no shell needed (this image has none)
 WORKDIR ${WORKDIR_ROOT}
 COPY requirements.txt ${WORKDIR_ROOT}/
 
-# Install project dependencies into a venv
-RUN python -m venv ${WORKDIR_ROOT}/.venv \
-    && ${WORKDIR_ROOT}/.venv/bin/pip install --require-hashes -r ${WORKDIR_ROOT}/requirements.txt
+# Install project dependencies into a venv (split into exec-form RUNs — no shell available
+# for `&&` chaining)
+# Paths below are relative to WORKDIR (set above) rather than using ${WORKDIR_ROOT} directly —
+# exec-form RUN has no shell to perform ARG/ENV text expansion, so literal-looking ${VAR}
+# substitution inside a JSON array is not guaranteed the way it is for shell-form RUN.
+RUN ["python3", "-m", "venv", ".venv"]
+RUN [".venv/bin/pip", "install", "--require-hashes", "-r", "requirements.txt"]
 
 # Download model weights during build (builder has network access)
 COPY scripts/download_models.py ${WORKDIR_ROOT}/scripts/download_models.py
-RUN ${WORKDIR_ROOT}/.venv/bin/python3 ${WORKDIR_ROOT}/scripts/download_models.py
+RUN [".venv/bin/python3", "scripts/download_models.py"]
 
 
 FROM dhi.io/python:3.13-dev AS dir_creator
@@ -90,8 +98,11 @@ ARG MODEL_VARIANT="sam2.1_hiera_base_plus_uint8"
 ENV MODEL_VARIANT=${MODEL_VARIANT} \
     MODEL_FOLDER="${WORKDIR_ROOT}/.samgis/models/${MODEL_VARIANT}"
 
-# Copy downloaded model weights from builder (builder runs as root → /root/.samgis/)
-COPY --from=builder_global --chown=65532:65532 /root/.samgis/models/${MODEL_VARIANT} ${WORKDIR_ROOT}/.samgis/models/${MODEL_VARIANT}
+# Copy downloaded model weights from builder. builder_global now runs as the hardened image's
+# default `nonroot` user (uid 65532, HOME=/home/nonroot) rather than root, so download_models.py's
+# `~/.samgis/...` expansion resolves to /home/nonroot/.samgis/ (confirmed via build log — samgis_core's
+# download_model() does not honor the MODEL_FOLDER env var, only app.py's runtime loading path does).
+COPY --from=builder_global --chown=65532:65532 /home/nonroot/.samgis/models/${MODEL_VARIANT} ${WORKDIR_ROOT}/.samgis/models/${MODEL_VARIANT}
 COPY --chown=65532:65532 --from=node_prod_deps /appnode/node_modules* ${FASTAPI_STATIC}/node_modules
 COPY --chown=65532:65532 --from=node_build /appnode/dist* ${FASTAPI_STATIC}/dist
 COPY --chown=65532:65532 static/list_files.html ${FASTAPI_STATIC}/
