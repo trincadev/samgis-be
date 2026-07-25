@@ -8,6 +8,8 @@ pinned: true
 license: mit
 ---
 
+⚠️ Archived / unmaintained. This project is part of the samgis-* line, which I'm no longer actively maintaining. Maintaining it has been unpaid work, and without real user feedback to justify the continued time investment, I'm redirecting my effort toward projects with a sustainable return. The code stays available as-is (MIT) — issues and PRs may go unreviewed. Forks are welcome.
+
 # About this README
 
 I tested these instructions on macOS, but should work on linux as well.

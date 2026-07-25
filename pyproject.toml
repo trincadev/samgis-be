@@ -1,7 +1,7 @@
 [project]
 name = "samgis"
-version = "1.12.16"
-description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards."
+version = "1.12.17"
+description = "A backend for machine learning instance segmentation on geospatial data even without dedicated graphics cards. (ARCHIVED - no longer maintained)"
 authors = [
   { name = "alessandro trinca tornidor", email = "alessandro@trinca.tornidor.com" },
 ]
